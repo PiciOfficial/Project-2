@@ -23,7 +23,7 @@ A formátum: minden kiadás egy új bejegyzés, legújabb felül. Verziózás: M
 - Demó adat minden modulban (fiktív, jelölt, csak a demó törölhető).
 - Rendszerállapot: modulonként a mentett napok száma és az utolsó mentés ideje.
 - Új jogosultságok a táblázatban: `entry.copy`, `tasks.check`, `tasks.skip`, `tasks.history`, `tasks.edit`.
-- Tesztek: 104 (86 beépített + 18 böngészős), mind sikeres.
+- Tesztek: 103 (86 beépített + 17 böngészős; `--shots` kapcsolóval 104), mind sikeres.
 
 ### Változott
 - Üres hely számolás: csak a „Másolás üzenetként” gomb került be (a Mentés mellé). A tárolt adat,

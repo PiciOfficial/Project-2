@@ -173,7 +173,7 @@ Két egyszerű mód:
    folyamatokat (újratöltés utáni megmaradás, mentés, export, hibás import, demó adat, ikonok).
    `--shots <mappa>` kapcsolóval képernyőképeket is készít (világos/sötét, telefon).
 
-Az utolsó futtatás: **104 teszt, mind sikeres** (86 beépített + 18 böngészős ellenőrzés).
+Az utolsó futtatás: **103 teszt, mind sikeres** (86 beépített + 17 böngészős ellenőrzés; `--shots` kapcsolóval +1 telefonos szélességi ellenőrzés, összesen 104).
 
 Lefedett területek (0.1.0): összegszámítás (üres, egy, több sor); érvénytelen bevitel (negatív, tört,
 szöveg, üres); mentés, felülírás, előző napok; eltérésjelzés küszöb alatt/-on/fölött;
