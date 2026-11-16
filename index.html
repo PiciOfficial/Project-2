@@ -1,0 +1,1993 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<!--ARTIFACT:BEGIN-->
+<title>Munkaeszköz HUB</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: sticky tool header, one centred column (max 1040px); hub = tile grid, module = stacked work cards. */
+:root {
+  --bg: #f2f5f8;
+  --surface: #ffffff;
+  --surface-2: #eaeff4;
+  --fg: #15202b;
+  --muted: #54626f;
+  --border: #d5dde5;
+  --primary: #1857a8;
+  --primary-fg: #ffffff;
+  --focus: #1857a8;
+  --warn: #9a4a00;
+  --warn-bg: #fff2df;
+  --danger: #b42318;
+  --danger-bg: #fdecea;
+  --ok: #17703f;
+  --acc-space: #0d6a86;
+  --acc-pull: #6940c4;
+  --acc-freight: #985000;
+  --mode-user: #54626f;
+  --mode-admin: #985000;
+  --mode-dev: #6940c4;
+  --shadow: 0 1px 2px rgba(21, 32, 43, .06), 0 4px 14px rgba(21, 32, 43, .06);
+  --shadow-lift: 0 2px 4px rgba(21, 32, 43, .08), 0 12px 28px rgba(21, 32, 43, .12);
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-num: ui-rounded, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --tap: 48px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1319; --surface: #171f28; --surface-2: #202a35; --fg: #e7edf3; --muted: #9eabb8;
+    --border: #2c3946; --primary: #6fa8f2; --primary-fg: #08121e; --focus: #8fbcf6;
+    --warn: #f5b04c; --warn-bg: #352512; --danger: #ff8a7f; --danger-bg: #3a1a17; --ok: #62d394;
+    --acc-space: #5cc8e6; --acc-pull: #b9a2ff; --acc-freight: #f2ab4f;
+    --mode-user: #9eabb8; --mode-admin: #f2ab4f; --mode-dev: #b9a2ff;
+    --shadow: 0 1px 2px rgba(0,0,0,.4); --shadow-lift: 0 10px 28px rgba(0,0,0,.5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1319; --surface: #171f28; --surface-2: #202a35; --fg: #e7edf3; --muted: #9eabb8;
+  --border: #2c3946; --primary: #6fa8f2; --primary-fg: #08121e; --focus: #8fbcf6;
+  --warn: #f5b04c; --warn-bg: #352512; --danger: #ff8a7f; --danger-bg: #3a1a17; --ok: #62d394;
+  --acc-space: #5cc8e6; --acc-pull: #b9a2ff; --acc-freight: #f2ab4f;
+  --mode-user: #9eabb8; --mode-admin: #f2ab4f; --mode-dev: #b9a2ff;
+  --shadow: 0 1px 2px rgba(0,0,0,.4); --shadow-lift: 0 10px 28px rgba(0,0,0,.5);
+  color-scheme: dark;
+}
+:root[data-theme="light"] { color-scheme: light; }
+
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--fg); }
+body { font-family: var(--font-ui); font-size: 16px; line-height: 1.5; margin: 0; -webkit-text-size-adjust: 100%; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); }
+button, input, select, textarea { font: inherit; color: inherit; }
+a.brand, a.tile, a.btn { color: inherit; text-decoration: none; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+h1, h2, h3 { text-wrap: balance; line-height: 1.2; margin: 0; }
+p { margin: 0; }
+
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* Header */
+.app-header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--surface); border-bottom: 1px solid var(--border); }
+.app-header .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding-block: 8px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.05rem; margin-right: auto; min-width: 0; background: none; border: 0; padding: 4px 0; cursor: pointer; }
+.brand svg { width: 30px; height: 30px; color: var(--primary); flex: none; }
+.brand span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hdr-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; padding: 3px; background: var(--surface-2); }
+.seg button { min-width: 44px; min-height: 40px; border: 0; background: transparent; border-radius: 999px; padding: 0 10px; cursor: pointer; font-weight: 600; font-size: .85rem; color: var(--muted); display: inline-flex; align-items: center; justify-content: center; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: var(--shadow); }
+.seg button svg { width: 20px; height: 20px; }
+.icon-btn { position: relative; width: var(--tap); height: var(--tap); border-radius: 999px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex: none; }
+.icon-btn svg { width: 24px; height: 24px; }
+.icon-btn:hover { background: var(--surface-2); }
+.badge { position: absolute; top: 2px; right: 2px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: var(--danger); color: var(--surface); font-size: .72rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+.mode-pick { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); border-radius: 999px; padding: 0 6px 0 12px; min-height: 46px; background: var(--surface-2); }
+.mode-pick .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--mode-color, var(--mode-user)); flex: none; }
+.mode-pick select { border: 0; background: transparent; font-weight: 600; min-height: 40px; padding-right: 4px; cursor: pointer; }
+.mode-user { --mode-color: var(--mode-user); }
+.mode-admin { --mode-color: var(--mode-admin); }
+.mode-dev { --mode-color: var(--mode-dev); }
+.mode-pick .lbl { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+
+/* Main */
+main { padding-block: 20px 32px; }
+.view-head { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 18px; }
+.view-head h1 { font-size: clamp(1.4rem, 1.1rem + 1.2vw, 1.9rem); }
+.view-head .sub { color: var(--muted); flex-basis: 100%; }
+.storage-warn { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 16px; font-weight: 600; }
+
+/* Hub tiles */
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 16px; }
+.tile { --acc: var(--primary); position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; text-align: left; padding: 22px; min-height: 220px; border-radius: var(--radius); background: var(--surface); border: 2px solid color-mix(in srgb, var(--acc) 55%, var(--border)); box-shadow: var(--shadow); cursor: pointer; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+.tile .tile-icon { width: 84px; height: 84px; border-radius: 18px; display: grid; place-items: center; background: color-mix(in srgb, var(--acc) 12%, var(--surface)); color: var(--acc); }
+.tile .tile-icon svg { width: 64px; height: 64px; }
+.tile h2 { font-size: 1.25rem; }
+.tile p { color: var(--muted); }
+.tile .chip { margin-top: auto; }
+.tile.ready:hover, .tile.ready:focus-visible { transform: translateY(-3px); box-shadow: var(--shadow-lift); border-color: var(--acc); }
+.tile.ready:active { transform: translateY(-1px); }
+.tile.soon { cursor: default; box-shadow: none; border-style: dashed; background: color-mix(in srgb, var(--surface) 70%, var(--bg)); }
+.tile.soon h2, .tile.soon p { opacity: .7; }
+.tile.soon .tile-icon { opacity: .8; }
+.acc-space { --acc: var(--acc-space); }
+.acc-pull { --acc: var(--acc-pull); }
+.acc-freight { --acc: var(--acc-freight); }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: var(--surface-2); color: var(--muted); }
+.chip.go { background: color-mix(in srgb, var(--acc) 14%, var(--surface)); color: var(--acc); }
+.chip.demo { background: color-mix(in srgb, var(--acc-pull) 16%, var(--surface)); color: var(--acc-pull); }
+
+/* Buttons */
+.btn { min-height: var(--tap); padding: 0 18px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn:hover { background: var(--surface-2); }
+.btn svg { width: 20px; height: 20px; }
+.btn.primary { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 50%, var(--border)); }
+.btn.danger.solid { background: var(--danger); color: var(--surface); border-color: var(--danger); }
+.btn.big { min-height: 56px; font-size: 1.1rem; padding: 0 26px; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* Cards & module layout */
+.module-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 820px) { .module-grid { grid-template-columns: minmax(0, 1fr); } }
+.col { display: grid; gap: 16px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; min-width: 0; }
+.card h2 { font-size: 1.1rem; margin-bottom: 12px; }
+.card .hint { color: var(--muted); font-size: .9rem; }
+.card.role-admin { border-top: 4px solid var(--mode-admin); }
+.card.role-dev { border-top: 4px solid var(--mode-dev); }
+.card-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.card-title-row h2 { margin: 0; }
+
+.display { border-radius: 12px; background: var(--fg); color: var(--bg); padding: 14px 18px; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; margin-bottom: 16px; }
+.display .d-label { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; opacity: .8; align-self: flex-start; }
+.display .d-value { font-family: var(--font-num); font-size: clamp(2.8rem, 2rem + 4vw, 4rem); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.display .d-note { font-size: .85rem; min-height: 1.3em; opacity: .85; }
+
+.field { display: grid; gap: 6px; }
+.field label { font-weight: 600; }
+.date-row { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin-bottom: 14px; }
+input[type="date"], input[type="text"], input[type="number"], textarea, select.plain { min-height: var(--tap); padding: 0 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+textarea { padding: 10px 12px; width: 100%; min-height: 120px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .85rem; }
+
+.rows { display: grid; gap: 10px; margin-bottom: 16px; }
+.row-item { display: grid; grid-template-columns: minmax(0, 1fr) 140px; align-items: center; gap: 4px 12px; padding: 8px 10px; border-radius: 12px; border: 1px solid transparent; }
+.row-item label { font-weight: 600; font-size: 1.05rem; min-width: 0; overflow-wrap: anywhere; }
+.row-item input { width: 100%; min-height: 54px; font-size: 1.5rem; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; border: 2px solid var(--border); border-radius: 12px; padding: 0 14px; background: var(--surface); }
+.row-item .msg { grid-column: 1 / -1; font-size: .9rem; font-weight: 600; min-height: 0; }
+.row-item.dev-flag { background: var(--warn-bg); border-color: color-mix(in srgb, var(--warn) 45%, transparent); }
+.row-item.dev-flag input { border-color: var(--warn); color: var(--warn); }
+.row-item.dev-flag .msg { color: var(--warn); }
+.row-item.invalid input { border-color: var(--danger); }
+.row-item.invalid .msg { color: var(--danger); }
+
+.history { display: grid; gap: 6px; max-height: 420px; overflow-y: auto; }
+.hist-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: var(--tap); padding: 6px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); cursor: pointer; text-align: left; width: 100%; }
+.hist-item:hover { background: var(--surface-2); }
+.hist-item .h-date { font-weight: 600; font-variant-numeric: tabular-nums; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.hist-item .h-total { font-weight: 700; font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+.empty { color: var(--muted); padding: 18px; text-align: center; border: 1px dashed var(--border); border-radius: 12px; }
+
+.manage-list { display: grid; gap: 8px; margin-bottom: 12px; }
+.manage-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.manage-row input { flex: 1 1 140px; min-width: 0; }
+.inline-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; }
+.inline-form input { flex: 1 1 140px; min-width: 0; }
+.sep { border: 0; border-top: 1px solid var(--border); margin: 16px 0; }
+
+table.kv { width: 100%; border-collapse: collapse; }
+table.kv th, table.kv td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--border); vertical-align: top; }
+table.kv th { color: var(--muted); font-weight: 600; width: 45%; }
+table.kv td { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.tbl-scroll { overflow-x: auto; }
+
+.test-list { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 4px; }
+.test-list li { display: flex; gap: 8px; align-items: baseline; font-size: .92rem; }
+.test-list .pass { color: var(--ok); font-weight: 700; }
+.test-list .fail { color: var(--danger); font-weight: 700; }
+.test-summary { font-weight: 700; margin-top: 12px; }
+
+/* Modal */
+.modal-back { position: fixed; inset: 0; z-index: 50; background: rgba(8, 14, 20, .55); display: flex; align-items: flex-end; justify-content: center; padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom, 0px)); }
+@media (min-width: 640px) { .modal-back { align-items: center; } }
+.modal { width: min(560px, 100%); max-height: min(86vh, 760px); overflow-y: auto; background: var(--surface); border-radius: 18px; border: 1px solid var(--border); box-shadow: var(--shadow-lift); padding: 20px; display: grid; gap: 14px; }
+.modal h2 { font-size: 1.2rem; }
+.modal .m-body { display: grid; gap: 10px; }
+.modal .m-body ul { margin: 0; padding-left: 20px; }
+.modal .m-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.notice-warn { background: var(--warn-bg); color: var(--warn); border-radius: 10px; padding: 10px 12px; font-weight: 600; }
+.notice-err { background: var(--danger-bg); color: var(--danger); border-radius: 10px; padding: 10px 12px; font-weight: 600; }
+.notif-item { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; display: grid; gap: 2px; }
+.notif-item.unread { border-left: 4px solid var(--primary); }
+.notif-item time { color: var(--muted); font-size: .8rem; }
+
+.toast-zone { position: fixed; left: 50%; bottom: max(18px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60; display: grid; gap: 8px; width: min(440px, calc(100% - 32px)); pointer-events: none; }
+.toast { background: var(--fg); color: var(--bg); border-radius: 12px; padding: 12px 16px; font-weight: 600; box-shadow: var(--shadow-lift); }
+.toast.err { background: var(--danger); color: var(--surface); }
+
+footer.app-footer { border-top: 1px solid var(--border); color: var(--muted); font-size: .85rem; }
+footer.app-footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding-block: 14px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .tile { transition: none; } .tile.ready:hover, .tile.ready:focus-visible { transform: none; } }
+</style>
+
+<header class="app-header" id="app-header"></header>
+<main id="app-main" class="wrap" tabindex="-1"></main>
+<footer class="app-footer" id="app-footer"></footer>
+<div class="toast-zone" id="toast-zone" aria-live="polite"></div>
+<div id="modal-root"></div>
+
+<script>
+(function () {
+'use strict';
+
+/* =====================================================================
+ * 1. ALAPBEÁLLÍTÁSOK
+ * ===================================================================== */
+const VERSION = '0.1.0';
+const APP_ID = 'munkaeszkoz-hub';
+const STORAGE_PREFIX = 'mhub.v1.';
+const LANGS = ['en', 'hu', 'uk'];
+const THEMES = ['system', 'light', 'dark'];
+const MODES = ['user', 'admin', 'dev'];
+const DEFAULT_PREFS = { lang: 'en', theme: 'system', mode: 'user' };
+
+/* =====================================================================
+ * 2. JOGOSULTSÁGI TÁBLÁZAT (módok × funkciók) – itt módosítható.
+ *    FIGYELEM: ez nem biztonsági funkció, bárki átválthat módot.
+ * ===================================================================== */
+const PERMISSIONS = {
+  //                 Felhasználó  Admin        Fejlesztő
+  'entry.edit':     { user: true,  admin: true,  dev: true },  // számok bevitele
+  'entry.save':     { user: true,  admin: true,  dev: true },  // nap mentése
+  'history.view':   { user: true,  admin: true,  dev: true },  // előző napok
+  'data.export':    { user: true,  admin: true,  dev: true },  // mentés fájlba
+  'data.import':    { user: false, admin: true,  dev: true },  // betöltés fájlból
+  'rows.manage':    { user: false, admin: true,  dev: true },  // sorok kezelése
+  'threshold.edit': { user: false, admin: true,  dev: true },  // eltérésküszöb
+  'data.clearAll':  { user: false, admin: true,  dev: true },  // mentett adatok törlése
+  'demo.generate':  { user: false, admin: false, dev: true },  // demó adat generálása
+  'demo.clear':     { user: false, admin: false, dev: true },  // demó adat törlése
+  'system.view':    { user: false, admin: false, dev: true },  // rendszerállapot oldal
+  'tests.run':      { user: false, admin: false, dev: true }   // tesztek futtatása
+};
+function can(mode, feature) {
+  const rule = PERMISSIONS[feature];
+  return !!(rule && rule[mode]);
+}
+
+/* =====================================================================
+ * 3. IKONOK – beágyazott SVG-k, egy helyen. Új modulhoz: új kulcs ide.
+ *    Egységes stílus: viewBox 64×64, 3px vonal, currentColor.
+ * ===================================================================== */
+const ICON_ATTRS = 'viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"';
+const UI_ATTRS = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"';
+const ICONS = {
+  // Raklapos állvány, jobb alsó helyen szaggatott vonalú üres hely
+  rackEmptySlot: '<svg ' + ICON_ATTRS + '>' +
+    '<path d="M8 6v52M56 6v52M8 31h48M8 56h48"/>' +
+    '<rect x="12" y="11" width="18" height="15" rx="1.5"/><path d="M21 11v6"/>' +
+    '<rect x="34" y="11" width="18" height="15" rx="1.5"/><path d="M43 11v6"/>' +
+    '<rect x="12" y="36" width="18" height="15" rx="1.5"/><path d="M21 36v6"/>' +
+    '<rect x="34" y="36" width="18" height="15" rx="1.5" stroke-dasharray="4 4"/>' +
+    '</svg>',
+  // Írótábla pipálható listával és kis nyomtatóval
+  clipboardPrinter: '<svg ' + ICON_ATTRS + '>' +
+    '<rect x="6" y="10" width="30" height="48" rx="3"/>' +
+    '<rect x="14" y="6" width="14" height="8" rx="2"/>' +
+    '<path d="M11 24l2.5 2.5L18 22M22 25h9"/>' +
+    '<path d="M11 35l2.5 2.5L18 33M22 36h9"/>' +
+    '<rect x="11" y="44" width="6" height="6" rx="1"/><path d="M22 47h9"/>' +
+    '<path d="M45 36v-6h10v6"/>' +
+    '<rect x="40" y="36" width="20" height="13" rx="2.5"/>' +
+    '<path d="M45 45h10v11H45z"/><path d="M48 50h4"/>' +
+    '</svg>',
+  // Teherautó árcímkével
+  truckPriceTag: '<svg ' + ICON_ATTRS + '>' +
+    '<path d="M4 18h34v26H4z"/>' +
+    '<path d="M38 26h10l8 9v9H38"/><path d="M42 30h5l4 5h-9z"/>' +
+    '<circle cx="15" cy="48" r="5"/><circle cx="46" cy="48" r="5"/>' +
+    '<path d="M20 44h21M4 44h6"/>' +
+    '<path d="M11 31l5-6h12v12H16z"/><circle cx="16.5" cy="31" r="1.5"/>' +
+    '</svg>',
+  // Kezelőfelület ikonjai
+  logo: '<svg ' + UI_ATTRS + '><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2" stroke-dasharray="2.5 2.5"/></svg>',
+  bell: '<svg ' + UI_ATTRS + '><path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9z"/><path d="M10 20a2.2 2.2 0 0 0 4 0"/></svg>',
+  guide: '<svg ' + UI_ATTRS + '><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 0 1 4.8 1c0 1.8-2.4 2.2-2.4 3.8"/><path d="M12 17.2h.01"/></svg>',
+  back: '<svg ' + UI_ATTRS + '><path d="M15 6l-6 6 6 6"/></svg>',
+  sun: '<svg ' + UI_ATTRS + '><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  moon: '<svg ' + UI_ATTRS + '><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
+  system: '<svg ' + UI_ATTRS + '><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
+  save: '<svg ' + UI_ATTRS + '><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg>',
+  download: '<svg ' + UI_ATTRS + '><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>',
+  upload: '<svg ' + UI_ATTRS + '><path d="M12 20V9M7 14l5-5 5 5M5 4h14"/></svg>'
+};
+
+/* =====================================================================
+ * 4. FORDÍTÁSOK – minden felirat innen jön (en / hu / uk).
+ *    Az ukrán szövegek gépi fordításúak, anyanyelvi ellenőrzés szükséges.
+ * ===================================================================== */
+const I18N = {
+  en: {
+    'app.name': 'Munkaeszköz HUB',
+    'app.fictional': 'Prototype – fictional data only',
+    'footer.version': 'Version {v}',
+    'lang.label': 'Language',
+    'lang.en': 'ENG', 'lang.hu': 'HU', 'lang.uk': 'UK',
+    'lang.en.full': 'English', 'lang.hu.full': 'Hungarian', 'lang.uk.full': 'Ukrainian',
+    'theme.label': 'Theme',
+    'theme.system': 'Follow system', 'theme.light': 'Light', 'theme.dark': 'Dark',
+    'mode.label': 'Mode',
+    'mode.user': 'User', 'mode.admin': 'Admin', 'mode.dev': 'Developer',
+    'mode.changed': 'Mode: {mode}',
+    'btn.guide': 'Guide', 'btn.notifications': 'Notifications',
+    'btn.close': 'Close', 'btn.cancel': 'Cancel', 'btn.ok': 'OK', 'btn.home': 'Back to home',
+    'btn.delete': 'Delete', 'btn.rename': 'Rename', 'btn.add': 'Add',
+    'storage.unavailable': 'Browser storage is not available. You can work, but nothing will be kept after you close this page.',
+    'storage.writeFailed': 'Could not save to browser storage.',
+    'hub.title': 'Tools',
+    'hub.subtitle': 'Pick a tool. Data stays in this browser on this device.',
+    'tile.open': 'Open',
+    'tile.soon': 'Coming soon',
+    'mod.emptySpace.title': 'Empty space count',
+    'mod.emptySpace.desc': 'Count empty pallet places per row and keep a daily record.',
+    'mod.pullList.title': 'Pull list',
+    'mod.pullList.desc': 'Checklist of items to pull, ready to print.',
+    'mod.freight.title': 'Priority freight cost',
+    'mod.freight.desc': 'Quick cost check for priority shipments.',
+    'notif.title': 'Notifications',
+    'notif.empty': 'No notifications',
+    'notif.markRead': 'Mark all as read',
+    'notif.unread': '{n} unread',
+    'guide.title.hub': 'Guide – Home',
+    'guide.title.module': 'Guide – {name}',
+    'guide.hub': 'Tap a tile to open a tool. Tiles marked “Coming soon” are not available yet.\nUse ENG / HU / UK to switch language, and the three theme buttons for system, light or dark look. Your choices are remembered on this device.\nThe bell opens the notification centre.\nThe mode switch (User / Admin / Developer) only changes which buttons you see. It is not a login and not a security feature: anyone can switch.\nData is stored in this browser only. Phone and computer keep separate data, so use export and import to move or back up your records.',
+    'guide.emptySpace': 'Type the number of empty pallet places for each row. Whole numbers only, 0 or more. The total updates as you type.\nPress “Save day” to store the count for the chosen date. One entry per day: if the day already exists, you will be asked before overwriting.\nIf a row differs from the previous saved day by more than the threshold, the field turns orange and shows the difference. You will be asked to confirm before saving.\n“Previous days” lists your saved days, newest first. Tap a day to see its rows.\n“Export to file” saves all days as a JSON file. “Import from file” (Admin) loads such a file; a broken file is rejected and your data stays unchanged.\nAdmin mode: manage rows, set the threshold, delete saved data. Developer mode: demo data, system status and tests.',
+    'es.today': 'Count',
+    'es.date': 'Date',
+    'es.total': 'Total empty places',
+    'es.invalidCount': '{n} field(s) need a valid number',
+    'es.save': 'Save day',
+    'es.saved': 'Saved: {date}, total {total}',
+    'es.noRows': 'There are no rows yet. An Admin can add rows.',
+    'es.err.empty': 'Enter a number (0 if there is no empty place).',
+    'es.err.negative': 'Cannot be negative.',
+    'es.err.fraction': 'Whole numbers only.',
+    'es.err.notNumber': 'Numbers only.',
+    'es.err.tooLarge': 'Number is too large.',
+    'es.deviation': 'Difference from previous day: {diff}',
+    'es.prevRef': 'Compared with {date}',
+    'es.prevNone': 'No earlier saved day to compare with.',
+    'es.fixErrors': 'Fix the marked fields before saving.',
+    'es.badDate': 'Choose a valid date.',
+    'es.confirm.title': 'Save this day?',
+    'es.confirm.overwrite': 'A count for {date} is already saved (total {total}). Saving will overwrite it.',
+    'es.confirm.deviation': 'These rows differ from {date} by more than {threshold} places:',
+    'es.confirm.devLine': '{row}: {prev} → {now} ({diff})',
+    'es.confirm.sure': 'Do you really want to save it like this?',
+    'es.confirm.save': 'Save',
+    'es.history': 'Previous days',
+    'es.history.empty': 'No saved days yet.',
+    'es.history.detail': 'Count for {date}',
+    'es.history.row': 'Row',
+    'es.history.value': 'Empty places',
+    'es.history.savedAt': 'Saved at {time}',
+    'es.demo': 'Demo',
+    'es.backup': 'Backup',
+    'es.backup.hint': 'Data lives only in this browser. Export regularly, and use import to move data between phone and computer.',
+    'es.export': 'Export to file',
+    'es.import': 'Import from file',
+    'es.export.title': 'Export',
+    'es.export.ready': 'File ready: {file} ({n} days).',
+    'es.export.download': 'Save file',
+    'es.export.copy': 'Copy text',
+    'es.export.copied': 'Copied to clipboard.',
+    'es.export.copyFailed': 'Copy failed. Select the text and copy it by hand.',
+    'es.export.textHint': 'If saving the file does not work here, copy this text and keep it as a .json file.',
+    'es.export.saved': 'File saved.',
+    'es.export.declined': 'The file was not saved.',
+    'es.export.empty': 'There are no saved days to export.',
+    'es.import.title': 'Import from file',
+    'es.import.choose': 'Choose a JSON file',
+    'es.import.paste': 'Or paste the exported text',
+    'es.import.check': 'Check and import',
+    'es.import.summary': 'The file contains {n} day(s). {overwrite} of them already exist here and will be replaced by the file. Other saved days stay as they are.',
+    'es.import.confirm': 'Import',
+    'es.import.done': 'Imported {n} day(s).',
+    'es.import.noInput': 'Choose a file or paste text first.',
+    'es.import.err.json': 'This is not a valid JSON file. Nothing was changed.',
+    'es.import.err.format': 'This file is not an export of this tool (missing or wrong header). Nothing was changed.',
+    'es.import.err.day': 'Day #{n} is invalid: {reason} Nothing was changed.',
+    'es.import.err.read': 'The file could not be read. Nothing was changed.',
+    'es.import.reason.date': 'the date must look like YYYY-MM-DD.',
+    'es.import.reason.duplicate': 'the same date appears twice.',
+    'es.import.reason.rows': 'the row list is missing or a row name is empty.',
+    'es.import.reason.value': 'a row value is not a whole number of 0 or more.',
+    'es.import.reason.total': 'the total does not match the rows.',
+    'es.admin': 'Admin settings',
+    'es.threshold': 'Difference threshold (places)',
+    'es.threshold.hint': 'A row is flagged when it differs from the previous saved day by more than this.',
+    'es.threshold.save': 'Save threshold',
+    'es.threshold.saved': 'Threshold set to {n}.',
+    'es.threshold.readonly': 'Difference threshold: {n} places (Admin can change it).',
+    'es.rows': 'Rows',
+    'es.rows.new': 'New row name',
+    'es.rows.added': 'Row added: {name}',
+    'es.rows.renamed': 'Row renamed: {name}',
+    'es.rows.deleted': 'Row deleted: {name}',
+    'es.rows.err.empty': 'The row name cannot be empty.',
+    'es.rows.err.duplicate': 'A row with this name already exists.',
+    'es.rows.confirmDelete': 'Delete row “{name}”? Saved days keep their values.',
+    'es.clearAll': 'Delete all saved days',
+    'es.clearAll.confirm': 'This deletes all {n} saved day(s) from this browser, demo days included. It cannot be undone. Export first if you need a backup.',
+    'es.clearAll.done': 'All saved days deleted.',
+    'es.dev': 'Developer tools',
+    'es.demo.generate': 'Generate demo days',
+    'es.demo.generated': 'Added {n} demo day(s).',
+    'es.demo.clear': 'Delete demo days only',
+    'es.demo.cleared': 'Deleted {n} demo day(s).',
+    'es.demo.hint': 'Demo days are fictional, marked “Demo”, and never overwrite your own saves.',
+    'es.openSystem': 'System status',
+    'sys.title': 'System status',
+    'sys.version': 'Version',
+    'sys.storage': 'Browser storage available',
+    'sys.days': 'Saved days',
+    'sys.daysDetail': '{total} ({demo} demo)',
+    'sys.lastSave': 'Last save',
+    'sys.never': 'Never',
+    'sys.yes': 'Yes', 'sys.no': 'No',
+    'sys.lang': 'Language', 'sys.theme': 'Theme', 'sys.mode': 'Mode',
+    'sys.tests': 'Tests',
+    'sys.tests.hint': 'The tests run on a separate in-memory copy; your saved data is not touched.',
+    'sys.tests.run': 'Run tests',
+    'sys.tests.running': 'Running…',
+    'sys.tests.result': '{pass} passed, {fail} failed',
+    'guide.system': 'This page is for Developer mode. It shows the version, whether browser storage works, how many days are saved and when the last save happened.\n“Run tests” checks the main functions on a temporary copy and lists every result.',
+    'route.denied': 'This page is not available in the current mode.'
+  },
+  hu: {
+    'app.name': 'Munkaeszköz HUB',
+    'app.fictional': 'Prototípus – csak fiktív adatok',
+    'footer.version': 'Verzió: {v}',
+    'lang.label': 'Nyelv',
+    'lang.en': 'ENG', 'lang.hu': 'HU', 'lang.uk': 'UK',
+    'lang.en.full': 'Angol', 'lang.hu.full': 'Magyar', 'lang.uk.full': 'Ukrán',
+    'theme.label': 'Téma',
+    'theme.system': 'Rendszer szerint', 'theme.light': 'Világos', 'theme.dark': 'Sötét',
+    'mode.label': 'Mód',
+    'mode.user': 'Felhasználó', 'mode.admin': 'Admin', 'mode.dev': 'Fejlesztő',
+    'mode.changed': 'Mód: {mode}',
+    'btn.guide': 'Útmutató', 'btn.notifications': 'Értesítések',
+    'btn.close': 'Bezárás', 'btn.cancel': 'Mégse', 'btn.ok': 'OK', 'btn.home': 'Vissza a kezdőoldalra',
+    'btn.delete': 'Törlés', 'btn.rename': 'Átnevezés', 'btn.add': 'Hozzáadás',
+    'storage.unavailable': 'A böngésző tárolója nem érhető el. Dolgozhatsz, de az oldal bezárása után semmi nem marad meg.',
+    'storage.writeFailed': 'Nem sikerült menteni a böngésző tárolójába.',
+    'hub.title': 'Eszközök',
+    'hub.subtitle': 'Válassz eszközt. Az adatok ebben a böngészőben, ezen az eszközön maradnak.',
+    'tile.open': 'Megnyitás',
+    'tile.soon': 'Hamarosan',
+    'mod.emptySpace.title': 'Üres hely számolás',
+    'mod.emptySpace.desc': 'Soronként megszámolt üres raklaphelyek, napi nyilvántartással.',
+    'mod.pullList.title': 'Pull list',
+    'mod.pullList.desc': 'Kiszedendő tételek pipálható listája, nyomtatható formában.',
+    'mod.freight.title': 'Priority fuvarköltség',
+    'mod.freight.desc': 'Gyors költségellenőrzés sürgős szállításokhoz.',
+    'notif.title': 'Értesítések',
+    'notif.empty': 'Nincs értesítés',
+    'notif.markRead': 'Mind olvasott',
+    'notif.unread': '{n} olvasatlan',
+    'guide.title.hub': 'Útmutató – Kezdőoldal',
+    'guide.title.module': 'Útmutató – {name}',
+    'guide.hub': 'Koppints egy csempére az eszköz megnyitásához. A „Hamarosan” jelölésű csempék még nem érhetők el.\nAz ENG / HU / UK gombokkal válthatsz nyelvet, a három témagombbal rendszer szerinti, világos vagy sötét megjelenést. A választásod ezen az eszközön megmarad.\nA harang az értesítési központot nyitja meg.\nA módváltó (Felhasználó / Admin / Fejlesztő) csak azt változtatja meg, mely gombok látszanak. Ez nem bejelentkezés és nem biztonsági funkció: bárki átválthat.\nAz adatok csak ebben a böngészőben tárolódnak. A telefonon és a gépen külön adatok vannak, ezért exporttal és importtal vidd át vagy mentsd el őket.',
+    'guide.emptySpace': 'Írd be soronként az üres raklaphelyek számát. Csak egész szám, 0 vagy több. Az összeg gépelés közben frissül.\nA „Nap mentése” a kiválasztott dátumra menti a számolást. Egy napra egy bejegyzés lehet: ha a nap már létezik, felülírás előtt rákérdez.\nHa egy sor az előző mentett naphoz képest jobban eltér a küszöbnél, a mező narancssárga lesz és mutatja az eltérést. Mentés előtt megerősítést kér.\nAz „Előző napok” a mentett napokat mutatja, a legújabb elöl. Egy napra koppintva látod a soronkénti bontást.\nA „Mentés fájlba” az összes napot JSON fájlba menti. A „Betöltés fájlból” (Admin) ilyen fájlt tölt be; hibás fájlt elutasít, az adataid változatlanok maradnak.\nAdmin mód: sorok kezelése, küszöb beállítása, mentett adatok törlése. Fejlesztő mód: demó adat, rendszerállapot és tesztek.',
+    'es.today': 'Számolás',
+    'es.date': 'Dátum',
+    'es.total': 'Összes üres hely',
+    'es.invalidCount': '{n} mezőbe érvényes szám kell',
+    'es.save': 'Nap mentése',
+    'es.saved': 'Mentve: {date}, összesen {total}',
+    'es.noRows': 'Még nincs sor. Admin módban adhatsz hozzá sorokat.',
+    'es.err.empty': 'Írj be egy számot (0, ha nincs üres hely).',
+    'es.err.negative': 'Nem lehet negatív.',
+    'es.err.fraction': 'Csak egész szám lehet.',
+    'es.err.notNumber': 'Csak szám lehet.',
+    'es.err.tooLarge': 'Túl nagy szám.',
+    'es.deviation': 'Eltérés az előző naphoz képest: {diff}',
+    'es.prevRef': 'Összehasonlítás: {date}',
+    'es.prevNone': 'Nincs korábbi mentett nap az összehasonlításhoz.',
+    'es.fixErrors': 'Mentés előtt javítsd a megjelölt mezőket.',
+    'es.badDate': 'Válassz érvényes dátumot.',
+    'es.confirm.title': 'Mented ezt a napot?',
+    'es.confirm.overwrite': '{date} napra már van mentés (összesen {total}). A mentés felülírja.',
+    'es.confirm.deviation': 'Ezek a sorok {threshold} helynél jobban eltérnek ettől a naptól: {date}',
+    'es.confirm.devLine': '{row}: {prev} → {now} ({diff})',
+    'es.confirm.sure': 'Biztosan így szeretnéd menteni?',
+    'es.confirm.save': 'Mentés',
+    'es.history': 'Előző napok',
+    'es.history.empty': 'Még nincs mentett nap.',
+    'es.history.detail': '{date} számolása',
+    'es.history.row': 'Sor',
+    'es.history.value': 'Üres hely',
+    'es.history.savedAt': 'Mentve: {time}',
+    'es.demo': 'Demó',
+    'es.backup': 'Biztonsági mentés',
+    'es.backup.hint': 'Az adatok csak ebben a böngészőben vannak. Exportálj rendszeresen, és importtal vidd át az adatokat a telefon és a gép között.',
+    'es.export': 'Mentés fájlba (export)',
+    'es.import': 'Betöltés fájlból (import)',
+    'es.export.title': 'Export',
+    'es.export.ready': 'A fájl kész: {file} ({n} nap).',
+    'es.export.download': 'Fájl mentése',
+    'es.export.copy': 'Szöveg másolása',
+    'es.export.copied': 'Vágólapra másolva.',
+    'es.export.copyFailed': 'A másolás nem sikerült. Jelöld ki a szöveget és másold kézzel.',
+    'es.export.textHint': 'Ha itt nem működik a fájlmentés, másold ki ezt a szöveget, és tedd el .json fájlként.',
+    'es.export.saved': 'Fájl elmentve.',
+    'es.export.declined': 'A fájl nem lett elmentve.',
+    'es.export.empty': 'Nincs mentett nap, amit exportálni lehetne.',
+    'es.import.title': 'Betöltés fájlból',
+    'es.import.choose': 'Válassz JSON fájlt',
+    'es.import.paste': 'Vagy illeszd be az exportált szöveget',
+    'es.import.check': 'Ellenőrzés és betöltés',
+    'es.import.summary': 'A fájlban {n} nap van. Ebből {overwrite} már létezik itt, ezeket a fájl tartalma váltja fel. A többi mentett nap változatlan marad.',
+    'es.import.confirm': 'Betöltés',
+    'es.import.done': '{n} nap betöltve.',
+    'es.import.noInput': 'Előbb válassz fájlt vagy illessz be szöveget.',
+    'es.import.err.json': 'Ez nem érvényes JSON fájl. Semmi nem változott.',
+    'es.import.err.format': 'Ez a fájl nem ennek az eszköznek az exportja (hiányzó vagy hibás fejléc). Semmi nem változott.',
+    'es.import.err.day': 'A(z) {n}. nap hibás: {reason} Semmi nem változott.',
+    'es.import.err.read': 'A fájlt nem sikerült beolvasni. Semmi nem változott.',
+    'es.import.reason.date': 'a dátum formátuma ÉÉÉÉ-HH-NN kell legyen.',
+    'es.import.reason.duplicate': 'ugyanaz a dátum kétszer szerepel.',
+    'es.import.reason.rows': 'hiányzik a sorlista, vagy egy sornév üres.',
+    'es.import.reason.value': 'egy sor értéke nem 0 vagy annál nagyobb egész szám.',
+    'es.import.reason.total': 'az összeg nem egyezik a sorok összegével.',
+    'es.admin': 'Admin beállítások',
+    'es.threshold': 'Eltérésküszöb (hely)',
+    'es.threshold.hint': 'Egy sor akkor kap jelölést, ha ennél jobban eltér az előző mentett naptól.',
+    'es.threshold.save': 'Küszöb mentése',
+    'es.threshold.saved': 'A küszöb új értéke: {n}.',
+    'es.threshold.readonly': 'Eltérésküszöb: {n} hely (Admin módosíthatja).',
+    'es.rows': 'Sorok',
+    'es.rows.new': 'Új sor neve',
+    'es.rows.added': 'Sor hozzáadva: {name}',
+    'es.rows.renamed': 'Sor átnevezve: {name}',
+    'es.rows.deleted': 'Sor törölve: {name}',
+    'es.rows.err.empty': 'A sor neve nem lehet üres.',
+    'es.rows.err.duplicate': 'Már van ilyen nevű sor.',
+    'es.rows.confirmDelete': 'Törlöd ezt a sort: „{name}”? A mentett napok értékei megmaradnak.',
+    'es.clearAll': 'Összes mentett nap törlése',
+    'es.clearAll.confirm': 'Ez törli mind a(z) {n} mentett napot ebből a böngészőből, a demó napokkal együtt. Nem vonható vissza. Ha kell biztonsági mentés, előbb exportálj.',
+    'es.clearAll.done': 'Az összes mentett nap törölve.',
+    'es.dev': 'Fejlesztői eszközök',
+    'es.demo.generate': 'Demó napok generálása',
+    'es.demo.generated': '{n} demó nap hozzáadva.',
+    'es.demo.clear': 'Csak a demó napok törlése',
+    'es.demo.cleared': '{n} demó nap törölve.',
+    'es.demo.hint': 'A demó napok fiktívek, „Demó” jelölést kapnak, és soha nem írják felül a saját mentéseidet.',
+    'es.openSystem': 'Rendszerállapot',
+    'sys.title': 'Rendszerállapot',
+    'sys.version': 'Verzió',
+    'sys.storage': 'Böngészőtároló elérhető',
+    'sys.days': 'Mentett napok',
+    'sys.daysDetail': '{total} (ebből {demo} demó)',
+    'sys.lastSave': 'Utolsó mentés',
+    'sys.never': 'Még nem volt',
+    'sys.yes': 'Igen', 'sys.no': 'Nem',
+    'sys.lang': 'Nyelv', 'sys.theme': 'Téma', 'sys.mode': 'Mód',
+    'sys.tests': 'Tesztek',
+    'sys.tests.hint': 'A tesztek külön, memóriabeli másolaton futnak; a mentett adataidhoz nem nyúlnak.',
+    'sys.tests.run': 'Tesztek futtatása',
+    'sys.tests.running': 'Futás…',
+    'sys.tests.result': '{pass} sikeres, {fail} sikertelen',
+    'guide.system': 'Ez az oldal Fejlesztő módhoz tartozik. Mutatja a verziót, hogy működik-e a böngésző tárolója, hány nap van mentve és mikor volt az utolsó mentés.\nA „Tesztek futtatása” ideiglenes másolaton ellenőrzi a fő funkciókat, és minden eredményt felsorol.',
+    'route.denied': 'Ez az oldal az aktuális módban nem érhető el.'
+  },
+  uk: {
+    'app.name': 'Munkaeszköz HUB',
+    'app.fictional': 'Прототип – лише вигадані дані',
+    'footer.version': 'Версія {v}',
+    'lang.label': 'Мова',
+    'lang.en': 'ENG', 'lang.hu': 'HU', 'lang.uk': 'UK',
+    'lang.en.full': 'Англійська', 'lang.hu.full': 'Угорська', 'lang.uk.full': 'Українська',
+    'theme.label': 'Тема',
+    'theme.system': 'Як у системі', 'theme.light': 'Світла', 'theme.dark': 'Темна',
+    'mode.label': 'Режим',
+    'mode.user': 'Користувач', 'mode.admin': 'Адмін', 'mode.dev': 'Розробник',
+    'mode.changed': 'Режим: {mode}',
+    'btn.guide': 'Довідка', 'btn.notifications': 'Сповіщення',
+    'btn.close': 'Закрити', 'btn.cancel': 'Скасувати', 'btn.ok': 'OK', 'btn.home': 'На головну',
+    'btn.delete': 'Видалити', 'btn.rename': 'Перейменувати', 'btn.add': 'Додати',
+    'storage.unavailable': 'Сховище браузера недоступне. Працювати можна, але після закриття сторінки нічого не збережеться.',
+    'storage.writeFailed': 'Не вдалося зберегти у сховище браузера.',
+    'hub.title': 'Інструменти',
+    'hub.subtitle': 'Виберіть інструмент. Дані зберігаються лише в цьому браузері на цьому пристрої.',
+    'tile.open': 'Відкрити',
+    'tile.soon': 'Незабаром',
+    'mod.emptySpace.title': 'Підрахунок вільних місць',
+    'mod.emptySpace.desc': 'Підрахунок вільних палетомісць по рядах із щоденним записом.',
+    'mod.pullList.title': 'Pull list',
+    'mod.pullList.desc': 'Список позицій для відбору з позначками, готовий до друку.',
+    'mod.freight.title': 'Вартість пріоритетного перевезення',
+    'mod.freight.desc': 'Швидка перевірка вартості термінових відправлень.',
+    'notif.title': 'Сповіщення',
+    'notif.empty': 'Немає сповіщень',
+    'notif.markRead': 'Позначити все як прочитане',
+    'notif.unread': 'Непрочитаних: {n}',
+    'guide.title.hub': 'Довідка – Головна',
+    'guide.title.module': 'Довідка – {name}',
+    'guide.hub': 'Торкніться плитки, щоб відкрити інструмент. Плитки з позначкою «Незабаром» ще недоступні.\nКнопки ENG / HU / UK змінюють мову, три кнопки теми – системний, світлий або темний вигляд. Ваш вибір запам’ятовується на цьому пристрої.\nДзвіночок відкриває центр сповіщень.\nПеремикач режиму (Користувач / Адмін / Розробник) лише змінює, які кнопки видно. Це не вхід у систему і не функція безпеки: перемкнутися може будь-хто.\nДані зберігаються лише в цьому браузері. Телефон і комп’ютер мають окремі дані, тому використовуйте експорт та імпорт для перенесення або резервної копії.',
+    'guide.emptySpace': 'Введіть кількість вільних палетомісць для кожного ряду. Лише цілі числа, 0 або більше. Сума оновлюється під час введення.\n«Зберегти день» зберігає підрахунок на вибрану дату. Один запис на день: якщо день уже є, перед перезаписом буде запит.\nЯкщо ряд відрізняється від попереднього збереженого дня більше, ніж поріг, поле стає помаранчевим і показує різницю. Перед збереженням потрібне підтвердження.\n«Попередні дні» показує збережені дні, найновіші зверху. Торкніться дня, щоб побачити ряди.\n«Експорт у файл» зберігає всі дні у файл JSON. «Імпорт з файлу» (Адмін) завантажує такий файл; пошкоджений файл відхиляється, ваші дані не змінюються.\nРежим Адмін: керування рядами, поріг, видалення збережених даних. Режим Розробник: демо-дані, стан системи та тести.',
+    'es.today': 'Підрахунок',
+    'es.date': 'Дата',
+    'es.total': 'Усього вільних місць',
+    'es.invalidCount': 'Полів без правильного числа: {n}',
+    'es.save': 'Зберегти день',
+    'es.saved': 'Збережено: {date}, усього {total}',
+    'es.noRows': 'Рядів ще немає. Адмін може їх додати.',
+    'es.err.empty': 'Введіть число (0, якщо вільних місць немає).',
+    'es.err.negative': 'Не може бути від’ємним.',
+    'es.err.fraction': 'Лише цілі числа.',
+    'es.err.notNumber': 'Лише числа.',
+    'es.err.tooLarge': 'Занадто велике число.',
+    'es.deviation': 'Різниця з попереднім днем: {diff}',
+    'es.prevRef': 'Порівняння з {date}',
+    'es.prevNone': 'Немає попереднього збереженого дня для порівняння.',
+    'es.fixErrors': 'Перед збереженням виправте позначені поля.',
+    'es.badDate': 'Виберіть правильну дату.',
+    'es.confirm.title': 'Зберегти цей день?',
+    'es.confirm.overwrite': 'Для {date} вже є збереження (усього {total}). Збереження його перезапише.',
+    'es.confirm.deviation': 'Ці ряди відрізняються від {date} більше ніж на {threshold} місць:',
+    'es.confirm.devLine': '{row}: {prev} → {now} ({diff})',
+    'es.confirm.sure': 'Ви справді хочете зберегти так?',
+    'es.confirm.save': 'Зберегти',
+    'es.history': 'Попередні дні',
+    'es.history.empty': 'Збережених днів ще немає.',
+    'es.history.detail': 'Підрахунок за {date}',
+    'es.history.row': 'Ряд',
+    'es.history.value': 'Вільні місця',
+    'es.history.savedAt': 'Збережено {time}',
+    'es.demo': 'Демо',
+    'es.backup': 'Резервна копія',
+    'es.backup.hint': 'Дані є лише в цьому браузері. Регулярно робіть експорт і переносьте дані між телефоном і комп’ютером через імпорт.',
+    'es.export': 'Експорт у файл',
+    'es.import': 'Імпорт з файлу',
+    'es.export.title': 'Експорт',
+    'es.export.ready': 'Файл готовий: {file} (днів: {n}).',
+    'es.export.download': 'Зберегти файл',
+    'es.export.copy': 'Копіювати текст',
+    'es.export.copied': 'Скопійовано в буфер обміну.',
+    'es.export.copyFailed': 'Не вдалося скопіювати. Виділіть текст і скопіюйте вручну.',
+    'es.export.textHint': 'Якщо збереження файлу тут не працює, скопіюйте цей текст і збережіть як файл .json.',
+    'es.export.saved': 'Файл збережено.',
+    'es.export.declined': 'Файл не збережено.',
+    'es.export.empty': 'Немає збережених днів для експорту.',
+    'es.import.title': 'Імпорт з файлу',
+    'es.import.choose': 'Виберіть файл JSON',
+    'es.import.paste': 'Або вставте експортований текст',
+    'es.import.check': 'Перевірити й імпортувати',
+    'es.import.summary': 'У файлі днів: {n}. З них {overwrite} вже є тут і будуть замінені даними з файлу. Інші збережені дні не зміняться.',
+    'es.import.confirm': 'Імпортувати',
+    'es.import.done': 'Імпортовано днів: {n}.',
+    'es.import.noInput': 'Спершу виберіть файл або вставте текст.',
+    'es.import.err.json': 'Це не правильний файл JSON. Нічого не змінено.',
+    'es.import.err.format': 'Цей файл не є експортом цього інструмента (заголовок відсутній або неправильний). Нічого не змінено.',
+    'es.import.err.day': 'День №{n} неправильний: {reason} Нічого не змінено.',
+    'es.import.err.read': 'Не вдалося прочитати файл. Нічого не змінено.',
+    'es.import.reason.date': 'дата має бути у форматі РРРР-ММ-ДД.',
+    'es.import.reason.duplicate': 'та сама дата зустрічається двічі.',
+    'es.import.reason.rows': 'немає списку рядів або назва ряду порожня.',
+    'es.import.reason.value': 'значення ряду не є цілим числом від 0.',
+    'es.import.reason.total': 'сума не збігається з рядами.',
+    'es.admin': 'Налаштування адміністратора',
+    'es.threshold': 'Поріг різниці (місць)',
+    'es.threshold.hint': 'Ряд позначається, якщо він відрізняється від попереднього збереженого дня більше, ніж на це значення.',
+    'es.threshold.save': 'Зберегти поріг',
+    'es.threshold.saved': 'Новий поріг: {n}.',
+    'es.threshold.readonly': 'Поріг різниці: {n} місць (змінює Адмін).',
+    'es.rows': 'Ряди',
+    'es.rows.new': 'Назва нового ряду',
+    'es.rows.added': 'Ряд додано: {name}',
+    'es.rows.renamed': 'Ряд перейменовано: {name}',
+    'es.rows.deleted': 'Ряд видалено: {name}',
+    'es.rows.err.empty': 'Назва ряду не може бути порожньою.',
+    'es.rows.err.duplicate': 'Ряд з такою назвою вже існує.',
+    'es.rows.confirmDelete': 'Видалити ряд «{name}»? Значення у збережених днях залишаться.',
+    'es.clearAll': 'Видалити всі збережені дні',
+    'es.clearAll.confirm': 'Буде видалено всі збережені дні ({n}) з цього браузера, разом із демо-днями. Скасувати не можна. За потреби спершу зробіть експорт.',
+    'es.clearAll.done': 'Усі збережені дні видалено.',
+    'es.dev': 'Інструменти розробника',
+    'es.demo.generate': 'Створити демо-дні',
+    'es.demo.generated': 'Додано демо-днів: {n}.',
+    'es.demo.clear': 'Видалити лише демо-дні',
+    'es.demo.cleared': 'Видалено демо-днів: {n}.',
+    'es.demo.hint': 'Демо-дні вигадані, мають позначку «Демо» і ніколи не перезаписують ваші збереження.',
+    'es.openSystem': 'Стан системи',
+    'sys.title': 'Стан системи',
+    'sys.version': 'Версія',
+    'sys.storage': 'Сховище браузера доступне',
+    'sys.days': 'Збережені дні',
+    'sys.daysDetail': '{total} (демо: {demo})',
+    'sys.lastSave': 'Останнє збереження',
+    'sys.never': 'Ще не було',
+    'sys.yes': 'Так', 'sys.no': 'Ні',
+    'sys.lang': 'Мова', 'sys.theme': 'Тема', 'sys.mode': 'Режим',
+    'sys.tests': 'Тести',
+    'sys.tests.hint': 'Тести працюють з окремою копією в пам’яті; ваші збережені дані не змінюються.',
+    'sys.tests.run': 'Запустити тести',
+    'sys.tests.running': 'Виконується…',
+    'sys.tests.result': 'Успішно: {pass}, з помилкою: {fail}',
+    'guide.system': 'Ця сторінка для режиму Розробник. Вона показує версію, чи працює сховище браузера, скільки днів збережено і коли було останнє збереження.\n«Запустити тести» перевіряє основні функції на тимчасовій копії та показує кожен результат.',
+    'route.denied': 'Ця сторінка недоступна в поточному режимі.'
+  }
+};
+
+function makeT(lang, missing) {
+  return function t(key, params) {
+    let s = I18N[lang] && I18N[lang][key];
+    if (s == null) {
+      if (missing) missing.add(lang + ':' + key);
+      s = (I18N.en[key] != null) ? I18N.en[key] : key;
+    }
+    if (params) s = s.replace(/\{(\w+)\}/g, (m, k) => (params[k] != null ? String(params[k]) : m));
+    return s;
+  };
+}
+
+/* =====================================================================
+ * 5. TÁROLÁS – localStorage hibakezeléssel; ha nem elérhető, memória.
+ * ===================================================================== */
+function memoryBackend() {
+  const m = new Map();
+  return {
+    getItem: k => (m.has(k) ? m.get(k) : null),
+    setItem: (k, v) => { m.set(k, String(v)); },
+    removeItem: k => { m.delete(k); }
+  };
+}
+function detectLocalStorage() {
+  try {
+    const ls = window.localStorage;
+    const k = STORAGE_PREFIX + '__probe';
+    ls.setItem(k, '1');
+    ls.removeItem(k);
+    return ls;
+  } catch (e) { return null; }
+}
+function createStore(backend, persistent) {
+  return {
+    persistent: !!persistent,
+    lastError: null,
+    read(key, fallback) {
+      try {
+        const raw = backend.getItem(STORAGE_PREFIX + key);
+        return raw == null ? fallback : JSON.parse(raw);
+      } catch (e) { return fallback; }
+    },
+    write(key, value) {
+      try { backend.setItem(STORAGE_PREFIX + key, JSON.stringify(value)); this.lastError = null; return true; }
+      catch (e) { this.lastError = e; return false; }
+    },
+    remove(key) { try { backend.removeItem(STORAGE_PREFIX + key); } catch (e) { /* ignore */ } }
+  };
+}
+
+function loadPrefs(store) {
+  const p = store.read('prefs', {}) || {};
+  return {
+    lang: LANGS.includes(p.lang) ? p.lang : DEFAULT_PREFS.lang,
+    theme: THEMES.includes(p.theme) ? p.theme : DEFAULT_PREFS.theme,
+    mode: MODES.includes(p.mode) ? p.mode : DEFAULT_PREFS.mode
+  };
+}
+function savePrefs(store, prefs) { return store.write('prefs', { lang: prefs.lang, theme: prefs.theme, mode: prefs.mode }); }
+
+/* =====================================================================
+ * 6. ÉRTESÍTÉSI KÖZPONT – egyelőre üres; később NotificationCenter.add()-dal
+ *    lehet bejegyzést adni: { title | titleKey, body | bodyKey, date? }.
+ * ===================================================================== */
+function createNotificationCenter(store) {
+  const KEY = 'notifications';
+  const listeners = new Set();
+  function all() { const l = store.read(KEY, []); return Array.isArray(l) ? l : []; }
+  function persist(list) { store.write(KEY, list); listeners.forEach(fn => fn()); }
+  return {
+    list: () => all().slice().sort((a, b) => String(b.date).localeCompare(String(a.date))),
+    unreadCount: () => all().filter(n => !n.read).length,
+    add(n) {
+      const item = {
+        id: 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        date: n.date || new Date().toISOString(),
+        title: n.title || null, titleKey: n.titleKey || null,
+        body: n.body || null, bodyKey: n.bodyKey || null,
+        read: false
+      };
+      persist(all().concat([item]));
+      return item.id;
+    },
+    markAllRead() { persist(all().map(n => Object.assign({}, n, { read: true }))); },
+    clear() { persist([]); },
+    onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); }
+  };
+}
+
+/* =====================================================================
+ * 7. SEGÉDFÜGGVÉNYEK
+ * ===================================================================== */
+function h(tag, attrs, ...children) {
+  const el = document.createElement(tag);
+  if (attrs) {
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === 'class') el.className = v;
+      else if (k === 'html') el.innerHTML = v;
+      else if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2), v);
+      else if (k === 'dataset') Object.assign(el.dataset, v);
+      else el.setAttribute(k, v === true ? '' : v);
+    }
+  }
+  for (const c of children.flat()) {
+    if (c == null || c === false) continue;
+    el.appendChild(typeof c === 'string' || typeof c === 'number' ? document.createTextNode(String(c)) : c);
+  }
+  return el;
+}
+function icon(name) { return h('span', { class: 'ic', html: ICONS[name] || '', 'data-icon': name, style: 'display:inline-flex' }); }
+function pad2(n) { return String(n).padStart(2, '0'); }
+function isoDate(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+function isValidIsoDate(s) {
+  if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const [y, m, d] = s.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
+}
+function addDays(iso, n) { const [y, m, d] = iso.split('-').map(Number); return isoDate(new Date(y, m - 1, d + n)); }
+function signed(n) { return (n > 0 ? '+' : n < 0 ? '-' : '±') + Math.abs(n); }
+const LOCALE = { en: 'en-GB', hu: 'hu-HU', uk: 'uk-UA' };
+function fmtDate(iso, lang) {
+  if (!isValidIsoDate(iso)) return String(iso);
+  const [y, m, d] = iso.split('-').map(Number);
+  try { return new Date(y, m - 1, d).toLocaleDateString(LOCALE[lang], { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' }); }
+  catch (e) { return iso; }
+}
+function fmtDateTime(isoStr, lang) {
+  const d = new Date(isoStr);
+  if (isNaN(d)) return '—';
+  try { return d.toLocaleString(LOCALE[lang], { dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { return d.toISOString(); }
+}
+
+/* =====================================================================
+ * 8. MODUL-NYILVÁNTARTÁS – új modul = új registerModule() hívás.
+ *    A modul definíció: { id, order, icon, accent, status: 'ready'|'soon',
+ *    titleKey, descKey, guideKey, render(root, ctx) }
+ * ===================================================================== */
+const MODULES = [];
+function registerModule(def) { MODULES.push(def); MODULES.sort((a, b) => a.order - b.order); }
+function findModule(id) { return MODULES.find(m => m.id === id); }
+
+/* =====================================================================
+ * 9. MODUL: ÜRES HELY SZÁMOLÁS – logika (tiszta függvények, tesztelhetők)
+ * ===================================================================== */
+const EmptySpace = (function () {
+  const KEY = 'emptySpace';
+  const SCHEMA = 1;
+  const MAX = 100000;
+  const DEFAULT_ROWS = ['A sor', 'B sor', 'C sor', 'D sor', 'E sor'];
+
+  function defaults() {
+    return {
+      schema: SCHEMA,
+      rows: DEFAULT_ROWS.map((name, i) => ({ id: 'r' + (i + 1), name })),
+      threshold: 5,
+      days: [],
+      draft: {}
+    };
+  }
+  function load(store) {
+    const s = store.read(KEY, null);
+    if (!s || typeof s !== 'object' || !Array.isArray(s.rows) || !Array.isArray(s.days)) return defaults();
+    return {
+      schema: SCHEMA,
+      rows: s.rows.filter(r => r && typeof r.name === 'string').map(r => ({ id: String(r.id), name: r.name })),
+      threshold: Number.isInteger(s.threshold) && s.threshold >= 0 ? s.threshold : 5,
+      days: s.days.filter(d => d && isValidIsoDate(d.date)),
+      draft: (s.draft && typeof s.draft === 'object') ? s.draft : {}
+    };
+  }
+  function save(store, state) { return store.write(KEY, state); }
+
+  // Bevitel ellenőrzése: csak nemnegatív egész szám.
+  function parseCount(raw) {
+    const s = String(raw == null ? '' : raw).trim();
+    if (s === '') return { ok: false, error: 'empty' };
+    if (/^-\s*\d+([.,]\d+)?$/.test(s)) return { ok: false, error: 'negative' };
+    if (/^\+?\d+[.,]\d+$/.test(s)) return { ok: false, error: 'fraction' };
+    if (!/^\+?\d+$/.test(s)) return { ok: false, error: 'notNumber' };
+    const v = parseInt(s.replace('+', ''), 10);
+    if (v > MAX) return { ok: false, error: 'tooLarge' };
+    return { ok: true, value: v };
+  }
+  function sum(values) {
+    return values.reduce((a, v) => a + (Number.isInteger(v) && v >= 0 ? v : 0), 0);
+  }
+  function sortedDays(days) { return days.slice().sort((a, b) => b.date.localeCompare(a.date)); }
+  // Az utolsó mentett nap, ami a megadott dátum előtt van.
+  function previousDay(days, date) {
+    return sortedDays(days).find(d => d.date < date) || null;
+  }
+  function prevValueFor(prevDay, row) {
+    if (!prevDay) return null;
+    const hit = prevDay.rows.find(r => r.id != null && r.id === row.id) || prevDay.rows.find(r => r.name === row.name);
+    return hit ? hit.value : null;
+  }
+  // Eltérés: |most − előző| > küszöb  →  jelölés
+  function deviation(prev, now, threshold) {
+    if (prev == null || !Number.isInteger(now)) return null;
+    const diff = now - prev;
+    return { prev, now, diff, flagged: Math.abs(diff) > threshold };
+  }
+  function buildDay(state, date, values, savedAt) {
+    const rows = state.rows.map(r => ({ id: r.id, name: r.name, value: values[r.id] }));
+    return { date, rows, total: sum(rows.map(r => r.value)), savedAt: savedAt || new Date().toISOString() };
+  }
+  function upsertDay(state, day) {
+    const existing = state.days.find(d => d.date === day.date) || null;
+    const days = state.days.filter(d => d.date !== day.date).concat([day]);
+    return { state: Object.assign({}, state, { days }), overwritten: existing };
+  }
+
+  // Export / import
+  function buildExport(state, now) {
+    return {
+      app: APP_ID, module: 'empty-space', schema: SCHEMA,
+      exportedAt: (now || new Date()).toISOString(),
+      threshold: state.threshold,
+      days: sortedDays(state.days).map(d => {
+        const out = { date: d.date, rows: d.rows.map(r => ({ id: r.id, name: r.name, value: r.value })), total: d.total, savedAt: d.savedAt };
+        if (d.demo) out.demo = true;
+        return out;
+      })
+    };
+  }
+  function validateImport(text) {
+    let obj;
+    try { obj = JSON.parse(text); } catch (e) { return { ok: false, error: 'json' }; }
+    if (!obj || typeof obj !== 'object' || obj.app !== APP_ID || obj.module !== 'empty-space' ||
+        typeof obj.schema !== 'number' || obj.schema > SCHEMA || !Array.isArray(obj.days)) {
+      return { ok: false, error: 'format' };
+    }
+    const seen = new Set();
+    const days = [];
+    for (let i = 0; i < obj.days.length; i++) {
+      const d = obj.days[i];
+      const fail = reason => ({ ok: false, error: 'day', index: i + 1, reason });
+      if (!d || typeof d !== 'object' || !isValidIsoDate(d.date)) return fail('date');
+      if (seen.has(d.date)) return fail('duplicate');
+      seen.add(d.date);
+      if (!Array.isArray(d.rows) || d.rows.some(r => !r || typeof r.name !== 'string' || r.name.trim() === '')) return fail('rows');
+      if (d.rows.some(r => !Number.isInteger(r.value) || r.value < 0 || r.value > MAX)) return fail('value');
+      const total = sum(d.rows.map(r => r.value));
+      if (d.total !== total) return fail('total');
+      const day = {
+        date: d.date,
+        rows: d.rows.map(r => ({ id: r.id != null ? String(r.id) : null, name: r.name, value: r.value })),
+        total,
+        savedAt: typeof d.savedAt === 'string' ? d.savedAt : new Date().toISOString()
+      };
+      if (d.demo === true) day.demo = true;
+      days.push(day);
+    }
+    return { ok: true, days };
+  }
+  function mergeImport(state, days) {
+    const incoming = new Set(days.map(d => d.date));
+    const overwrite = state.days.filter(d => incoming.has(d.date)).length;
+    return { state: Object.assign({}, state, { days: state.days.filter(d => !incoming.has(d.date)).concat(days) }), overwrite };
+  }
+
+  // Demó adat (fiktív, jelölt). Saját mentést soha nem ír felül.
+  function generateDemo(state, today, count) {
+    count = count || 10;
+    let seed = 7;
+    const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    const base = state.rows.map((r, i) => 8 + i * 3);
+    const taken = new Set(state.days.map(d => d.date));
+    const added = [];
+    for (let i = count; i >= 1; i--) {
+      const date = addDays(today, -i);
+      const values = {};
+      state.rows.forEach((r, j) => {
+        let v = base[j] + Math.round((rnd() - 0.5) * 6);
+        if (i === 3 && j === 1) v += 12;   // szándékos nagy ugrás az eltérésjelzéshez
+        if (i === 2 && j === 3) v = Math.max(0, v - 9);
+        values[r.id] = Math.max(0, v);
+      });
+      if (taken.has(date)) continue;
+      const day = buildDay(state, date, values, new Date().toISOString());
+      day.demo = true;
+      added.push(day);
+    }
+    return { state: Object.assign({}, state, { days: state.days.concat(added) }), added: added.length };
+  }
+  function clearDemo(state) {
+    const keep = state.days.filter(d => !d.demo);
+    return { state: Object.assign({}, state, { days: keep }), removed: state.days.length - keep.length };
+  }
+  function clearAll(state) { return Object.assign({}, state, { days: [] }); }
+
+  function addRow(state, name) {
+    const n = String(name || '').trim();
+    if (!n) return { error: 'empty' };
+    if (state.rows.some(r => r.name.toLowerCase() === n.toLowerCase())) return { error: 'duplicate' };
+    let k = state.rows.length + 1;
+    while (state.rows.some(r => r.id === 'r' + k)) k++;
+    return { state: Object.assign({}, state, { rows: state.rows.concat([{ id: 'r' + k, name: n }]) }) };
+  }
+  function renameRow(state, id, name) {
+    const n = String(name || '').trim();
+    if (!n) return { error: 'empty' };
+    if (state.rows.some(r => r.id !== id && r.name.toLowerCase() === n.toLowerCase())) return { error: 'duplicate' };
+    return { state: Object.assign({}, state, { rows: state.rows.map(r => (r.id === id ? { id: r.id, name: n } : r)) }) };
+  }
+  function deleteRow(state, id) {
+    const draft = Object.assign({}, state.draft); delete draft[id];
+    return { state: Object.assign({}, state, { rows: state.rows.filter(r => r.id !== id), draft }) };
+  }
+  function lastSaveTime(state) {
+    const real = state.days.map(d => d.savedAt).filter(Boolean).sort();
+    return real.length ? real[real.length - 1] : null;
+  }
+
+  return { KEY, defaults, load, save, parseCount, sum, sortedDays, previousDay, prevValueFor, deviation,
+    buildDay, upsertDay, buildExport, validateImport, mergeImport, generateDemo, clearDemo, clearAll,
+    addRow, renameRow, deleteRow, lastSaveTime };
+})();
+
+/* =====================================================================
+ * 10. MODUL: ÜRES HELY SZÁMOLÁS – felület
+ * ===================================================================== */
+function renderEmptySpace(root, ctx) {
+  const { t, mode, store } = ctx;
+  let state = EmptySpace.load(store);
+  const perm = f => can(mode, f);
+  const draftDate = (state.draft && isValidIsoDate(state.draft.__date)) ? state.draft.__date : ctx.today();
+  let date = draftDate;
+
+  function persist(next) {
+    state = next;
+    if (!EmptySpace.save(store, state)) ctx.toast(t('storage.writeFailed'), true);
+  }
+  function rawValue(id) { const v = state.draft[id]; return v == null ? '' : String(v); }
+  function setDraft(id, val) {
+    state.draft = Object.assign({}, state.draft, { [id]: val });
+    EmptySpace.save(store, state);
+  }
+
+  const totalEl = h('div', { class: 'd-value', id: 'es-total', 'aria-live': 'polite' }, '0');
+  const totalNote = h('div', { class: 'd-note', id: 'es-total-note' });
+  const prevRef = h('p', { class: 'hint', id: 'es-prev-ref' });
+  const rowEls = {};
+
+  function evaluate() {
+    const prevDay = EmptySpace.previousDay(state.days, date);
+    let invalid = 0;
+    const values = {};
+    const flags = [];
+    state.rows.forEach(row => {
+      const p = EmptySpace.parseCount(rawValue(row.id));
+      const el = rowEls[row.id];
+      const touched = rawValue(row.id) !== '';
+      el.wrap.classList.remove('invalid', 'dev-flag');
+      el.msg.textContent = '';
+      el.input.removeAttribute('aria-invalid');
+      if (!p.ok) {
+        invalid++;
+        if (touched) {
+          el.wrap.classList.add('invalid');
+          el.input.setAttribute('aria-invalid', 'true');
+          el.msg.textContent = t('es.err.' + p.error);
+        }
+        return;
+      }
+      values[row.id] = p.value;
+      const dev = EmptySpace.deviation(EmptySpace.prevValueFor(prevDay, row), p.value, state.threshold);
+      if (dev && dev.flagged) {
+        el.wrap.classList.add('dev-flag');
+        el.msg.textContent = t('es.deviation', { diff: signed(dev.diff) });
+        flags.push({ row, dev });
+      }
+    });
+    totalEl.textContent = String(EmptySpace.sum(Object.values(values)));
+    const shown = state.rows.filter(r => rawValue(r.id) !== '' && !EmptySpace.parseCount(rawValue(r.id)).ok).length;
+    totalNote.textContent = shown ? t('es.invalidCount', { n: shown }) : '';
+    prevRef.textContent = prevDay ? t('es.prevRef', { date: fmtDate(prevDay.date, ctx.lang) }) : t('es.prevNone');
+    return { invalid, values, flags, prevDay };
+  }
+
+  async function onSave() {
+    if (!isValidIsoDate(date)) { ctx.toast(t('es.badDate'), true); return; }
+    const ev = evaluate();
+    if (ev.invalid > 0 || state.rows.length === 0) {
+      state.rows.forEach(r => { if (rawValue(r.id) === '') { rowEls[r.id].wrap.classList.add('invalid'); rowEls[r.id].msg.textContent = t('es.err.empty'); } });
+      ctx.toast(t('es.fixErrors'), true);
+      return;
+    }
+    const existing = state.days.find(d => d.date === date);
+    if (existing || ev.flags.length) {
+      const body = [];
+      if (existing) body.push(h('p', { class: 'notice-warn' }, t('es.confirm.overwrite', { date: fmtDate(date, ctx.lang), total: existing.total })));
+      if (ev.flags.length) {
+        body.push(h('p', null, t('es.confirm.deviation', { date: fmtDate(ev.prevDay.date, ctx.lang), threshold: state.threshold })));
+        body.push(h('ul', null, ev.flags.map(f => h('li', null, t('es.confirm.devLine', { row: f.row.name, prev: f.dev.prev, now: f.dev.now, diff: signed(f.dev.diff) })))));
+      }
+      body.push(h('p', { class: 'hint' }, t('es.confirm.sure')));
+      const ok = await ctx.modal({ title: t('es.confirm.title'), body, actions: [
+        { label: t('btn.cancel'), value: false },
+        { label: t('es.confirm.save'), value: true, kind: 'primary', id: 'es-confirm-save' }
+      ] });
+      if (!ok) return;
+    }
+    const day = EmptySpace.buildDay(state, date, ev.values);
+    const res = EmptySpace.upsertDay(state, day);
+    res.state.draft = {};
+    persist(res.state);
+    ctx.toast(t('es.saved', { date: fmtDate(date, ctx.lang), total: day.total }));
+    ctx.rerender();
+  }
+
+  // ---- Számolás kártya
+  const dateInput = h('input', { type: 'date', id: 'es-date', value: date, onchange: e => {
+    date = e.target.value; setDraft('__date', date); evaluate(); } });
+  const countCard = h('section', { class: 'card', 'aria-labelledby': 'es-count-h' },
+    h('div', { class: 'display' },
+      h('div', { class: 'd-label' }, t('es.total')), totalEl, totalNote),
+    h('div', { class: 'date-row' },
+      h('div', { class: 'field' }, h('label', { for: 'es-date' }, t('es.date')), dateInput),
+      prevRef),
+    h('h2', { id: 'es-count-h', class: 'sr-only' }, t('es.today')),
+    state.rows.length ? null : h('p', { class: 'empty' }, t('es.noRows')),
+    h('div', { class: 'rows' }, state.rows.map(row => {
+      const id = 'es-in-' + row.id;
+      const input = h('input', { id, type: 'text', inputmode: 'numeric', autocomplete: 'off', enterkeyhint: 'next',
+        'data-row': row.id, 'data-perm': 'entry.edit', value: rawValue(row.id), 'aria-describedby': id + '-msg',
+        oninput: e => { setDraft(row.id, e.target.value); evaluate(); } });
+      const msg = h('div', { class: 'msg', id: id + '-msg' });
+      const wrap = h('div', { class: 'row-item' }, h('label', { for: id }, row.name), input, msg);
+      rowEls[row.id] = { input, msg, wrap };
+      return wrap;
+    })),
+    perm('entry.save') ? h('button', { class: 'btn primary big', id: 'es-save', 'data-perm': 'entry.save', onclick: onSave },
+      icon('save'), t('es.save')) : null,
+    perm('threshold.edit') ? null : h('p', { class: 'hint', style: 'margin-top:12px' }, t('es.threshold.readonly', { n: state.threshold }))
+  );
+
+  // ---- Előző napok
+  const historyCard = perm('history.view') ? h('section', { class: 'card', 'data-perm': 'history.view' },
+    h('h2', null, t('es.history')),
+    state.days.length ? h('div', { class: 'history', id: 'es-history' }, EmptySpace.sortedDays(state.days).map(d =>
+      h('button', { class: 'hist-item', 'data-date': d.date, onclick: () => showDay(d) },
+        h('span', { class: 'h-date' }, fmtDate(d.date, ctx.lang), d.demo ? h('span', { class: 'chip demo' }, t('es.demo')) : null),
+        h('span', { class: 'h-total' }, String(d.total))))) :
+      h('p', { class: 'empty', id: 'es-history-empty' }, t('es.history.empty'))
+  ) : null;
+
+  function showDay(d) {
+    ctx.modal({
+      title: t('es.history.detail', { date: fmtDate(d.date, ctx.lang) }),
+      body: [
+        d.demo ? h('span', { class: 'chip demo' }, t('es.demo')) : null,
+        h('div', { class: 'tbl-scroll' }, h('table', { class: 'kv' },
+          h('thead', null, h('tr', null, h('th', null, t('es.history.row')), h('th', null, t('es.history.value')))),
+          h('tbody', null, d.rows.map(r => h('tr', null, h('td', null, r.name), h('td', null, String(r.value)))),
+            h('tr', null, h('th', null, t('es.total')), h('td', null, h('strong', null, String(d.total))))))),
+        h('p', { class: 'hint' }, t('es.history.savedAt', { time: fmtDateTime(d.savedAt, ctx.lang) }))
+      ],
+      actions: [{ label: t('btn.close'), value: true, kind: 'primary' }]
+    });
+  }
+
+  // ---- Export / import
+  async function onExport() {
+    if (!state.days.length) { ctx.toast(t('es.export.empty'), true); return; }
+    const data = EmptySpace.buildExport(state);
+    const text = JSON.stringify(data, null, 2);
+    const file = 'ures-hely-' + ctx.today() + '.json';
+    const ta = h('textarea', { id: 'es-export-text', readonly: true, rows: 8 }, text);
+    ctx.modal({
+      title: t('es.export.title'),
+      body: [
+        h('p', null, t('es.export.ready', { file, n: data.days.length })),
+        h('div', { class: 'btn-row' },
+          h('button', { class: 'btn primary', id: 'es-export-save', onclick: () => ctx.saveFile(file, text) }, icon('download'), t('es.export.download')),
+          h('button', { class: 'btn', onclick: () => ctx.copyText(text, ta) }, t('es.export.copy'))),
+        h('p', { class: 'hint' }, t('es.export.textHint')),
+        ta
+      ],
+      actions: [{ label: t('btn.close'), value: true }]
+    });
+  }
+  function onImport() {
+    const fileIn = h('input', { type: 'file', id: 'es-import-file', accept: '.json,application/json' });
+    const ta = h('textarea', { id: 'es-import-text', rows: 6 });
+    const err = h('p', { class: 'notice-err', id: 'es-import-error', hidden: true });
+    const showErr = msg => { err.textContent = msg; err.hidden = false; };
+    async function check() {
+      err.hidden = true;
+      let text = ta.value.trim();
+      if (fileIn.files && fileIn.files[0]) {
+        try { text = await fileIn.files[0].text(); } catch (e) { showErr(t('es.import.err.read')); return; }
+      }
+      if (!text) { showErr(t('es.import.noInput')); return; }
+      const res = EmptySpace.validateImport(text);
+      if (!res.ok) { showErr(importErrorText(t, res)); return; }
+      const merged = EmptySpace.mergeImport(state, res.days);
+      ctx.closeModal(null);
+      const ok = await ctx.modal({ title: t('es.import.title'),
+        body: [h('p', null, t('es.import.summary', { n: res.days.length, overwrite: merged.overwrite }))],
+        actions: [{ label: t('btn.cancel'), value: false }, { label: t('es.import.confirm'), value: true, kind: 'primary', id: 'es-import-confirm' }] });
+      if (!ok) return;
+      persist(merged.state);
+      ctx.toast(t('es.import.done', { n: res.days.length }));
+      ctx.rerender();
+    }
+    ctx.modal({
+      title: t('es.import.title'),
+      body: [
+        h('div', { class: 'field' }, h('label', { for: 'es-import-file' }, t('es.import.choose')), fileIn),
+        h('div', { class: 'field' }, h('label', { for: 'es-import-text' }, t('es.import.paste')), ta),
+        err
+      ],
+      actions: [{ label: t('btn.cancel'), value: false }, { label: t('es.import.check'), kind: 'primary', id: 'es-import-check', onClick: check, keepOpen: true }]
+    });
+  }
+  const backupCard = (perm('data.export') || perm('data.import')) ? h('section', { class: 'card' },
+    h('h2', null, t('es.backup')),
+    h('p', { class: 'hint', style: 'margin-bottom:12px' }, t('es.backup.hint')),
+    h('div', { class: 'btn-row' },
+      perm('data.export') ? h('button', { class: 'btn', id: 'es-export', 'data-perm': 'data.export', onclick: onExport }, icon('download'), t('es.export')) : null,
+      perm('data.import') ? h('button', { class: 'btn', id: 'es-import', 'data-perm': 'data.import', onclick: onImport }, icon('upload'), t('es.import')) : null)
+  ) : null;
+
+  // ---- Admin
+  let adminCard = null;
+  if (perm('rows.manage') || perm('threshold.edit') || perm('data.clearAll')) {
+    const parts = [h('h2', null, t('es.admin'))];
+    if (perm('threshold.edit')) {
+      const thIn = h('input', { type: 'number', id: 'es-threshold', min: '0', step: '1', inputmode: 'numeric', value: String(state.threshold) });
+      parts.push(h('div', { 'data-perm': 'threshold.edit' },
+        h('div', { class: 'inline-form' },
+          h('div', { class: 'field' }, h('label', { for: 'es-threshold' }, t('es.threshold')), thIn),
+          h('button', { class: 'btn', id: 'es-threshold-save', onclick: () => {
+            const p = EmptySpace.parseCount(thIn.value);
+            if (!p.ok) { ctx.toast(t('es.err.' + p.error), true); return; }
+            persist(Object.assign({}, state, { threshold: p.value }));
+            ctx.toast(t('es.threshold.saved', { n: p.value }));
+            ctx.rerender();
+          } }, t('es.threshold.save'))),
+        h('p', { class: 'hint', style: 'margin-top:6px' }, t('es.threshold.hint'))));
+    }
+    if (perm('rows.manage')) {
+      const rowErr = code => ctx.toast(t('es.rows.err.' + code), true);
+      const newIn = h('input', { type: 'text', id: 'es-row-new', autocomplete: 'off' });
+      parts.push(h('hr', { class: 'sep' }), h('div', { 'data-perm': 'rows.manage' },
+        h('h3', { style: 'font-size:1rem;margin-bottom:10px' }, t('es.rows')),
+        h('div', { class: 'manage-list' }, state.rows.map(row => {
+          const inp = h('input', { type: 'text', value: row.name, id: 'es-row-name-' + row.id, 'aria-label': t('btn.rename') + ': ' + row.name });
+          return h('div', { class: 'manage-row' }, inp,
+            h('button', { class: 'btn', onclick: () => {
+              const r = EmptySpace.renameRow(state, row.id, inp.value);
+              if (r.error) return rowErr(r.error);
+              persist(r.state); ctx.toast(t('es.rows.renamed', { name: inp.value.trim() })); ctx.rerender();
+            } }, t('btn.rename')),
+            h('button', { class: 'btn danger', onclick: async () => {
+              const ok = await ctx.confirm(t('btn.delete'), t('es.rows.confirmDelete', { name: row.name }), t('btn.delete'), true);
+              if (!ok) return;
+              persist(EmptySpace.deleteRow(state, row.id).state); ctx.toast(t('es.rows.deleted', { name: row.name })); ctx.rerender();
+            } }, t('btn.delete')));
+        })),
+        h('div', { class: 'inline-form' },
+          h('div', { class: 'field', style: 'flex:1 1 160px' }, h('label', { for: 'es-row-new' }, t('es.rows.new')), newIn),
+          h('button', { class: 'btn', id: 'es-row-add', onclick: () => {
+            const r = EmptySpace.addRow(state, newIn.value);
+            if (r.error) return rowErr(r.error);
+            persist(r.state); ctx.toast(t('es.rows.added', { name: newIn.value.trim() })); ctx.rerender();
+          } }, t('btn.add')))));
+    }
+    if (perm('data.clearAll')) {
+      parts.push(h('hr', { class: 'sep' }), h('button', { class: 'btn danger', id: 'es-clear-all', 'data-perm': 'data.clearAll', onclick: async () => {
+        const ok = await ctx.confirm(t('es.clearAll'), t('es.clearAll.confirm', { n: state.days.length }), t('btn.delete'), true);
+        if (!ok) return;
+        persist(EmptySpace.clearAll(state)); ctx.toast(t('es.clearAll.done')); ctx.rerender();
+      } }, t('es.clearAll')));
+    }
+    adminCard = h('section', { class: 'card role-admin' }, parts);
+  }
+
+  // ---- Fejlesztő
+  let devCard = null;
+  if (perm('demo.generate') || perm('demo.clear')) {
+    devCard = h('section', { class: 'card role-dev' },
+      h('h2', null, t('es.dev')),
+      h('p', { class: 'hint', style: 'margin-bottom:12px' }, t('es.demo.hint')),
+      h('div', { class: 'btn-row' },
+        perm('demo.generate') ? h('button', { class: 'btn', id: 'es-demo-gen', 'data-perm': 'demo.generate', onclick: () => {
+          const r = EmptySpace.generateDemo(state, ctx.today());
+          persist(r.state); ctx.toast(t('es.demo.generated', { n: r.added })); ctx.rerender();
+        } }, t('es.demo.generate')) : null,
+        perm('demo.clear') ? h('button', { class: 'btn danger', id: 'es-demo-clear', 'data-perm': 'demo.clear', onclick: () => {
+          const r = EmptySpace.clearDemo(state);
+          persist(r.state); ctx.toast(t('es.demo.cleared', { n: r.removed })); ctx.rerender();
+        } }, t('es.demo.clear')) : null,
+        perm('system.view') ? h('a', { class: 'btn', href: '#system', 'data-perm': 'system.view' }, t('es.openSystem')) : null));
+  }
+
+  root.appendChild(h('div', { class: 'module-grid' },
+    h('div', { class: 'col' }, countCard),
+    h('div', { class: 'col' }, historyCard, backupCard, adminCard, devCard)));
+  evaluate();
+}
+
+function importErrorText(t, res) {
+  if (res.error === 'day') return t('es.import.err.day', { n: res.index, reason: t('es.import.reason.' + res.reason) });
+  return t('es.import.err.' + res.error);
+}
+
+/* =====================================================================
+ * 11. MODULOK REGISZTRÁLÁSA
+ * ===================================================================== */
+registerModule({ id: 'empty-space', order: 1, icon: 'rackEmptySlot', accent: 'space', status: 'ready',
+  titleKey: 'mod.emptySpace.title', descKey: 'mod.emptySpace.desc', guideKey: 'guide.emptySpace', render: renderEmptySpace });
+registerModule({ id: 'pull-list', order: 2, icon: 'clipboardPrinter', accent: 'pull', status: 'soon',
+  titleKey: 'mod.pullList.title', descKey: 'mod.pullList.desc' });
+registerModule({ id: 'priority-freight', order: 3, icon: 'truckPriceTag', accent: 'freight', status: 'soon',
+  titleKey: 'mod.freight.title', descKey: 'mod.freight.desc' });
+
+/* =====================================================================
+ * 12. NÉZETEK: kezdőoldal, rendszerállapot
+ * ===================================================================== */
+function renderHub(root, ctx) {
+  const { t } = ctx;
+  root.appendChild(h('div', { class: 'view-head' },
+    h('h1', null, t('hub.title')), h('p', { class: 'sub' }, t('hub.subtitle'))));
+  root.appendChild(h('div', { class: 'tiles', id: 'tiles' }, MODULES.map(m => {
+    const ready = m.status === 'ready';
+    const inner = [
+      h('span', { class: 'tile-icon', html: ICONS[m.icon] || '' }),
+      h('h2', null, t(m.titleKey)),
+      h('p', null, t(m.descKey)),
+      h('span', { class: 'chip' + (ready ? ' go' : '') }, ready ? t('tile.open') : t('tile.soon'))
+    ];
+    return ready
+      ? h('a', { class: 'tile ready acc-' + m.accent, href: '#' + m.id, 'data-module': m.id, 'data-icon': m.icon }, inner)
+      : h('div', { class: 'tile soon acc-' + m.accent, 'aria-disabled': 'true', 'data-module': m.id, 'data-icon': m.icon }, inner);
+  })));
+  if (can(ctx.mode, 'system.view')) {
+    root.appendChild(h('p', { style: 'margin-top:18px' },
+      h('a', { class: 'btn', href: '#system', 'data-perm': 'system.view' }, t('sys.title'))));
+  }
+}
+
+function renderSystem(root, ctx) {
+  const { t } = ctx;
+  const es = EmptySpace.load(ctx.store);
+  const demo = es.days.filter(d => d.demo).length;
+  const last = EmptySpace.lastSaveTime(es);
+  root.appendChild(h('div', { class: 'view-head' },
+    h('a', { class: 'btn', href: '#' }, icon('back'), t('btn.home')),
+    h('h1', null, t('sys.title'))));
+  const resultsBox = h('div', { id: 'test-results' });
+  root.appendChild(h('div', { class: 'module-grid' },
+    h('div', { class: 'col' }, h('section', { class: 'card', 'data-perm': 'system.view' },
+      h('div', { class: 'tbl-scroll' }, h('table', { class: 'kv', id: 'sys-table' }, h('tbody', null,
+        h('tr', null, h('th', null, t('sys.version')), h('td', { id: 'sys-version' }, VERSION)),
+        h('tr', null, h('th', null, t('sys.storage')), h('td', { id: 'sys-storage' }, ctx.store.persistent ? t('sys.yes') : t('sys.no'))),
+        h('tr', null, h('th', null, t('sys.days')), h('td', { id: 'sys-days' }, t('sys.daysDetail', { total: es.days.length, demo }))),
+        h('tr', null, h('th', null, t('sys.lastSave')), h('td', { id: 'sys-last' }, last ? fmtDateTime(last, ctx.lang) : t('sys.never'))),
+        h('tr', null, h('th', null, t('sys.lang')), h('td', null, t('lang.' + ctx.lang + '.full'))),
+        h('tr', null, h('th', null, t('sys.theme')), h('td', null, t('theme.' + ctx.theme))),
+        h('tr', null, h('th', null, t('sys.mode')), h('td', null, t('mode.' + ctx.mode)))
+      ))))),
+    h('div', { class: 'col' }, can(ctx.mode, 'tests.run') ? h('section', { class: 'card role-dev', 'data-perm': 'tests.run' },
+      h('h2', null, t('sys.tests')),
+      h('p', { class: 'hint', style: 'margin-bottom:12px' }, t('sys.tests.hint')),
+      h('button', { class: 'btn primary', id: 'run-tests', onclick: async (e) => {
+        const btn = e.currentTarget;
+        btn.disabled = true;
+        resultsBox.textContent = t('sys.tests.running');
+        const res = await runTests();
+        resultsBox.textContent = '';
+        resultsBox.appendChild(h('p', { class: 'test-summary', id: 'test-summary' }, t('sys.tests.result', { pass: res.passed, fail: res.failed })));
+        resultsBox.appendChild(h('ul', { class: 'test-list' }, res.results.map(r =>
+          h('li', null, h('span', { class: r.ok ? 'pass' : 'fail' }, r.ok ? '✓' : '✗'), h('span', null, r.name + (r.ok ? '' : ' — ' + r.error))))));
+        btn.disabled = false;
+      } }, t('sys.tests.run')), resultsBox) : null)));
+}
+
+/* =====================================================================
+ * 13. ALKALMAZÁS-HÉJ: fejléc, lábléc, útválasztás, modal, toast
+ * ===================================================================== */
+const App = {};
+(function () {
+  const backend = detectLocalStorage();
+  const store = createStore(backend || memoryBackend(), !!backend);
+  const notifications = createNotificationCenter(store);
+  let prefs = loadPrefs(store);
+  let t = makeT(prefs.lang);
+  let downloads = null;
+  let modalResolve = null;
+  let lastFocus = null;
+
+  function applyTheme(theme) {
+    const root = document.documentElement;
+    if (theme === 'light' || theme === 'dark') root.setAttribute('data-theme', theme);
+    else root.removeAttribute('data-theme');
+  }
+  function setPref(key, value) {
+    prefs = Object.assign({}, prefs, { [key]: value });
+    savePrefs(store, prefs);
+    if (key === 'lang') t = makeT(prefs.lang);
+    if (key === 'theme') applyTheme(prefs.theme);
+    render();
+  }
+  function route() {
+    const id = (location.hash || '').replace(/^#/, '');
+    if (!id) return { view: 'hub' };
+    if (id === 'system') return can(prefs.mode, 'system.view') ? { view: 'system' } : { view: 'hub', denied: true };
+    const m = findModule(id);
+    if (m && m.status === 'ready') return { view: 'module', module: m };
+    return { view: 'hub' };
+  }
+
+  function toast(msg, isErr) {
+    const zone = document.getElementById('toast-zone');
+    const el = h('div', { class: 'toast' + (isErr ? ' err' : ''), role: isErr ? 'alert' : 'status' }, msg);
+    zone.appendChild(el);
+    setTimeout(() => el.remove(), isErr ? 5000 : 3000);
+  }
+  function closeModal(value) {
+    const root = document.getElementById('modal-root');
+    root.textContent = '';
+    document.removeEventListener('keydown', onModalKey);
+    const r = modalResolve; modalResolve = null;
+    if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+    if (r) r(value);
+  }
+  function onModalKey(e) {
+    if (e.key === 'Escape') { e.preventDefault(); closeModal(false); }
+    if (e.key === 'Tab') {
+      const box = document.querySelector('#modal-root .modal');
+      if (!box) return;
+      const f = box.querySelectorAll('button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])');
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  }
+  function modal(opts) {
+    if (modalResolve) closeModal(null);
+    lastFocus = document.activeElement;
+    return new Promise(resolve => {
+      modalResolve = resolve;
+      const titleId = 'modal-title';
+      const box = h('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': titleId },
+        h('h2', { id: titleId }, opts.title),
+        h('div', { class: 'm-body' }, opts.body),
+        h('div', { class: 'm-actions' }, (opts.actions || []).map(a => h('button', {
+          class: 'btn' + (a.kind ? ' ' + a.kind : ''), id: a.id,
+          onclick: () => { if (a.onClick) a.onClick(); if (!a.keepOpen) closeModal(a.value); }
+        }, a.label))));
+      const back = h('div', { class: 'modal-back', onclick: e => { if (e.target === back) closeModal(false); } }, box);
+      document.getElementById('modal-root').appendChild(back);
+      document.addEventListener('keydown', onModalKey);
+      const focusTarget = box.querySelector('input, textarea') || box.querySelector('.m-actions .btn:last-child');
+      if (focusTarget) focusTarget.focus();
+    });
+  }
+  function confirmDialog(title, message, okLabel, danger) {
+    return modal({ title, body: [h('p', null, message)], actions: [
+      { label: t('btn.cancel'), value: false },
+      { label: okLabel, value: true, kind: danger ? 'danger solid' : 'primary', id: 'confirm-ok' }
+    ] });
+  }
+  async function saveFile(filename, text) {
+    if (downloads) {
+      try { await downloads.save({ filename, data: text }); toast(t('es.export.saved')); }
+      catch (e) { toast(t('es.export.declined'), true); }
+      return;
+    }
+    try {
+      const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+      const a = h('a', { href: url, download: filename, style: 'display:none' });
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+    } catch (e) { toast(t('es.export.copyFailed'), true); }
+  }
+  async function copyText(text, ta) {
+    try { await navigator.clipboard.writeText(text); toast(t('es.export.copied')); }
+    catch (e) { if (ta) { ta.focus(); ta.select(); } toast(t('es.export.copyFailed'), true); }
+  }
+  function today() { return isoDate(new Date()); }
+
+  function makeCtx() {
+    return { t, lang: prefs.lang, theme: prefs.theme, mode: prefs.mode, store, today, toast, modal, closeModal,
+      confirm: confirmDialog, saveFile, copyText, notifications, rerender: render };
+  }
+
+  function showGuide() {
+    const r = route();
+    let title = t('guide.title.hub'), text = t('guide.hub');
+    if (r.view === 'module' && r.module.guideKey) { title = t('guide.title.module', { name: t(r.module.titleKey) }); text = t(r.module.guideKey); }
+    if (r.view === 'system') { title = t('guide.title.module', { name: t('sys.title') }); text = t('guide.system'); }
+    modal({ title, body: text.split('\n').map(p => h('p', null, p)), actions: [{ label: t('btn.close'), value: true, kind: 'primary' }] });
+  }
+  function showNotifications() {
+    const list = notifications.list();
+    const body = list.length
+      ? list.map(n => h('div', { class: 'notif-item' + (n.read ? '' : ' unread') },
+          h('strong', null, n.titleKey ? t(n.titleKey) : (n.title || '')),
+          (n.bodyKey || n.body) ? h('span', null, n.bodyKey ? t(n.bodyKey) : n.body) : null,
+          h('time', { datetime: n.date }, fmtDateTime(n.date, prefs.lang))))
+      : [h('p', { class: 'empty', id: 'notif-empty' }, t('notif.empty'))];
+    const actions = [{ label: t('btn.close'), value: true, kind: 'primary' }];
+    if (notifications.unreadCount() > 0) actions.unshift({ label: t('notif.markRead'), value: true, onClick: () => notifications.markAllRead() });
+    modal({ title: t('notif.title'), body, actions });
+  }
+
+  function renderHeader(el, ctx) {
+    el.textContent = '';
+    const unread = notifications.unreadCount();
+    el.appendChild(h('div', { class: 'wrap' },
+      h('a', { class: 'brand', href: '#', 'aria-label': ctx.t('app.name') }, h('span', { html: ICONS.logo, style: 'display:inline-flex' }), h('span', null, ctx.t('app.name'))),
+      h('div', { class: 'hdr-tools' },
+        h('div', { class: 'seg', role: 'group', 'aria-label': ctx.t('lang.label'), id: 'lang-switch' }, LANGS.map(l =>
+          h('button', { 'aria-pressed': String(l === ctx.lang), lang: l, title: ctx.t('lang.' + l + '.full'), 'data-lang': l,
+            onclick: () => setPref('lang', l) }, ctx.t('lang.' + l)))),
+        h('div', { class: 'seg', role: 'group', 'aria-label': ctx.t('theme.label'), id: 'theme-switch' }, THEMES.map(th =>
+          h('button', { 'aria-pressed': String(th === ctx.theme), title: ctx.t('theme.' + th), 'aria-label': ctx.t('theme.' + th), 'data-theme-opt': th,
+            onclick: () => setPref('theme', th), html: ICONS[th === 'system' ? 'system' : th === 'light' ? 'sun' : 'moon'] }))),
+        h('label', { class: 'mode-pick mode-' + ctx.mode, id: 'mode-indicator', 'data-mode': ctx.mode },
+          h('span', { class: 'dot', 'aria-hidden': 'true' }),
+          h('span', { class: 'lbl' }, ctx.t('mode.label')),
+          h('select', { id: 'mode-select', onchange: e => { setPref('mode', e.target.value); toast(t('mode.changed', { mode: t('mode.' + e.target.value) })); } },
+            MODES.map(m => h('option', { value: m, selected: m === ctx.mode }, ctx.t('mode.' + m))))),
+        h('button', { class: 'icon-btn', id: 'guide-btn', title: ctx.t('btn.guide'), 'aria-label': ctx.t('btn.guide'), onclick: showGuide, html: ICONS.guide }),
+        h('button', { class: 'icon-btn', id: 'bell-btn', title: ctx.t('btn.notifications'),
+          'aria-label': ctx.t('btn.notifications') + (unread ? ' – ' + ctx.t('notif.unread', { n: unread }) : ''), onclick: showNotifications },
+          h('span', { html: ICONS.bell, style: 'display:inline-flex' }),
+          unread ? h('span', { class: 'badge', id: 'bell-badge' }, String(unread > 99 ? '99+' : unread)) : null)
+      )));
+  }
+  function renderFooter(el, ctx) {
+    el.textContent = '';
+    el.appendChild(h('div', { class: 'wrap' },
+      h('span', null, ctx.t('app.fictional')),
+      h('span', { id: 'app-version' }, ctx.t('footer.version', { v: VERSION }))));
+  }
+  function renderMain(el, ctx, r) {
+    el.textContent = '';
+    if (!ctx.store.persistent) el.appendChild(h('div', { class: 'storage-warn', role: 'alert', id: 'storage-warn' }, ctx.t('storage.unavailable')));
+    if (r.view === 'module') {
+      el.appendChild(h('div', { class: 'view-head' },
+        h('a', { class: 'btn', href: '#', id: 'back-home' }, icon('back'), ctx.t('btn.home')),
+        h('h1', null, ctx.t(r.module.titleKey))));
+      r.module.render(el, ctx);
+    } else if (r.view === 'system') {
+      renderSystem(el, ctx);
+    } else {
+      renderHub(el, ctx);
+    }
+  }
+  let lastView = null;
+  function render() {
+    const r = route();
+    if (r.denied) { history.replaceState(null, '', location.pathname + location.search); toast(t('route.denied'), true); }
+    const ctx = makeCtx();
+    document.documentElement.lang = prefs.lang;
+    document.title = t('app.name');
+    renderHeader(document.getElementById('app-header'), ctx);
+    renderMain(document.getElementById('app-main'), ctx, r);
+    renderFooter(document.getElementById('app-footer'), ctx);
+    const key = r.view + ':' + (r.module ? r.module.id : '');
+    if (lastView !== null && key !== lastView) window.scrollTo(0, 0);
+    lastView = key;
+  }
+
+  Object.assign(App, { store, notifications, render, get prefs() { return prefs; }, setPref, modal, closeModal, renderHeader, renderMain, makeCtx });
+
+  applyTheme(prefs.theme);
+  window.addEventListener('hashchange', () => { if (modalResolve) closeModal(null); render(); });
+  notifications.onChange(() => renderHeader(document.getElementById('app-header'), makeCtx()));
+  if (window.matchMedia) {
+    try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => render()); } catch (e) { /* régi böngésző */ }
+  }
+  render();
+  // Opcionális: a claude.ai megosztott oldalán a fájlmentést a "downloads" képesség végzi.
+  try {
+    if (window.claude && typeof window.claude.use === 'function') {
+      window.claude.use('downloads').then(d => { downloads = d; }).catch(() => {});
+    }
+  } catch (e) { /* nincs ilyen környezet */ }
+})();
+
+/* =====================================================================
+ * 14. TESZTEK – a felületről (Fejlesztő mód → Rendszerállapot) vagy
+ *     a tests/run-tests.mjs szkripttel futtathatók. Külön memóriatárolón
+ *     futnak, a valódi mentett adatot nem érintik.
+ * ===================================================================== */
+async function runTests() {
+  const results = [];
+  const assert = (cond, msg) => { if (!cond) throw new Error(msg || 'assertion failed'); };
+  const eq = (a, b, msg) => { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error((msg || 'not equal') + ': ' + JSON.stringify(a) + ' ≠ ' + JSON.stringify(b)); };
+  async function test(name, fn) {
+    try { await fn(); results.push({ name, ok: true }); }
+    catch (e) { results.push({ name, ok: false, error: e && e.message ? e.message : String(e) }); }
+  }
+  const memStore = () => createStore(memoryBackend(), true);
+  const fakeCtx = (store, mode, lang, missing) => ({
+    t: makeT(lang || 'en', missing), lang: lang || 'en', theme: 'system', mode: mode || 'user', store,
+    today: () => '2026-03-10', toast() {}, modal: () => Promise.resolve(true), closeModal() {},
+    confirm: () => Promise.resolve(true), saveFile() {}, copyText() {}, rerender() {},
+    notifications: createNotificationCenter(store)
+  });
+  const ES = EmptySpace;
+
+  // --- Összeg
+  await test('Összeg: üres lista = 0', () => eq(ES.sum([]), 0));
+  await test('Összeg: egy sor', () => eq(ES.sum([7]), 7));
+  await test('Összeg: több sor', () => eq(ES.sum([3, 0, 12, 5]), 20));
+  await test('Összeg: a felületen gépelés közben frissül', () => {
+    const store = memStore();
+    const root = document.createElement('div');
+    renderEmptySpace(root, fakeCtx(store, 'user'));
+    const inputs = root.querySelectorAll('input[data-row]');
+    eq(inputs.length, 5, 'alapértelmezett 5 sor');
+    eq(root.querySelector('#es-total').textContent, '0', 'üres összeg');
+    inputs[0].value = '4'; inputs[0].dispatchEvent(new Event('input'));
+    inputs[2].value = '9'; inputs[2].dispatchEvent(new Event('input'));
+    eq(root.querySelector('#es-total').textContent, '13');
+  });
+  await test('Alapértelmezett sorok: A–E sor', () => eq(ES.defaults().rows.map(r => r.name), ['A sor', 'B sor', 'C sor', 'D sor', 'E sor']));
+
+  // --- Érvénytelen bevitel
+  await test('Bevitel: negatív szám elutasítva', () => { eq(ES.parseCount('-3').error, 'negative'); eq(ES.parseCount('-1.5').error, 'negative'); });
+  await test('Bevitel: tört szám elutasítva', () => { eq(ES.parseCount('2.5').error, 'fraction'); eq(ES.parseCount('2,5').error, 'fraction'); });
+  await test('Bevitel: szöveg elutasítva', () => { eq(ES.parseCount('abc').error, 'notNumber'); eq(ES.parseCount('1e3').error, 'notNumber'); eq(ES.parseCount('5 db').error, 'notNumber'); });
+  await test('Bevitel: üres mező jelölve', () => { eq(ES.parseCount('').error, 'empty'); eq(ES.parseCount('   ').error, 'empty'); eq(ES.parseCount(null).error, 'empty'); });
+  await test('Bevitel: érvényes egész szám (szóközzel is)', () => { eq(ES.parseCount(' 12 '), { ok: true, value: 12 }); eq(ES.parseCount('0'), { ok: true, value: 0 }); });
+  await test('Bevitel: érvénytelen mező nem számít az összegbe, hibát mutat', () => {
+    const root = document.createElement('div');
+    renderEmptySpace(root, fakeCtx(memStore(), 'user'));
+    const inputs = root.querySelectorAll('input[data-row]');
+    inputs[0].value = '5'; inputs[0].dispatchEvent(new Event('input'));
+    inputs[1].value = '-2'; inputs[1].dispatchEvent(new Event('input'));
+    eq(root.querySelector('#es-total').textContent, '5');
+    assert(inputs[1].closest('.row-item').classList.contains('invalid'), 'hibás mező jelölve');
+    assert(inputs[1].getAttribute('aria-invalid') === 'true', 'aria-invalid');
+  });
+  await test('Bevitel: mentés üres mezővel nem történik meg', async () => {
+    const store = memStore();
+    const root = document.createElement('div');
+    renderEmptySpace(root, fakeCtx(store, 'user'));
+    const inputs = root.querySelectorAll('input[data-row]');
+    inputs[0].value = '5'; inputs[0].dispatchEvent(new Event('input'));
+    root.querySelector('#es-save').click();
+    await new Promise(r => setTimeout(r, 0));
+    eq(ES.load(store).days.length, 0);
+  });
+
+  // --- Mentés, felülírás, előző napok
+  await test('Mentés: új nap ISO dátummal, sornevekkel, összeggel', () => {
+    const s = ES.defaults();
+    const day = ES.buildDay(s, '2026-03-10', { r1: 1, r2: 2, r3: 3, r4: 4, r5: 5 });
+    const r = ES.upsertDay(s, day);
+    eq(r.overwritten, null);
+    eq(r.state.days.length, 1);
+    const d = r.state.days[0];
+    assert(/^\d{4}-\d{2}-\d{2}$/.test(d.date), 'ISO dátum');
+    eq(d.rows.map(x => [x.name, x.value]), [['A sor', 1], ['B sor', 2], ['C sor', 3], ['D sor', 4], ['E sor', 5]]);
+    eq(d.total, 15);
+  });
+  await test('Mentés: ugyanarra a napra felülírás, egy bejegyzés marad', () => {
+    let s = ES.defaults();
+    s = ES.upsertDay(s, ES.buildDay(s, '2026-03-10', { r1: 1, r2: 1, r3: 1, r4: 1, r5: 1 })).state;
+    const r = ES.upsertDay(s, ES.buildDay(s, '2026-03-10', { r1: 2, r2: 2, r3: 2, r4: 2, r5: 2 }));
+    assert(r.overwritten && r.overwritten.total === 5, 'jelzi a felülírást');
+    eq(r.state.days.length, 1);
+    eq(r.state.days[0].total, 10);
+  });
+  await test('Mentés a felületről: felülírás előtt rákérdez', async () => {
+    const store = memStore();
+    let s = ES.defaults();
+    s = ES.upsertDay(s, ES.buildDay(s, '2026-03-10', { r1: 1, r2: 1, r3: 1, r4: 1, r5: 1 })).state;
+    ES.save(store, s);
+    let asked = 0;
+    const ctx = fakeCtx(store, 'user');
+    ctx.modal = () => { asked++; return Promise.resolve(false); };
+    const root = document.createElement('div');
+    renderEmptySpace(root, ctx);
+    root.querySelectorAll('input[data-row]').forEach(i => { i.value = '2'; i.dispatchEvent(new Event('input')); });
+    root.querySelector('#es-save').click();
+    await new Promise(r => setTimeout(r, 0));
+    eq(asked, 1, 'megerősítést kért');
+    eq(ES.load(store).days[0].total, 5, 'elutasításkor nem írta felül');
+  });
+  await test('Előző napok: legújabb elöl', () => {
+    let s = ES.defaults();
+    ['2026-03-08', '2026-03-10', '2026-03-09'].forEach(d => { s = ES.upsertDay(s, ES.buildDay(s, d, { r1: 1, r2: 0, r3: 0, r4: 0, r5: 0 })).state; });
+    eq(ES.sortedDays(s.days).map(d => d.date), ['2026-03-10', '2026-03-09', '2026-03-08']);
+    const store = memStore(); ES.save(store, s);
+    const root = document.createElement('div');
+    renderEmptySpace(root, fakeCtx(store, 'user'));
+    eq([...root.querySelectorAll('#es-history .hist-item')].map(b => b.dataset.date), ['2026-03-10', '2026-03-09', '2026-03-08']);
+  });
+
+  // --- Eltérésjelzés
+  await test('Eltérés: küszöb alatt nincs jelzés (10→14, küszöb 5)', () => eq(ES.deviation(10, 14, 5).flagged, false));
+  await test('Eltérés: pontosan a küszöbön nincs jelzés (10→15, 10→5)', () => { eq(ES.deviation(10, 15, 5).flagged, false); eq(ES.deviation(10, 5, 5).flagged, false); });
+  await test('Eltérés: küszöb fölött jelzés (10→16 = +6, 10→4 = −6)', () => {
+    const up = ES.deviation(10, 16, 5), down = ES.deviation(10, 4, 5);
+    assert(up.flagged && up.diff === 6, 'felfelé'); assert(down.flagged && down.diff === -6, 'lefelé');
+  });
+  await test('Eltérés: az utolsó, korábbi mentett naphoz hasonlít', () => {
+    let s = ES.defaults();
+    s = ES.upsertDay(s, ES.buildDay(s, '2026-03-05', { r1: 50, r2: 0, r3: 0, r4: 0, r5: 0 })).state;
+    s = ES.upsertDay(s, ES.buildDay(s, '2026-03-08', { r1: 10, r2: 0, r3: 0, r4: 0, r5: 0 })).state;
+    eq(ES.previousDay(s.days, '2026-03-10').date, '2026-03-08');
+    eq(ES.previousDay(s.days, '2026-03-05'), null);
+  });
+  await test('Eltérés a felületen: mező színe és felirat', () => {
+    const store = memStore();
+    let s = ES.defaults();
+    s = ES.upsertDay(s, ES.buildDay(s, '2026-03-09', { r1: 10, r2: 10, r3: 10, r4: 10, r5: 10 })).state;
+    ES.save(store, s);
+    const root = document.createElement('div');
+    renderEmptySpace(root, fakeCtx(store, 'user', 'hu'));
+    const inputs = root.querySelectorAll('input[data-row]');
+    const vals = ['14', '15', '16', '4', '10'];
+    inputs.forEach((i, k) => { i.value = vals[k]; i.dispatchEvent(new Event('input')); });
+    const flagged = [...inputs].map(i => i.closest('.row-item').classList.contains('dev-flag'));
+    eq(flagged, [false, false, true, true, false]);
+    const msg = inputs[2].closest('.row-item').querySelector('.msg').textContent;
+    assert(msg.includes('Eltérés az előző naphoz képest') && msg.includes('+6'), 'felirat: ' + msg);
+  });
+  await test('Eltérés: mentéskor megerősítést kér', async () => {
+    const store = memStore();
+    let s = ES.defaults();
+    s = ES.upsertDay(s, ES.buildDay(s, '2026-03-09', { r1: 10, r2: 10, r3: 10, r4: 10, r5: 10 })).state;
+    ES.save(store, s);
+    let asked = 0;
+    const ctx = fakeCtx(store, 'user');
+    ctx.modal = () => { asked++; return Promise.resolve(true); };
+    const root = document.createElement('div');
+    renderEmptySpace(root, ctx);
+    root.querySelectorAll('input[data-row]').forEach((i, k) => { i.value = k === 0 ? '30' : '10'; i.dispatchEvent(new Event('input')); });
+    root.querySelector('#es-save').click();
+    await new Promise(r => setTimeout(r, 0));
+    eq(asked, 1);
+    eq(ES.load(store).days.length, 2, 'megerősítés után mentve');
+  });
+  await test('Eltérésküszöb alapértéke 5', () => eq(ES.defaults().threshold, 5));
+
+  // --- Export / import
+  await test('Export/import: sikeres körút', () => {
+    let s = ES.defaults();
+    s = ES.upsertDay(s, ES.buildDay(s, '2026-03-09', { r1: 1, r2: 2, r3: 3, r4: 4, r5: 5 })).state;
+    s = ES.generateDemo(s, '2026-03-10', 3).state;
+    const text = JSON.stringify(ES.buildExport(s));
+    const v = ES.validateImport(text);
+    assert(v.ok, 'érvényes');
+    const merged = ES.mergeImport(ES.defaults(), v.days).state;
+    eq(ES.sortedDays(merged.days).map(d => [d.date, d.total, !!d.demo]), ES.sortedDays(s.days).map(d => [d.date, d.total, !!d.demo]));
+  });
+  await test('Import: hibás JSON → érthető hiba, adat változatlan', () => {
+    const store = memStore();
+    let s = ES.defaults();
+    s = ES.upsertDay(s, ES.buildDay(s, '2026-03-09', { r1: 1, r2: 1, r3: 1, r4: 1, r5: 1 })).state;
+    ES.save(store, s);
+    const before = JSON.stringify(ES.load(store));
+    const v = ES.validateImport('{ nem json');
+    eq(v.ok, false); eq(v.error, 'json');
+    assert(importErrorText(makeT('hu'), v).includes('nem érvényes JSON'), 'magyar üzenet');
+    eq(JSON.stringify(ES.load(store)), before);
+  });
+  await test('Import: rossz szerkezet elutasítva (fejléc, dátum, érték, összeg, duplikált nap)', () => {
+    const ok = ES.buildExport(ES.upsertDay(ES.defaults(), ES.buildDay(ES.defaults(), '2026-03-09', { r1: 1, r2: 1, r3: 1, r4: 1, r5: 1 })).state);
+    const mut = fn => { const c = JSON.parse(JSON.stringify(ok)); fn(c); return JSON.stringify(c); };
+    eq(ES.validateImport(JSON.stringify({ hello: 1 })).error, 'format');
+    eq(ES.validateImport(mut(c => { c.app = 'masik'; })).error, 'format');
+    eq(ES.validateImport(mut(c => { c.days[0].date = '2026-13-40'; })).reason, 'date');
+    eq(ES.validateImport(mut(c => { c.days[0].rows[0].value = -1; })).reason, 'value');
+    eq(ES.validateImport(mut(c => { c.days[0].rows[0].value = 1.5; })).reason, 'value');
+    eq(ES.validateImport(mut(c => { c.days[0].total = 999; })).reason, 'total');
+    eq(ES.validateImport(mut(c => { c.days[0].rows[0].name = ''; })).reason, 'rows');
+    eq(ES.validateImport(mut(c => { c.days.push(c.days[0]); })).reason, 'duplicate');
+  });
+  await test('Import hibaüzenetek mindhárom nyelven léteznek', () => {
+    const missing = new Set();
+    LANGS.forEach(l => {
+      const t = makeT(l, missing);
+      ['json', 'format', 'read'].forEach(e => importErrorText(t, { error: e }));
+      ['date', 'duplicate', 'rows', 'value', 'total'].forEach(r => importErrorText(t, { error: 'day', index: 1, reason: r }));
+    });
+    eq([...missing], []);
+  });
+
+  // --- Fordítások
+  await test('Fordítás: minden kulcs megvan mindhárom nyelven', () => {
+    const keys = new Set(LANGS.flatMap(l => Object.keys(I18N[l])));
+    const missing = [];
+    keys.forEach(k => LANGS.forEach(l => { const v = I18N[l][k]; if (typeof v !== 'string' || !v.trim()) missing.push(l + ':' + k); }));
+    eq(missing, []);
+  });
+  await test('Fordítás: a felületek minden nyelven hiányzó kulcs nélkül jelennek meg', () => {
+    const missing = new Set();
+    LANGS.forEach(l => MODES.forEach(m => {
+      const store = memStore();
+      ES.save(store, ES.generateDemo(ES.defaults(), '2026-03-10').state);
+      const ctx = fakeCtx(store, m, l, missing);
+      renderHub(document.createElement('div'), ctx);
+      renderEmptySpace(document.createElement('div'), ctx);
+      renderSystem(document.createElement('div'), ctx);
+      App.renderHeader(document.createElement('div'), ctx);
+      MODULES.forEach(mod => { ctx.t(mod.titleKey); ctx.t(mod.descKey); if (mod.guideKey) ctx.t(mod.guideKey); });
+      ['guide.hub', 'guide.system', 'notif.empty', 'notif.title', 'notif.markRead', 'route.denied', 'storage.unavailable'].forEach(k => ctx.t(k));
+      ['empty', 'negative', 'fraction', 'notNumber', 'tooLarge'].forEach(e => ctx.t('es.err.' + e));
+    }));
+    eq([...missing], []);
+  });
+  await test('Fordítás: "Nincs értesítés" háromnyelvű', () => {
+    eq(I18N.hu['notif.empty'], 'Nincs értesítés');
+    assert(I18N.en['notif.empty'] && I18N.uk['notif.empty'], 'en/uk');
+  });
+
+  // --- Módok és jogosultságok
+  await test('Jogosultsági táblázat: minden funkcióhoz mindhárom mód meg van adva', () => {
+    Object.entries(PERMISSIONS).forEach(([f, r]) => MODES.forEach(m => assert(typeof r[m] === 'boolean', f + '/' + m)));
+  });
+  await test('Jogosultság: Admin ⊇ Felhasználó, Fejlesztő ⊇ Admin', () => {
+    Object.keys(PERMISSIONS).forEach(f => {
+      if (can('user', f)) assert(can('admin', f), 'admin: ' + f);
+      if (can('admin', f)) assert(can('dev', f), 'dev: ' + f);
+    });
+  });
+  await test('Módok: a felületen csak a táblázat szerinti funkciók jelennek meg', () => {
+    MODES.forEach(m => {
+      const store = memStore();
+      const ctx = fakeCtx(store, m);
+      const found = new Set();
+      const collect = root => root.querySelectorAll('[data-perm]').forEach(el => found.add(el.dataset.perm));
+      let r = document.createElement('div'); renderHub(r, ctx); collect(r);
+      r = document.createElement('div'); renderEmptySpace(r, ctx); collect(r);
+      if (can(m, 'system.view')) { r = document.createElement('div'); renderSystem(r, ctx); collect(r); }
+      Object.keys(PERMISSIONS).forEach(f => eq(found.has(f), can(m, f), m + ' → ' + f));
+    });
+  });
+  await test('Módok: rendszerállapot oldal csak Fejlesztő módban nyílik meg', () => {
+    eq(can('user', 'system.view'), false); eq(can('admin', 'system.view'), false); eq(can('dev', 'system.view'), true);
+  });
+
+  // --- Megmaradó beállítások
+  await test('Téma és nyelv (és mód) megmarad újranyitás után', () => {
+    const backend = memoryBackend();
+    const s1 = createStore(backend, true);
+    eq(loadPrefs(s1), DEFAULT_PREFS, 'alapértelmezés: angol, rendszer téma, felhasználó');
+    savePrefs(s1, { lang: 'uk', theme: 'dark', mode: 'admin' });
+    const s2 = createStore(backend, true);   // „újranyitás”: új tároló ugyanazon a háttéren
+    eq(loadPrefs(s2), { lang: 'uk', theme: 'dark', mode: 'admin' });
+  });
+  await test('Hibás tárolt beállítás → biztonságos alapérték', () => {
+    const backend = memoryBackend();
+    backend.setItem(STORAGE_PREFIX + 'prefs', '{rossz');
+    eq(loadPrefs(createStore(backend, true)), DEFAULT_PREFS);
+    backend.setItem(STORAGE_PREFIX + 'prefs', JSON.stringify({ lang: 'xx', theme: 'pink', mode: 'root' }));
+    eq(loadPrefs(createStore(backend, true)), DEFAULT_PREFS);
+  });
+  await test('Tárolás hiba esetén nem omlik össze', () => {
+    const broken = { getItem() { throw new Error('x'); }, setItem() { throw new Error('quota'); }, removeItem() { throw new Error('x'); } };
+    const s = createStore(broken, true);
+    eq(s.read('prefs', 'fb'), 'fb');
+    eq(s.write('prefs', {}), false);
+  });
+
+  // --- Demó adat
+  await test('Demó adat: jelölt, saját mentést nem ír felül, csak a demó törölhető', () => {
+    let s = ES.defaults();
+    s = ES.upsertDay(s, ES.buildDay(s, '2026-03-07', { r1: 1, r2: 1, r3: 1, r4: 1, r5: 1 })).state;
+    const g = ES.generateDemo(s, '2026-03-10', 5);
+    eq(g.added, 4, 'a saját napot kihagyta');
+    assert(g.state.days.find(d => d.date === '2026-03-07').demo !== true, 'saját nap érintetlen');
+    const c = ES.clearDemo(g.state);
+    eq(c.removed, 4); eq(c.state.days.map(d => d.date), ['2026-03-07']);
+  });
+
+  // --- Ikonok
+  await test('Minden csempéhez van ikon', () => {
+    MODULES.forEach(m => assert(ICONS[m.icon] && ICONS[m.icon].includes('<svg'), m.id));
+    eq(new Set(MODULES.map(m => m.icon)).size, MODULES.length, 'egyedi ikonok');
+    MODULES.forEach(m => assert(/currentColor/.test(ICONS[m.icon]), 'currentColor: ' + m.id));
+  });
+  await test('A csempeikonok megjelennek világos és sötét módban (kontraszt ≥ 3:1)', () => {
+    const html = document.documentElement;
+    const prev = html.getAttribute('data-theme');
+    const host = h('div', { style: 'position:absolute;left:-9999px;top:0;width:900px' });
+    document.body.appendChild(host);
+    try {
+      renderHub(host, fakeCtx(memStore(), 'user'));
+      ['light', 'dark'].forEach(theme => {
+        html.setAttribute('data-theme', theme);
+        MODULES.forEach(m => {
+          const tile = host.querySelector('[data-module="' + m.id + '"]');
+          const svg = tile.querySelector('svg');
+          assert(svg, theme + ': nincs svg ' + m.id);
+          const box = svg.getBoundingClientRect();
+          assert(box.width > 40 && box.height > 40, theme + ': túl kicsi ' + m.id);
+          const fg = parseColor(getComputedStyle(svg).color);
+          const bg = effectiveBg(tile.querySelector('.tile-icon'));
+          const op = parseFloat(getComputedStyle(tile.querySelector('.tile-icon')).opacity);
+          const shown = blend(fg, bg, op);
+          const ratio = contrast(shown, bg);
+          assert(ratio >= 3, theme + ' ' + m.id + ' kontraszt ' + ratio.toFixed(2));
+        });
+      });
+    } finally {
+      if (prev) html.setAttribute('data-theme', prev); else html.removeAttribute('data-theme');
+      host.remove();
+    }
+  });
+
+  // --- Értesítések
+  await test('Értesítési központ: üres állapot, később hozzáadható, olvasatlan-jelzés', () => {
+    const nc = createNotificationCenter(memStore());
+    eq(nc.list().length, 0); eq(nc.unreadCount(), 0);
+    nc.add({ title: 'Teszt' });
+    eq(nc.unreadCount(), 1);
+    nc.markAllRead();
+    eq(nc.unreadCount(), 0);
+  });
+  await test('Verziószám 0.1.0', () => eq(VERSION, '0.1.0'));
+
+  const passed = results.filter(r => r.ok).length;
+  return { passed, failed: results.length - passed, results };
+}
+
+function parseColor(s) {
+  const cs = String(s).match(/color\(srgb\s+([^)]+)\)/);
+  if (cs) {
+    const p = cs[1].split(/[ /]+/).filter(Boolean).map(Number);
+    return [p[0] * 255, p[1] * 255, p[2] * 255, p[3] == null ? 1 : p[3]];
+  }
+  const m = String(s).match(/rgba?\(([^)]+)\)/);
+  if (!m) {
+    const c = document.createElement('canvas').getContext('2d');
+    c.fillStyle = s; c.fillRect(0, 0, 1, 1);
+    const d = c.getImageData(0, 0, 1, 1).data;
+    return [d[0], d[1], d[2], d[3] / 255];
+  }
+  const p = m[1].split(/[ ,/]+/).filter(Boolean).map(Number);
+  return [p[0], p[1], p[2], p[3] == null ? 1 : p[3]];
+}
+function effectiveBg(el) {
+  let layers = [];
+  for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
+    const c = parseColor(getComputedStyle(n).backgroundColor);
+    if (c[3] > 0) { layers.push(c); if (c[3] >= 1) break; }
+  }
+  if (!layers.length || layers[layers.length - 1][3] < 1) layers.push(parseColor(getComputedStyle(document.body).backgroundColor));
+  let out = layers.pop();
+  while (layers.length) { const top = layers.pop(); out = blend(top, out, top[3]); }
+  return out;
+}
+function blend(fg, bg, a) { return [0, 1, 2].map(i => fg[i] * a + bg[i] * (1 - a)).concat([1]); }
+function lum(c) { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]); }
+function contrast(a, b) { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+
+// Külső hozzáférés (tesztfuttató, későbbi bővítés)
+window.MunkaHub = { VERSION, PERMISSIONS, ICONS, I18N, MODULES, registerModule, can, runTests,
+  get notifications() { return App.notifications; } };
+})();
+</script>
+<!--ARTIFACT:END-->
+</body></html>
