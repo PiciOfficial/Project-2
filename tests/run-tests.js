@@ -46,7 +46,7 @@ function assert(c, m) { if (!c) throw new Error(m || 'assertion failed'); }
   // 2. Böngészős ellenőrzések
   await check('Indulás: angol nyelv, verziószám a láblécben', async () => {
     assert(await page.getAttribute('html', 'lang') === 'en', 'lang');
-    assert((await page.textContent('#app-version')).includes('0.2.0'), 'verzió');
+    assert((await page.textContent('#app-version')).includes('0.3.0'), 'verzió');
     assert((await page.textContent('#tiles')).includes('Empty space count'), 'angol csempe');
   });
 
@@ -154,7 +154,7 @@ function assert(c, m) { if (!c) throw new Error(m || 'assertion failed'); }
     await page.click('[data-lang="en"]');
     for (const th of ['light', 'dark']) {
       await page.click('[data-theme-opt="' + th + '"]');
-      const n = await page.locator('.tile svg:visible').count();
+      const n = await page.locator('.tile .tile-icon svg:visible').count();
       assert(n === 6, th + ': ' + n);
       if (SHOTS) {
         fs.mkdirSync(SHOTS, { recursive: true });
@@ -164,18 +164,20 @@ function assert(c, m) { if (!c) throw new Error(m || 'assertion failed'); }
     await page.click('[data-theme-opt="system"]');
   });
 
-  await check('Export raklap: bevitel, összeg, másolás üzenetként (vágólap), mentés', async () => {
+  await check('Export raklap: mezők, gyors gomb, összeg, másolás üzenetként (vágólap), mentés', async () => {
     await page.goto(FILE + '#export-pallets');
     await page.selectOption('#mode-select', 'user');
-    const inputs = page.locator('input[data-row]');
-    await inputs.nth(0).fill('4'); await inputs.nth(1).fill('5'); await inputs.nth(2).fill('6');
-    assert((await page.textContent('#dl-total')).trim() === '15', 'összeg');
-    await page.click('#dl-copy');
+    const inputs = page.locator('input[data-field]');
+    assert(await inputs.count() === 5, '5 üres mező');
+    await inputs.nth(0).fill('4'); await inputs.nth(1).fill('5');
+    await page.click('[data-quick="b2"]');
+    assert((await page.textContent('#ep-total')).trim() === '24', 'összeg');
+    await page.click('#ep-copy');
     await page.waitForTimeout(100);
     const clip = await page.evaluate(() => navigator.clipboard.readText());
-    assert(/^\d{4}-\d{2}-\d{2} – Export pallet count: 15$/.test(clip), clip);
-    await page.click('#dl-save');
-    await page.waitForSelector('#dl-history .hist-item');
+    assert(/^\d{4}-\d{2}-\d{2} – Export pallet count: 24$/.test(clip), clip);
+    await page.click('#ep-save');
+    await page.waitForSelector('#ep-history .hist-item');
   });
 
   await check('Gépnapló: csökkenés jelzése és mentés előtti kérdés, összeg nincs', async () => {
@@ -203,13 +205,13 @@ function assert(c, m) { if (!c) throw new Error(m || 'assertion failed'); }
     await page.click('#tk-new');
     await page.fill('#tk-f-name', 'Napi teszt feladat');
     await page.click('#tk-f-save');
-    await page.waitForSelector('[data-manage-task="t4"]');
+    await page.waitForSelector('[data-manage-task="t6"]');
     await page.goto(FILE);
-    const item = page.locator('#today-tasks [data-task-item="t4"]');
+    const item = page.locator('#today-tasks [data-task-item="t6"]');
     assert(await item.count() === 1, 'mai teendők között');
     await item.locator('input[type=checkbox]').check();
     await page.reload();
-    assert(await page.getAttribute('#today-tasks [data-task-item="t4"]', 'data-status') === 'done', 'pipa megmaradt');
+    assert(await page.getAttribute('#today-tasks [data-task-item="t6"]', 'data-status') === 'done', 'pipa megmaradt');
   });
 
   await check('Rendszerállapot: modulonkénti táblázat', async () => {
@@ -217,6 +219,57 @@ function assert(c, m) { if (!c) throw new Error(m || 'assertion failed'); }
     await page.goto(FILE + '#system');
     assert(await page.locator('#sys-modules tbody tr').count() === 4);
   });
+
+  // 0.3.0: óraszimulációval (hétfő 2026-03-09) – percenkénti frissítés, jelentés, automatikus pipa
+  const ctx3 = await browser.newContext();
+  await ctx3.grantPermissions(['clipboard-read', 'clipboard-write']);
+  const p3 = await ctx3.newPage();
+  p3.on('pageerror', e => errors.push(e.message));
+  await p3.clock.install({ time: new Date(2026, 2, 9, 7, 29, 30) });
+  await p3.goto(FILE);
+  await check('Óra: 07:29 Esedékes → 07:31 Hamarosan lejár → 08:01 Késik, magától frissül', async () => {
+    const st = () => p3.getAttribute('#today-tasks [data-task-item="t1"]', 'data-status');
+    assert(await st() === 'due', '07:29: ' + await st());
+    await p3.clock.runFor(2 * 60000);
+    assert(await st() === 'soon', '07:31: ' + await st());
+    await p3.clock.runFor(30 * 60000);
+    assert(await st() === 'late', '08:01: ' + await st());
+    assert((await p3.textContent('#today-late-badge')).includes('3 late'), 'jelvény a fejlécen');
+    assert((await p3.textContent('#tile-badge-tasks')).includes('3 late'), 'jelvény a csempén');
+    const first = await p3.getAttribute('#today-tasks [data-task-item]:first-child', 'data-status');
+    assert(first === 'late', 'késők elöl');
+    assert(await p3.locator('#today-tasks [data-skip]').count() === 0, 'nincs Ma kihagyom a kezdőoldalon');
+  });
+  await check('Mentés az Üres helyben ma → feladat automatikusan kipipálva, visszavonható', async () => {
+    await p3.goto(FILE + '#empty-space');
+    const ins = p3.locator('input[data-row]');
+    for (let i = 0; i < 5; i++) await ins.nth(i).fill('2');
+    await p3.click('#es-save');
+    await p3.waitForSelector('[data-toast-action]');
+    assert((await p3.textContent('.toast.has-action')).includes('Task ticked: Üres hely számolás'));
+    await p3.click('[data-toast-action]');
+    await p3.goto(FILE);
+    assert(await p3.getAttribute('#today-tasks [data-task-item="t1"]', 'data-status') === 'late', 'visszavonva');
+    await p3.goto(FILE + '#empty-space');
+    for (let i = 0; i < 5; i++) await p3.locator('input[data-row]').nth(i).fill('3');
+    await p3.click('#es-save');
+    await p3.waitForSelector('#dl-confirm-save, #es-confirm-save, .modal');
+    await p3.click('.modal .btn.primary');
+    await p3.goto(FILE);
+    assert(await p3.getAttribute('#today-tasks [data-task-item="t1"]', 'data-status') === 'late', 'felülírás nem pipál');
+  });
+  await check('Jelentés másolása: hiányzó Export raklap → figyelmeztetés, mentetlen értékkel másol, jelentés feladat kipipálva', async () => {
+    await p3.goto(FILE);
+    await p3.click('#report-copy');
+    await p3.waitForSelector('#rep-missing');
+    assert((await p3.textContent('#rep-missing')).includes('Export pallets'), 'névvel');
+    await p3.click('#rep-use-unsaved');
+    await p3.waitForTimeout(100);
+    const clip = await p3.evaluate(() => navigator.clipboard.readText());
+    assert(clip === '2026-03-09 – Empty space: 15; Export pallets: 0', clip);
+    await p3.waitForSelector('#today-tasks [data-task-item="t-report"][data-status="done"]');
+  });
+  await ctx3.close();
 
   if (SHOTS) {
     const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });

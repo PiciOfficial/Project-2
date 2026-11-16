@@ -2,6 +2,45 @@
 
 A formátum: minden kiadás egy új bejegyzés, legújabb felül. Verziózás: MAJOR.MINOR.PATCH.
 
+## [0.3.0] – 2026-11-16
+
+### Új
+- **Export raklap számolás új szerkezete**: kategóriák helyett szabad számmezők (induláskor 5,
+  „+ Új mező”, „×” törlés, opcionális név), azonnali végösszeg; **gyors gombok** (legfeljebb 8,
+  név + pozitív egész érték; egy megnyomás = egy új sor; alapértelmezett „A gomb” +33,
+  „B gomb” +15; szerkesztés Admin/Fejlesztő módban); eltérésjelzés a **végösszegre** saját
+  küszöbbel (alap: 10); export **sémaverzió 2**, a 0.2.0-s kategóriás fájl érthető hibaüzenettel
+  elutasítva; demó adat gyors gombos és kézi sorokkal.
+- **Összehasonlítás az előző mentéssel** (Üres hely és Export raklap): „Előző mentés
+  (ÉÉÉÉ-HH-NN): X, változás: +Y/-Y” a végösszeg alatt; csak megjelenítés.
+- **Jelentés másolása** a kezdőoldalon (a Mai teendők alatt): az Üres hely és az Export raklap
+  aznapi mentett végösszege egy sorban; szerkeszthető sablon (`{datum}`, `{uresHely}`,
+  `{exportRaklap}`), „Visszaállítás alapra”; figyelmeztetés mentetlen értéknél.
+- **Gépnapló**: „Másolás táblázatba” (gépenként egy sor, gépnév nélkül, üres gépnél üres sor,
+  megmaradó „Dátum a tetején” kapcsoló); gépek átrendezése fel/le nyilakkal (Admin/Fejlesztő).
+- **Feladatok**: „Hamarosan lejár” állapot (állítható, alap: 30 perc), a késők a lista tetején
+  ikonnal és felirattal, „N késik” jelvény a Mai teendők fejlécén és a Feladatok csempén,
+  percenkénti automatikus frissítés.
+- **Automatikus pipa** feladatonként: mai mentés a kapcsolt modulban, illetve a jelentés
+  másolása pipál; visszajelzés egy kattintásos visszavonással.
+- Két új alapértelmezett feladat: „Jelentés elküldése a vezetőnek” és „Műszaknapló kitöltése”.
+- Új jogosultságok: `quick.edit`, `report.copy`, `report.template`, `rows.reorder`, `tasks.settings`.
+- Tesztek: 139 (121 beépített + 18 böngészős; `--shots` kapcsolóval 140), mind sikeres;
+  a böngészős tesztek óraszimulációval ellenőrzik a percenkénti frissítést.
+
+### Változott
+- Export raklap: új tárolási kulcs (`exportPallets2`). A 0.2.0-s kategóriás adat nem kerül át,
+  a modul üresen indul; a régi kulcsot az alkalmazás nem olvassa és nem törli.
+- A kezdőoldali Mai teendőkből eltűnt a „Ma kihagyom” gomb (a Feladatok modulban megmaradt).
+- Alapértelmezett feladatok időszaka 06:00–08:00. A meglévő listát egyszeri, jelzőzászlóval
+  védett frissítés igazítja: csak a szerkesztetlen 07:00–08:00 időszak módosul, a hiányzó
+  feladatok pótlódnak, a Megnyitás modullal rendelkező feladatoknál bekapcsol az automatikus pipa.
+- Üres hely számolás: csak a kért két kiegészítés került be (összehasonlítás sor; a mentés
+  jelzése az automatikus pipához). A tárolt adat, a kulcs, az export formátum és a működés
+  változatlan (regressziós tesztek ellenőrzik).
+- Korábbi tesztek: csak a feladat által módosított elvárások változtak (verziószám, Export raklap
+  szerkezete, alapértelmezett feladatlista és a „Hamarosan lejár” állapot két határértéke).
+
 ## [0.2.0] – 2026-11-16
 
 ### Új

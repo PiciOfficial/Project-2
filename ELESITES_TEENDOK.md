@@ -41,3 +41,19 @@ A 0.1.0 prototípus ezek egyikét sem oldja meg – szándékosan csak fiktív a
 11. **Gépadatok és karbantartás**
     - Valódi gépazonosítók, üzemórák rögzítése: kell-e összhang a karbantartási rendszerrel
       (pl. SAP PM), és ki felel a hibás leolvasások javításáért.
+
+## 0.3.0-val felmerült tételek
+
+12. **A vezetőnek küldött jelentés csatornája és tartalma**
+    - A „Jelentés másolása” szövegét a felhasználó kézzel küldi tovább. Tisztázandó, melyik
+      csatornán (e-mail, céges csevegő) és kinek szabad üzemi számokat küldeni, és kell-e
+      a jelentést megőrizni.
+13. **Automatikus pipa megbízhatósága**
+    - A pipa ma kliensoldalon, a böngésző órája szerint jön létre; ha valódi elszámolás vagy
+      ellenőrzés épül rá (pl. ki mikor végezte el), szerveroldali időbélyeg és naplózás kell.
+14. **Táblázatba másolt gépadatok**
+    - A Gépnapló „Másolás táblázatba” céges táblázatba (pl. karbantartási nyilvántartásba) kerülhet:
+      ki a táblázat gazdája, és mi a teendő hibás vagy kimaradt leolvasásnál.
+15. **Régi (0.2.0-s) Export raklap adat**
+    - A böngészőben ottmaradt, nem használt kategóriás adat (fiktív) törlése vagy megtartása;
+      élesítéskor a régi formátumok kezelését (migráció vagy törlés) előre el kell dönteni.

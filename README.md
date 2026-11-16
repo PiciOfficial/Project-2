@@ -4,7 +4,7 @@ Privát, egyszemélyes, böngészőből használható munkaeszköz-gyűjtő. Tel
 kényelmes (reszponzív, nagy érintésbarát gombok). **Csak fiktív adatokkal működik**: nincs valódi
 bejelentkezés, nincs külső szolgáltatás, nincs hálózati kérés, nincs külső függőség.
 
-- Aktuális verzió: **0.2.0** (az oldal alján is látszik)
+- Aktuális verzió: **0.3.0** (az oldal alján is látszik)
 - Megosztható link (minden későbbi verzió ugyanitt jelenik meg):
   **https://claude.ai/artifact/HaTxqPTUoMvZhahzh7wr2Z**
   A link alapból privát; másokkal a lap *Share* menüjéből lehet megosztani.
@@ -17,7 +17,7 @@ Egy „HUB” kezdőoldal csempékkel, amelyek mögött önálló modulok vannak
 | Modul | Állapot | Tárolási kulcs | Export fájl |
 |---|---|---|---|
 | Üres hely számolás | működik | `mhub.v1.emptySpace` | `ures-hely-ÉÉÉÉ-HH-NN.json` |
-| Export raklap számolás | működik (0.2.0) | `mhub.v1.exportPallets` | `export-raklap-ÉÉÉÉ-HH-NN.json` |
+| Export raklap számolás | működik (0.3.0-tól új szerkezet) | `mhub.v1.exportPallets2` | `export-raklap-ÉÉÉÉ-HH-NN.json` |
 | Gépnapló | működik (0.2.0) | `mhub.v1.machineLog` | `gepnaplo-ÉÉÉÉ-HH-NN.json` |
 | Feladatok | működik (0.2.0) | `mhub.v1.tasks` | `feladatok-ÉÉÉÉ-HH-NN.json` |
 | Pull list | Hamarosan | – | – |
@@ -27,7 +27,26 @@ Egy „HUB” kezdőoldal csempékkel, amelyek mögött önálló modulok vannak
 ugyanabba a modulba tölthető vissza; egy modul törlése vagy demó adata a többit nem érinti.
 
 A kezdőoldalon a csempék fölött a **Mai teendők** szakasz a Feladatok modul mai esedékes
-feladatait mutatja; helyben pipálhatók. Ha nincs mai teendő: „Mára nincs teendő”.
+feladatait mutatja; helyben pipálhatók (a „Ma kihagyom” csak a Feladatok modulban van). Ha nincs
+mai teendő: „Mára nincs teendő”. A késő feladatok száma jelvényként („N késik”) látszik a szakasz
+fejlécén és a Feladatok csempén; nullánál a jelvény nem jelenik meg.
+
+### Jelentés másolása (kezdőoldal, 0.3.0)
+
+A „Mai teendők” alatt a **Jelentés másolása** gomb egyetlen sort tesz a vágólapra az Üres hely
+és az Export raklap számolás **aznapi mentett** végösszegével. Alapértelmezett szöveg:
+
+- magyarul: `2026-11-16 – Üres hely: 12; Export raklap: 48`
+- angolul / ukránul ugyanez az adott nyelv címkéivel.
+
+A sablon Admin és Fejlesztő módban szerkeszthető a `{datum}`, `{uresHely}`, `{exportRaklap}`
+helyettesítőkkel; a szerkesztett sablon minden nyelven érvényes, „Visszaállítás alapra” gombbal
+visszaállítható. Ha az egyik érték aznap még nincs mentve, a figyelmeztetés megnevezi
+(„Az Export raklap mai értéke még nincs mentve”), és választani lehet: másolás a jelenlegi, nem
+mentett értékkel, vagy Mégse. Ha egyik sincs mentve, üzenet kéri, hogy előbb mentsd el őket.
+Sikeres másolás után rövid visszajelzés jön, és a „Jelentés elküldése a vezetőnek” feladat
+automatikusan pipát kap (ha aznap esedékes). Ha a böngésző nem enged másolni, egy ablakban kézzel
+másolható a szöveg.
 
 ### Üres hely számolás
 
@@ -36,6 +55,9 @@ feladatait mutatja; helyben pipálhatók. Ha nincs mai teendő: „Mára nincs t
 3. **Nap mentése**: a kiválasztott dátumra (alapból a mai nap) menti a soronkénti értékeket és az összeget. Egy napra egy bejegyzés lehet; ha már van, felülírás előtt rákérdez.
 4. **Eltérésjelzés**: ha egy sor az *utolsó korábbi mentett naphoz* képest jobban eltér, mint a küszöb (alap: 5 hely), a mező narancssárga lesz, alatta „Eltérés az előző naphoz képest: +X / -X”. Mentéskor megerősítést kér. Pontosan a küszöbnyi eltérés még nem jelez.
 5. **Előző napok**: legújabb elöl, dátum és összeg; egy napra koppintva látszik a soronkénti bontás.
+5/b. **Összehasonlítás (0.3.0)**: a végösszeg alatt „Előző mentés (ÉÉÉÉ-HH-NN): X, változás: +Y/-Y”,
+   a választott dátum előtti utolsó mentett naphoz képest. Ha nincs előző mentés, a sor nem
+   látszik. Csak megjelenítés, a tárolt adatot nem módosítja.
 6. **Mentés fájlba (export)** / **Betöltés fájlból (import)**: JSON fájl. Import előtt a szerkezet ellenőrzése megtörténik; hibás fájlnál az aktuális nyelven érthető hibaüzenet jelenik meg, és a meglévő adat nem változik. Érvényes fájlnál az azonos dátumú napokat a fájl tartalma váltja fel, a többi mentett nap megmarad (a betöltés előtt erről összesítő kérdés jelenik meg).
 
 ### Másolás üzenetként (az Üres hely, az Export raklap és a Gépnapló modulban)
@@ -49,14 +71,31 @@ dátummal és az aktuális nyelvű modulnévvel:
 Sikeres másolás után rövid visszajelzés jelenik meg. Ha a böngésző nem engedi a másolást, egy
 ablak mutatja a szöveget kijelölve, hogy kézzel másolható legyen.
 
-### Export raklap számolás
+### Export raklap számolás (0.3.0-tól új szerkezet)
 
-Ugyanúgy működik, mint az Üres hely számolás, csak kategóriákkal (alapértelmezés: „A kategória”,
-„B kategória”, „C kategória”). Kategóriánként egy nemnegatív egész szám – a már átszámolt
-érték, szorzó és kapacitás-számolás nélkül. Azonnali végösszeg, egy nap egy bejegyzés
-(felülírás előtt kérdez), választható dátum, előző napok, eltérésjelzés saját küszöbbel
-(alap: 5, csak Admin/Fejlesztő módosítja), export/import (import csak Admin módban,
-összefésüléssel).
+- **Kategóriák helyett szabad számmezők**: induláskor 5 üres mező, „+ Új mező” gombbal bővíthető,
+  mezőnként „×” gombbal törölhető. Érték: 0 vagy nagyobb egész szám. A mezőnek opcionális neve
+  (megjegyzés) lehet. Az üres mezők nem számítanak, de legalább egy értéket meg kell adni.
+- **Végösszeg** a mezők összege, gépelés közben, nagy betűvel frissül; alatta az összehasonlítás
+  az előző mentéssel (mint az Üres helynél).
+- **Gyors gombok**: legfeljebb 8 gomb, mindegyiknek neve és pozitív egész értéke van. Egy
+  megnyomás új sort ad a gomb értékével és nevével; két megnyomás két sor. A sor törölhető.
+  Alapértelmezett fiktív gombok: „A gomb” (+33) és „B gomb” (+15). A gombokat Admin és Fejlesztő
+  módban lehet hozzáadni, átnevezni, átállítani és törölni (törlés megerősítéssel).
+- **Mentés**: egy nap egy bejegyzés (felülírás előtt kérdez), választható dátum. A mentés a sorok
+  (név, érték) listáját és a végösszeget tárolja. Mentés után újra 5 üres mező jelenik meg.
+  Előző napok: dátum és végösszeg, kattintásra a sorok.
+- **Eltérésjelzés a végösszegre**, az előző mentett nap végösszegéhez képest, saját küszöbbel
+  (alap: **10**, Admin/Fejlesztő módosítja). Pontosan a küszöbnyi eltérés még nem jelez. Jelzésnél
+  mentés előtt megerősítést kér.
+- **Export/import**: az export fájl sémaverziója **2**. Import csak Admin módban, összefésüléssel.
+  Egy 0.2.0-s (kategóriás) exportfájl betöltésekor érthető hibaüzenet jön az aktuális nyelven,
+  és semmi nem változik.
+- **A régi adat nem kerül át.** A 0.2.0-ban kategóriákkal mentett (fiktív) Export raklap adat
+  (`mhub.v1.exportPallets` kulcs) nem alakul át és nem jelenik meg; a modul az új szerkezettel
+  (`mhub.v1.exportPallets2` kulcs) üresen indul. A régi kulcsot az alkalmazás nem olvassa és nem
+  törli, más modul adatához nem nyúl.
+- Másolás üzenetként: `ÉÉÉÉ-HH-NN – Export raklap számolás: <végösszeg>` (változatlan).
 
 ### Gépnapló
 
@@ -71,6 +110,14 @@ Ugyanúgy működik, mint az Üres hely számolás, csak kategóriákkal (alapé
   - jelzés, ha a növekedés **nagyobb, mint eltelt napok × 24 óra** (pontosan ennyi még rendben van);
   - ha a gépnek még nincs előző mentése, nincs jelzés.
   Jelzésnél a mező narancssárga, alatta a magyarázat, és mentés előtt megerősítést kér.
+- **Másolás táblázatba (0.3.0)**: az üzemórákat gépenként egy sorba másolja, a gépek jelenlegi
+  sorrendjében, gépnevek nélkül (táblázatkezelőbe egy oszlopként illeszthető). Érték: a beírt
+  szám, ennek híján az adott nap mentett értéke; ha egyik sincs, a sor **üres** marad, így a
+  sorok száma mindig egyezik a gépek számával. A megmaradó „Dátum a tetején” kapcsolóval az első
+  sor az ISO dátum.
+- **Gépek sorrendje (0.3.0)**: Admin és Fejlesztő módban fel/le nyilakkal átrendezhető. A mentett
+  napok a gépneveket tárolják, ezért az átrendezés a korábbi mentéseket nem módosítja.
+- A „Másolás üzenetként” gomb megmaradt.
 
 ### Feladatok
 
@@ -80,9 +127,22 @@ Ugyanúgy működik, mint az Üres hely számolás, csak kategóriákkal (alapé
   (kezdő dátummal; a kezdő dátum hét napján, N hetente) / a hónap X. napja (ha a hónap rövidebb,
   pl. 31. februárban, akkor a hónap utolsó napján).
 - Nincs értékrögzítés, csak pipa (kész / nem kész). Pipálni minden módban lehet, a kezdőoldalon is.
-- **Állapotok:** Esedékes – Kész – Kihagyva – **Késik** (az időszak vége elmúlt és nincs pipa;
-  pontosan a záró percben még nem késik; időszak nélküli feladat aznap nem késik, csak
-  a következő naptól). A korábbi napok pipálatlan feladatai az Előzményekben „Elmaradt”-ként látszanak.
+- **Állapotok:** Esedékes (semleges) – **Hamarosan lejár** (sárga: az időszak végéig kevesebb
+  mint 30 perc van hátra; pontosan 30 perc még Esedékes; a 30 perc Admin/Fejlesztő módban
+  1–240 perc között állítható) – **Késik** (piros: az időszak vége elmúlt és nincs pipa; pontosan
+  a záró percben még nem késik) – Kész – Kihagyva. Időszak nélküli feladat aznap nem késik.
+  A korábbi napok pipálatlan feladatai az Előzményekben „Elmaradt”-ként látszanak.
+- A késő feladatok a lista **tetejére** kerülnek (utánuk a hamarosan lejárók), és ikonnal **és**
+  felirattal jelöltek, nem csak színnel. Az állapot nyitott alkalmazásban percenként magától
+  frissül (a kezdőoldalon és a Feladatok modulban; gépelés vagy nyitott ablak közben vár).
+- **Automatikus pipa (0.3.0)** – feladatonként beállítható (Admin/Fejlesztő):
+  - „Mai mentéskor a kapcsolt modulban”: ha a feladat Megnyitás moduljában mentést végzel, a
+    feladat pipát kap – de csak ha a mentés dátuma a mai nap, a feladat ma esedékes és még nincs
+    kész. Múltbeli nap pótlása és egy már mentett nap felülírása **nem** pipál.
+  - „A jelentés másolásakor”: a kezdőoldali Jelentés másolása sikeres használatakor pipál
+    (ugyanezekkel a szabályokkal).
+  - Az automatikus pipa rövid visszajelzéssel jár („Feladat kipipálva: …”), amelyben egy
+    kattintással visszavonható. A kézzel tett pipát a visszavonás nem érinti.
 - **„Ma kihagyom”**: csak arra a napra hagyja ki a feladatot, visszavonható. Ünnepnapi naptár
   nincs (ünnepnapon is dolgoznak), a kihagyás mindig kézi.
 - Napi nézet: előző / következő nap, dátumválasztó, „Ma” gomb.
@@ -90,9 +150,18 @@ Ugyanúgy működik, mint az Üres hely számolás, csak kategóriákkal (alapé
   kész / elmaradt / kihagyott darabszámmal, kinyitva feladatonként.
 - Szerkesztés (hozzáadás, módosítás, törlés megerősítéssel) csak Admin és Fejlesztő módban.
   Feladat törlésekor a pipái is törlődnek.
-- Alapértelmezett fiktív feladatok: „Üres hely számolás” (hétköznap 07:00–08:00 → Üres hely),
-  „Export raklap számolás” (hétköznap 07:00–08:00 → Export raklap), „Gépnapló ellenőrzés”
-  (vasárnap → Gépnapló).
+- Alapértelmezett fiktív feladatok (0.3.0):
+  1. „Üres hely számolás” – hétköznap, 06:00–08:00, Megnyitás: Üres hely, automatikus pipa mentéskor;
+  2. „Export raklap számolás” – hétköznap, 06:00–08:00, Megnyitás: Export raklap, automatikus pipa mentéskor;
+  3. „Jelentés elküldése a vezetőnek” – hétköznap, 06:00–08:00, automatikus pipa a jelentés másolásakor;
+  4. „Gépnapló ellenőrzés” – vasárnap, időszak nélkül, Megnyitás: Gépnapló, automatikus pipa mentéskor;
+  5. „Műszaknapló kitöltése” – minden nap, időszak nélkül, sima pipa.
+- **Meglévő (0.2.0-s) feladatlista frissítése**: az első 0.3.0-s betöltéskor egyszer fut
+  (jelzőzászlóval védve, `flags.v030`): (a) az 1. és 2. feladat időszaka 06:00–08:00 lesz,
+  **csak ha** még az eredeti 07:00–08:00; (b) a hiányzó 3. és 5. feladat bekerül; (c) a Megnyitás
+  modullal rendelkező feladatoknál bekapcsol az automatikus pipa. A pipák és a felhasználó egyéb
+  szerkesztései megmaradnak; később törölt feladat nem jön vissza. Üres lista esetén mind az öt
+  alapértelmezett feladat létrejön.
 - Saját export/import (import csak Admin módban, összefésüléssel: az azonos azonosítójú
   feladatokat és az azonos napi pipákat a fájl tartalma váltja fel).
 
@@ -109,11 +178,16 @@ Ugyanúgy működik, mint az Üres hely számolás, csak kategóriákkal (alapé
 | Funkció | Felhasználó | Admin | Fejlesztő |
 |---|:-:|:-:|:-:|
 | Bevitel, nap mentése, előző napok | ✓ | ✓ | ✓ |
-| Másolás üzenetként | ✓ | ✓ | ✓ |
+| Másolás üzenetként, Gépnapló másolás táblázatba | ✓ | ✓ | ✓ |
+| Jelentés másolása (kezdőoldal) | ✓ | ✓ | ✓ |
+| Jelentéssablon szerkesztése | – | ✓ | ✓ |
+| Export raklap gyors gombok szerkesztése | – | ✓ | ✓ |
+| Gépek átrendezése | – | ✓ | ✓ |
+| Automatikus pipa beállítása, „Hamarosan lejár” küszöb | – | ✓ | ✓ |
 | Feladat pipálása, „Ma kihagyom”, előzmények | ✓ | ✓ | ✓ |
 | Mentés fájlba (export) | ✓ | ✓ | ✓ |
 | Betöltés fájlból (import) | – | ✓ | ✓ |
-| Sorok / kategóriák / gépek kezelése (hozzáadás, átnevezés, törlés) | – | ✓ | ✓ |
+| Sorok / gépek kezelése (hozzáadás, átnevezés, törlés) | – | ✓ | ✓ |
 | Feladatok szerkesztése (hozzáadás, módosítás, törlés) | – | ✓ | ✓ |
 | Eltérésküszöb beállítása | – | ✓ | ✓ |
 | Mentett adatok törlése (megerősítéssel) | – | ✓ | ✓ |
@@ -132,9 +206,12 @@ A böngésző helyi tárolójában (`localStorage`), `mhub.v1.` előtagú kulcso
 
 - `mhub.v1.prefs` – nyelv, téma, mód
 - `mhub.v1.emptySpace` – Üres hely: sorok, küszöb, mentett napok, félbehagyott bevitel (0.1.0 óta változatlan)
-- `mhub.v1.exportPallets` – Export raklap: kategóriák, küszöb, mentett napok, félbehagyott bevitel
+- `mhub.v1.exportPallets2` – Export raklap (0.3.0): gyors gombok, küszöb, mentett napok (sorok + végösszeg), félbehagyott mezők
+- `mhub.v1.exportPallets` – a 0.2.0-s kategóriás Export raklap adat; 0.3.0 óta nem használt, nem alakul át, nem törlődik
+- `mhub.v1.machineLogOptions` – Gépnapló: „Dátum a tetején” beállítás
+- `mhub.v1.report` – a jelentés szerkesztett sablonja (ha van)
 - `mhub.v1.machineLog` – Gépnapló: gépek, mentett napok, félbehagyott bevitel
-- `mhub.v1.tasks` – Feladatok: feladatok és pipák (`log`: dátum → feladat → kész/kihagyva)
+- `mhub.v1.tasks` – Feladatok: feladatok, pipák (`log`: dátum → feladat → kész/kihagyva, automatikus pipánál `auto: true`), „Hamarosan lejár” küszöb, frissítési jelzőzászló
 - `mhub.v1.notifications` – értesítések
 
 Minden mentett nap szerkezete (alkalmas későbbi becslésre):
@@ -145,7 +222,8 @@ Minden mentett nap szerkezete (alkalmas későbbi becslésre):
 ```
 
 (`demo` csak a fejlesztői demó napokon szerepel. A Gépnapló napjaiban nincs `total`, és csak a
-kitöltött gépek szerepelnek.)
+kitöltött gépek szerepelnek. Az Export raklap (0.3.0) napjaiban a sorok `{ "name", "value" }`
+párok, a név lehet üres.)
 
 **Fontos:** minden modul adata külön kulcson van, ezért **modulonként külön kell exportálni és
 importálni**. Az adatok eszközönként és böngészőnként *külön* vannak. A telefon és a gép nem lát
@@ -170,10 +248,13 @@ Két egyszerű mód:
    node tests/run-tests.js
    ```
    Ez lefuttatja a beépített tesztcsomagot, majd valódi böngészőben is végigkattintja a fő
-   folyamatokat (újratöltés utáni megmaradás, mentés, export, hibás import, demó adat, ikonok).
+   folyamatokat (újratöltés utáni megmaradás, mentés, export, hibás import, demó adat, ikonok,
+   és óraszimulációval a percenkénti „Hamarosan lejár” → „Késik” váltást, az automatikus pipát
+   és a jelentés másolását).
    `--shots <mappa>` kapcsolóval képernyőképeket is készít (világos/sötét, telefon).
 
-Az utolsó futtatás: **103 teszt, mind sikeres** (86 beépített + 17 böngészős ellenőrzés; `--shots` kapcsolóval +1 telefonos szélességi ellenőrzés, összesen 104).
+Az utolsó futtatás (0.3.0): **139 teszt, mind sikeres** (121 beépített + 18 böngészős ellenőrzés;
+`--shots` kapcsolóval +1 telefonos szélességi ellenőrzés, összesen 140).
 
 Lefedett területek (0.1.0): összegszámítás (üres, egy, több sor); érvénytelen bevitel (negatív, tört,
 szöveg, üres); mentés, felülírás, előző napok; eltérésjelzés küszöb alatt/-on/fölött;
@@ -191,11 +272,31 @@ mindhárom modulban és nyelven; Feladatok (mind a hat gyakoriság, pipa megmara
 „Mára nincs teendő” háromnyelvűen); demó adat minden modulban; új jogosultságok; rendszerállapot
 modulonként; új csempék és ikonok világos/sötét módban.
 
+Lefedett területek (0.3.0): Export raklap új szerkezete (végösszeg, mező hozzáadása/törlése,
+érvénytelen bevitel, gyors gomb egyszer/kétszer, gyors gomb szerkesztése/törlése/max. 8,
+mentés/felülírás, előző napok, végösszeg-eltérés küszöb alatt/-on/fölött, export/import séma 2,
+0.2.0-s fájl hibaüzenettel, hibás fájl, régi tárolt adat nem okoz hibát és mást nem érint, demó);
+összehasonlítás az előző mentéssel (van/nincs, +/-, választott dátum előtti mentés, csak
+megjelenítés); jelentés (mindkettő mentve, egyik hiányzik, egyik sincs, sablon szerkesztése és
+visszaállítása, mindhárom nyelv, a jelentés feladata pipát kap); Gépnapló másolás táblázatba
+(gépenként egy sor, üres gép üres sor, Dátum a tetején, átrendezés után új sorrend, mentések
+változatlanok); Feladatok (Hamarosan lejár / Késik a határokon, késők elöl ikonnal és felirattal,
+„N késik” jelvény a fejlécen és a csempén, nullánál eltűnik, percenkénti frissülés, nincs
+„Ma kihagyom” a kezdőoldalon); automatikus pipa (mai mentés pipál, múltbeli dátum és felülírás
+nem, visszavonás, kikapcsolva nem pipál); feladatlista egyszeri frissítése (szerkesztetlen
+idő módosul, szerkesztett nem, hiányzók pótlódnak, üres listán mind létrejön); új jogosultságok;
+minden új felirat mindhárom nyelven.
+
+A 0.3.0 a korábbi tesztek közül csak azok elvárását módosította, amelyeket a feladat kifejezetten
+változtat: verziószám; a 0.2.0-s kategóriás Export raklap tesztjei helyett az új szerkezet
+tesztjei; az alapértelmezett feladatlista (5 feladat, 06:00–08:00) és az ebből következő
+darabszámok, valamint a „Hamarosan lejár” állapot (két határérték).
+
 ## Fejlesztői jegyzetek
 
 - Egyetlen önálló fájl: `index.html` (HTML + CSS + JS, külső függőség nélkül).
-- **Közös napló elem** (`createDayLog` + `renderDayLog`): az Export raklap és a Gépnapló ezt
-  használja, külön tárolási kulccsal és külön exporttal. Új „soronként egy szám, napi mentés”
+- **Közös napló elem** (`createDayLog` + `renderDayLog`): 0.3.0 óta csak a Gépnapló használja
+  (az Export raklap saját szerkezetet kapott: `ExportPallets`, `renderExportPallets`). Új „soronként egy szám, napi mentés”
   modul egy új `createDayLog({...})` példánnyal és egy `registerModule` hívással adható hozzá.
   Az Üres hely számolás szándékosan nem erre épül (lásd CHANGELOG 0.2.0).
 - **Új modul**: új `registerModule({...})` hívás (id, ikon, hangsúlyszín, fordítási kulcsok,
