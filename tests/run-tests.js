@@ -32,6 +32,7 @@ function assert(c, m) { if (!c) throw new Error(m || 'assertion failed'); }
 (async () => {
   const browser = await chromium.launch();
   const context = await browser.newContext({ acceptDownloads: true });
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
@@ -45,14 +46,16 @@ function assert(c, m) { if (!c) throw new Error(m || 'assertion failed'); }
   // 2. Böngészős ellenőrzések
   await check('Indulás: angol nyelv, verziószám a láblécben', async () => {
     assert(await page.getAttribute('html', 'lang') === 'en', 'lang');
-    assert((await page.textContent('#app-version')).includes('0.1.0'), 'verzió');
+    assert((await page.textContent('#app-version')).includes('0.2.0'), 'verzió');
     assert((await page.textContent('#tiles')).includes('Empty space count'), 'angol csempe');
   });
 
-  await check('Csempék: 1 működő, 2 "Hamarosan", mindegyiken ikon', async () => {
-    assert(await page.locator('.tile.ready').count() === 1);
+  await check('Csempék: 4 működő, 2 "Hamarosan", mindegyiken ikon; Mai teendők a csempék fölött', async () => {
+    assert(await page.locator('.tile.ready').count() === 4);
     assert(await page.locator('.tile.soon').count() === 2);
-    assert(await page.locator('.tile .tile-icon svg').count() === 3);
+    assert(await page.locator('.tile .tile-icon svg').count() === 6);
+    const order = await page.evaluate(() => !!(document.querySelector('#today-tasks').compareDocumentPosition(document.querySelector('#tiles')) & Node.DOCUMENT_POSITION_FOLLOWING));
+    assert(order, 'Mai teendők a csempék fölött');
   });
 
   await check('Értesítési központ: üres állapot', async () => {
@@ -152,13 +155,67 @@ function assert(c, m) { if (!c) throw new Error(m || 'assertion failed'); }
     for (const th of ['light', 'dark']) {
       await page.click('[data-theme-opt="' + th + '"]');
       const n = await page.locator('.tile svg:visible').count();
-      assert(n === 3, th + ': ' + n);
+      assert(n === 6, th + ': ' + n);
       if (SHOTS) {
         fs.mkdirSync(SHOTS, { recursive: true });
         await page.screenshot({ path: path.join(SHOTS, 'hub-' + th + '.png'), fullPage: true });
       }
     }
     await page.click('[data-theme-opt="system"]');
+  });
+
+  await check('Export raklap: bevitel, összeg, másolás üzenetként (vágólap), mentés', async () => {
+    await page.goto(FILE + '#export-pallets');
+    await page.selectOption('#mode-select', 'user');
+    const inputs = page.locator('input[data-row]');
+    await inputs.nth(0).fill('4'); await inputs.nth(1).fill('5'); await inputs.nth(2).fill('6');
+    assert((await page.textContent('#dl-total')).trim() === '15', 'összeg');
+    await page.click('#dl-copy');
+    await page.waitForTimeout(100);
+    const clip = await page.evaluate(() => navigator.clipboard.readText());
+    assert(/^\d{4}-\d{2}-\d{2} – Export pallet count: 15$/.test(clip), clip);
+    await page.click('#dl-save');
+    await page.waitForSelector('#dl-history .hist-item');
+  });
+
+  await check('Gépnapló: csökkenés jelzése és mentés előtti kérdés, összeg nincs', async () => {
+    await page.goto(FILE + '#machine-log');
+    assert(await page.locator('#dl-total').count() === 0, 'nincs összeg');
+    await page.fill('#dl-date', '2026-03-09');
+    await page.locator('#dl-date').dispatchEvent('change');
+    await page.locator('input[data-row]').nth(0).fill('1000');
+    await page.click('#dl-save');
+    await page.waitForSelector('#dl-history .hist-item');
+    await page.fill('#dl-date', '2026-03-10');
+    await page.locator('#dl-date').dispatchEvent('change');
+    await page.locator('input[data-row]').nth(0).fill('990');
+    assert(await page.locator('.row-item.dev-flag').count() === 1, 'jelölés');
+    await page.click('#dl-save');
+    await page.waitForSelector('#dl-confirm-save');
+    await page.click('#dl-confirm-save');
+    await page.waitForFunction(() => document.querySelectorAll('#dl-history .hist-item').length === 2);
+  });
+
+  await check('Feladatok: pipálás a kezdőoldalon megmarad, Admin új feladatot ad hozzá', async () => {
+    await page.goto(FILE);
+    await page.selectOption('#mode-select', 'admin');
+    await page.goto(FILE + '#tasks');
+    await page.click('#tk-new');
+    await page.fill('#tk-f-name', 'Napi teszt feladat');
+    await page.click('#tk-f-save');
+    await page.waitForSelector('[data-manage-task="t4"]');
+    await page.goto(FILE);
+    const item = page.locator('#today-tasks [data-task-item="t4"]');
+    assert(await item.count() === 1, 'mai teendők között');
+    await item.locator('input[type=checkbox]').check();
+    await page.reload();
+    assert(await page.getAttribute('#today-tasks [data-task-item="t4"]', 'data-status') === 'done', 'pipa megmaradt');
+  });
+
+  await check('Rendszerállapot: modulonkénti táblázat', async () => {
+    await page.selectOption('#mode-select', 'dev');
+    await page.goto(FILE + '#system');
+    assert(await page.locator('#sys-modules tbody tr').count() === 4);
   });
 
   if (SHOTS) {
@@ -169,6 +226,14 @@ function assert(c, m) { if (!c) throw new Error(m || 'assertion failed'); }
     await p2.click('.tile.ready');
     await p2.locator('input[data-row]').first().fill('12');
     await p2.screenshot({ path: path.join(SHOTS, 'phone-module.png'), fullPage: true });
+    for (const id of ['export-pallets', 'machine-log', 'tasks']) {
+      await p2.goto(FILE + '#' + id);
+      await p2.screenshot({ path: path.join(SHOTS, 'phone-' + id + '.png'), fullPage: true });
+      const w = await p2.evaluate(() => document.documentElement.scrollWidth);
+      if (w > 390) results.push({ name: 'Telefon szélesség: ' + id, ok: false, error: 'scrollWidth ' + w });
+    }
+    await p2.goto(FILE);
+    await p2.screenshot({ path: path.join(SHOTS, 'phone-hub2.png'), fullPage: true });
     await check('Telefonon nincs vízszintes görgetés', async () => {
       const w = await p2.evaluate(() => document.documentElement.scrollWidth);
       assert(w <= 390, 'scrollWidth ' + w);

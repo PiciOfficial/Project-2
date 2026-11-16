@@ -23,6 +23,9 @@
   --acc-space: #0d6a86;
   --acc-pull: #6940c4;
   --acc-freight: #985000;
+  --acc-export: #237528;
+  --acc-machine: #a12a62;
+  --acc-tasks: #3349c0;
   --mode-user: #54626f;
   --mode-admin: #985000;
   --mode-dev: #6940c4;
@@ -39,7 +42,7 @@
     --bg: #0e1319; --surface: #171f28; --surface-2: #202a35; --fg: #e7edf3; --muted: #9eabb8;
     --border: #2c3946; --primary: #6fa8f2; --primary-fg: #08121e; --focus: #8fbcf6;
     --warn: #f5b04c; --warn-bg: #352512; --danger: #ff8a7f; --danger-bg: #3a1a17; --ok: #62d394;
-    --acc-space: #5cc8e6; --acc-pull: #b9a2ff; --acc-freight: #f2ab4f;
+    --acc-space: #5cc8e6; --acc-pull: #b9a2ff; --acc-freight: #f2ab4f; --acc-export: #74d07a; --acc-machine: #f48fc2; --acc-tasks: #9cadff;
     --mode-user: #9eabb8; --mode-admin: #f2ab4f; --mode-dev: #b9a2ff;
     --shadow: 0 1px 2px rgba(0,0,0,.4); --shadow-lift: 0 10px 28px rgba(0,0,0,.5);
     color-scheme: dark;
@@ -49,7 +52,7 @@
   --bg: #0e1319; --surface: #171f28; --surface-2: #202a35; --fg: #e7edf3; --muted: #9eabb8;
   --border: #2c3946; --primary: #6fa8f2; --primary-fg: #08121e; --focus: #8fbcf6;
   --warn: #f5b04c; --warn-bg: #352512; --danger: #ff8a7f; --danger-bg: #3a1a17; --ok: #62d394;
-  --acc-space: #5cc8e6; --acc-pull: #b9a2ff; --acc-freight: #f2ab4f;
+  --acc-space: #5cc8e6; --acc-pull: #b9a2ff; --acc-freight: #f2ab4f; --acc-export: #74d07a; --acc-machine: #f48fc2; --acc-tasks: #9cadff;
   --mode-user: #9eabb8; --mode-admin: #f2ab4f; --mode-dev: #b9a2ff;
   --shadow: 0 1px 2px rgba(0,0,0,.4); --shadow-lift: 0 10px 28px rgba(0,0,0,.5);
   color-scheme: dark;
@@ -114,6 +117,9 @@ main { padding-block: 20px 32px; }
 .acc-space { --acc: var(--acc-space); }
 .acc-pull { --acc: var(--acc-pull); }
 .acc-freight { --acc: var(--acc-freight); }
+.acc-export { --acc: var(--acc-export); }
+.acc-machine { --acc: var(--acc-machine); }
+.acc-tasks { --acc: var(--acc-tasks); }
 .chip { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: var(--surface-2); color: var(--muted); }
 .chip.go { background: color-mix(in srgb, var(--acc) 14%, var(--surface)); color: var(--acc); }
 .chip.demo { background: color-mix(in srgb, var(--acc-pull) 16%, var(--surface)); color: var(--acc-pull); }
@@ -208,6 +214,45 @@ table.kv td { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .toast { background: var(--fg); color: var(--bg); border-radius: 12px; padding: 12px 16px; font-weight: 600; box-shadow: var(--shadow-lift); }
 .toast.err { background: var(--danger); color: var(--surface); }
 
+/* 0.2.0: napló, feladatok, mai teendők */
+.btn.small { min-height: 40px; padding: 0 12px; font-size: .9rem; border-radius: 10px; }
+.prev-hint { grid-column: 1 / -1; font-size: .85rem; color: var(--muted); }
+.prev-hint:empty, .row-item .msg:empty { display: none; }
+.hist-item .h-count { font-weight: 600; color: var(--muted); }
+.today-card { margin-bottom: 18px; border-top: 4px solid var(--acc-tasks); }
+.today-card h2 { margin: 0; }
+.today-date { font-weight: 500; color: var(--muted); font-size: .95rem; }
+.task-list { display: grid; gap: 8px; }
+.task-item { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.task-item.st-late { border-left: 4px solid var(--danger); }
+.task-item.st-done { border-left: 4px solid var(--ok); }
+.task-item.st-skipped { opacity: .8; border-style: dashed; }
+.task-main { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.task-main input[type="checkbox"] { width: 28px; height: 28px; accent-color: var(--ok); flex: none; cursor: pointer; }
+.task-name { font-weight: 600; font-size: 1.05rem; flex: 1 1 160px; min-width: 0; overflow-wrap: anywhere; cursor: pointer; }
+.st-done .task-name { text-decoration: line-through; color: var(--muted); }
+.task-meta { color: var(--muted); font-size: .88rem; padding-left: 38px; }
+.task-actions { display: flex; gap: 8px; flex-wrap: wrap; padding-left: 38px; }
+.task-actions:empty { display: none; }
+.chip.st-due { background: color-mix(in srgb, var(--primary) 14%, var(--surface)); color: var(--primary); }
+.chip.st-done { background: color-mix(in srgb, var(--ok) 16%, var(--surface)); color: var(--ok); }
+.chip.st-skipped { background: var(--surface-2); color: var(--muted); }
+.chip.st-late, .chip.st-missed { background: var(--danger-bg); color: var(--danger); }
+.day-nav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.icon-btn.flip svg { transform: scaleX(-1); }
+.day-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 12px; }
+.hist-day { border: 1px solid var(--border); border-radius: 10px; padding: 0 12px; }
+.hist-day summary { min-height: var(--tap); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; cursor: pointer; }
+.hist-day .h-sum { color: var(--muted); font-size: .88rem; }
+.hist-tasks { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 6px; }
+.manage-task { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.manage-task .mt-text { display: grid; min-width: 0; flex: 1 1 200px; }
+.flabel { font-weight: 600; }
+.day-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.day-pill { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 10px; border: 1px solid var(--border); border-radius: 999px; cursor: pointer; }
+.day-pill input { width: 18px; height: 18px; }
+input[type="time"] { min-height: var(--tap); padding: 0 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.modal .field select.plain { width: 100%; }
 footer.app-footer { border-top: 1px solid var(--border); color: var(--muted); font-size: .85rem; }
 footer.app-footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding-block: 14px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -227,7 +272,7 @@ footer.app-footer .wrap { display: flex; flex-wrap: wrap; justify-content: space
 /* =====================================================================
  * 1. ALAPBEÁLLÍTÁSOK
  * ===================================================================== */
-const VERSION = '0.1.0';
+const VERSION = '0.2.0';
 const APP_ID = 'munkaeszkoz-hub';
 const STORAGE_PREFIX = 'mhub.v1.';
 const LANGS = ['en', 'hu', 'uk'];
@@ -252,7 +297,15 @@ const PERMISSIONS = {
   'demo.generate':  { user: false, admin: false, dev: true },  // demó adat generálása
   'demo.clear':     { user: false, admin: false, dev: true },  // demó adat törlése
   'system.view':    { user: false, admin: false, dev: true },  // rendszerállapot oldal
-  'tests.run':      { user: false, admin: false, dev: true }   // tesztek futtatása
+  'tests.run':      { user: false, admin: false, dev: true },  // tesztek futtatása
+  // 0.2.0
+  'entry.copy':     { user: true,  admin: true,  dev: true },  // másolás üzenetként
+  'tasks.check':    { user: true,  admin: true,  dev: true },  // feladat pipálása
+  'tasks.skip':     { user: true,  admin: true,  dev: true },  // "Ma kihagyom" / visszavonás
+  'tasks.history':  { user: true,  admin: true,  dev: true },  // feladat-előzmények
+  'tasks.edit':     { user: false, admin: true,  dev: true }   // feladatok hozzáadása, módosítása, törlése
+  // A napló-modulok (Export raklap, Gépnapló) ugyanazokat a funkciókat használják,
+  // mint az Üres hely számolás: entry.*, history.view, data.*, rows.manage, threshold.edit, demo.*
 };
 function can(mode, feature) {
   const rule = PERMISSIONS[feature];
@@ -293,7 +346,30 @@ const ICONS = {
     '<path d="M20 44h21M4 44h6"/>' +
     '<path d="M11 31l5-6h12v12H16z"/><circle cx="16.5" cy="31" r="1.5"/>' +
     '</svg>',
+  // Raklapok, nyíl egy kamion felé
+  palletsToTruck: '<svg ' + ICON_ATTRS + '>' +
+    '<rect x="5" y="31" width="18" height="11" rx="1.5"/><rect x="8" y="20" width="12" height="11" rx="1.5"/>' +
+    '<path d="M3 46h22M6 46v4M14 46v4M22 46v4"/>' +
+    '<path d="M27 36h9M32 32l4 4-4 4"/>' +
+    '<path d="M39 20h15v22H39z"/><path d="M54 28h3.5l3.5 4.5V42h-7"/>' +
+    '<circle cx="44" cy="46" r="3.5"/><circle cx="56" cy="46" r="3.5"/>' +
+    '</svg>',
+  // Fogaskerék óralappal
+  gearClock: '<svg ' + ICON_ATTRS + '>' +
+    '<path d="M26.2 11.8 L27.8 5.3 L36.2 5.3 L37.8 11.8 L42.2 13.6 L47.9 10.2 L53.8 16.1 L50.4 21.8 L52.2 26.2 L58.7 27.8 L58.7 36.2 L52.2 37.8 L50.4 42.2 L53.8 47.9 L47.9 53.8 L42.2 50.4 L37.8 52.2 L36.2 58.7 L27.8 58.7 L26.2 52.2 L21.8 50.4 L16.1 53.8 L10.2 47.9 L13.6 42.2 L11.8 37.8 L5.3 36.2 L5.3 27.8 L11.8 26.2 L13.6 21.8 L10.2 16.1 L16.1 10.2 L21.8 13.6Z"/>' +
+    '<circle cx="32" cy="32" r="12"/><path d="M32 25v7l5 3"/>' +
+    '</svg>',
+  // Pipálható lista kis naptárral
+  checklistCalendar: '<svg ' + ICON_ATTRS + '>' +
+    '<rect x="5" y="7" width="30" height="48" rx="3"/>' +
+    '<path d="M10 17l2.5 2.5L17 15M21 18h9"/>' +
+    '<path d="M10 28l2.5 2.5L17 26M21 29h9"/>' +
+    '<rect x="10" y="38" width="6" height="6" rx="1"/><path d="M21 41h9"/>' +
+    '<rect x="38" y="33" width="22" height="22" rx="2.5"/><path d="M38 40h22M43 30v6M55 30v6"/>' +
+    '<path d="M44 47l3 3 6-6"/>' +
+    '</svg>',
   // Kezelőfelület ikonjai
+  copy: '<svg ' + UI_ATTRS + '><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>',
   logo: '<svg ' + UI_ATTRS + '><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2" stroke-dasharray="2.5 2.5"/></svg>',
   bell: '<svg ' + UI_ATTRS + '><path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9z"/><path d="M10 20a2.2 2.2 0 0 0 4 0"/></svg>',
   guide: '<svg ' + UI_ATTRS + '><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 0 1 4.8 1c0 1.8-2.4 2.2-2.4 3.8"/><path d="M12 17.2h.01"/></svg>',
@@ -723,6 +799,470 @@ const I18N = {
     'route.denied': 'Ця сторінка недоступна в поточному режимі.'
   }
 };
+
+/* ---------------------------------------------------------------------
+ * 4/b. FORDÍTÁSOK – 0.2.0 kiegészítés (ugyanabba a közös I18N listába kerül).
+ *      Az ukrán szövegek gépi fordításúak, anyanyelvi ellenőrzés szükséges.
+ * --------------------------------------------------------------------- */
+const I18N_020 = {
+  en: {
+    'mod.exportPallets.title': 'Export pallet count',
+    'mod.exportPallets.desc': 'Pallets per category for export, with a daily record.',
+    'mod.machineLog.title': 'Machine log',
+    'mod.machineLog.desc': 'Operating hours per machine, with a daily record and checks.',
+    'mod.tasks.title': 'Tasks',
+    'mod.tasks.desc': 'Recurring tasks with a daily checklist and history.',
+    'hub.today': 'Today’s tasks',
+    'hub.today.empty': 'Nothing to do today',
+    'hub.today.all': 'All tasks',
+    'guide.exportPallets': 'Type the number of pallets for each category. Whole numbers only, 0 or more; type the value you already converted. The total updates as you type.\nPress “Save day” to store the count for the chosen date. One entry per day: if the day already exists, you will be asked before overwriting.\nIf a category differs from the previous saved day by more than the threshold, the field turns orange. You will be asked to confirm before saving.\n“Copy as message” puts a short line with the date and total on the clipboard.\nThis module’s data is stored and exported separately from the other modules.\nAdmin mode: manage categories, set the threshold, import, delete saved data. Developer mode: demo data.',
+    'guide.machineLog': 'Type the operating hours shown on each machine. Whole numbers only, 0 or more. You can leave a machine empty if you did not read it. There is no total.\nPress “Save day” to store the readings for the chosen date. One entry per day: if the day already exists, you will be asked before overwriting.\nEach machine is compared with its own last saved reading. You get a warning if the hours are lower than before, or if they grew by more than 24 hours per elapsed day. A machine with no earlier reading gets no warning.\n“Copy as message” puts a short line with the date and each machine’s hours on the clipboard.\nThis module’s data is stored and exported separately.\nAdmin mode: manage machines, import, delete saved data. Developer mode: demo data.',
+    'guide.tasks': 'The day view lists the tasks due on the chosen day. Tick a task when it is done; tick again to undo.\nStatus: Due (still open), Done, Skipped, Late (the time window has ended and the task is not ticked).\n“Skip today” skips a task for that day only, for example when it is not needed. “Undo skip” brings it back. There is no holiday calendar: skipping is always manual.\n“Open” takes you to the linked module.\nHistory shows past days: what was done, what was missed and what was skipped.\nAdmin mode: add, edit and delete tasks, import. Tasks and ticks are stored and exported separately.',
+    'dl.date': 'Date',
+    'dl.save': 'Save day',
+    'dl.saved': 'Saved: {date}',
+    'dl.err.empty': 'Enter a number (0 if there is none).',
+    'dl.invalidCount': '{n} field(s) need a valid number',
+    'dl.fixErrors': 'Fix the marked fields before saving.',
+    'dl.noneFilled': 'Enter at least one value before saving.',
+    'dl.badDate': 'Choose a valid date.',
+    'dl.prevRef': 'Compared with {date}',
+    'dl.prevNone': 'No earlier saved day to compare with.',
+    'dl.deviation': 'Difference from previous day: {diff}',
+    'dl.confirm.title': 'Save this day?',
+    'dl.confirm.overwrite': '{date} is already saved. Saving will overwrite it.',
+    'dl.confirm.deviation': 'These rows differ from {date} by more than {threshold}:',
+    'dl.confirm.check': 'Please check these values:',
+    'dl.confirm.devLine': '{row}: {prev} → {now} ({diff})',
+    'dl.confirm.sure': 'Do you really want to save it like this?',
+    'dl.confirm.save': 'Save',
+    'dl.history': 'Previous days',
+    'dl.history.empty': 'No saved days yet.',
+    'dl.history.detail': 'Record for {date}',
+    'dl.history.savedAt': 'Saved at {time}',
+    'dl.demo': 'Demo',
+    'dl.backup': 'Backup',
+    'dl.backup.hint': 'This module’s data is kept separately in this browser. Export it on its own, and use import to move it between devices.',
+    'dl.export': 'Export to file',
+    'dl.import': 'Import from file',
+    'dl.export.title': 'Export',
+    'dl.export.ready': 'File ready: {file} ({n} item(s)).',
+    'dl.export.empty': 'There is nothing to export yet.',
+    'dl.import.title': 'Import from file',
+    'dl.import.summary': 'The file contains {n} item(s). {overwrite} of them already exist here and will be replaced by the file. Everything else stays as it is.',
+    'dl.import.done': 'Imported {n} item(s).',
+    'dl.import.err.json': 'This is not a valid JSON file. Nothing was changed.',
+    'dl.import.err.format': 'This file is not an export of this module (missing or wrong header). Nothing was changed.',
+    'dl.import.err.day': 'Day #{n} is invalid: {reason} Nothing was changed.',
+    'dl.import.err.task': 'Task #{n} is invalid: {reason} Nothing was changed.',
+    'dl.import.err.log': 'The tick records in the file are invalid. Nothing was changed.',
+    'dl.import.err.read': 'The file could not be read. Nothing was changed.',
+    'dl.import.reason.rows': 'the list of rows is missing, empty, or a name is empty.',
+    'dl.admin': 'Admin settings',
+    'dl.threshold.save': 'Save threshold',
+    'dl.threshold.saved': 'Threshold set to {n}.',
+    'dl.rows.added': 'Added: {name}',
+    'dl.rows.renamed': 'Renamed: {name}',
+    'dl.rows.deleted': 'Deleted: {name}',
+    'dl.rows.err.empty': 'The name cannot be empty.',
+    'dl.rows.err.duplicate': 'This name already exists.',
+    'dl.clearAll': 'Delete all saved days',
+    'dl.clearAll.confirm': 'This deletes all {n} saved day(s) of this module from this browser, demo days included. Other modules are not affected. It cannot be undone.',
+    'dl.clearAll.done': 'All saved days of this module deleted.',
+    'dl.dev': 'Developer tools',
+    'dl.demo.generate': 'Generate demo data',
+    'dl.demo.generated': 'Added {n} demo item(s).',
+    'dl.demo.clear': 'Delete demo data only',
+    'dl.demo.cleared': 'Deleted {n} demo item(s).',
+    'dl.demo.hint': 'Demo data is fictional, marked “Demo”, and never overwrites your own records.',
+    'dl.copyMsg': 'Copy as message',
+    'dl.copyMsg.done': 'Message copied: {text}',
+    'dl.copyMsg.manual': 'Copying is not allowed here. Select the text below and copy it by hand.',
+    'ep.total': 'Total pallets',
+    'ep.value': 'Pallets',
+    'ep.items': 'Categories',
+    'ep.newItem': 'New category name',
+    'ep.noItems': 'There are no categories yet. An Admin can add them.',
+    'ep.confirmDelete': 'Delete category “{name}”? Saved days keep their values.',
+    'ep.threshold': 'Difference threshold (pallets)',
+    'ep.threshold.hint': 'A category is flagged when it differs from the previous saved day by more than this.',
+    'ep.threshold.readonly': 'Difference threshold: {n} pallets (Admin can change it).',
+    'ml.value': 'Operating hours',
+    'ml.items': 'Machines',
+    'ml.newItem': 'New machine name',
+    'ml.noItems': 'There are no machines yet. An Admin can add them.',
+    'ml.confirmDelete': 'Delete machine “{name}”? Saved days keep their values.',
+    'ml.count': '{n} machine(s)',
+    'ml.prevHint': 'Each machine is compared with its own last saved reading.',
+    'ml.prevValue': 'Last: {value} h ({date})',
+    'ml.dev.lower': 'Lower than the last reading ({prev} h on {date}).',
+    'ml.dev.tooHigh': '{diff} h since {date}: more than {days} day(s) × 24 h.',
+    'ml.optional': 'Leave a machine empty if you did not read it.',
+    'tk.day': 'Day',
+    'tk.prevDay': 'Previous day',
+    'tk.nextDay': 'Next day',
+    'tk.today': 'Today',
+    'tk.dayEmpty': 'No tasks on this day.',
+    'tk.status.due': 'Due',
+    'tk.status.done': 'Done',
+    'tk.status.skipped': 'Skipped',
+    'tk.status.late': 'Late',
+    'tk.status.missed': 'Missed',
+    'tk.markDone': 'Mark “{name}” as done',
+    'tk.skipToday': 'Skip today',
+    'tk.skipDay': 'Skip this day',
+    'tk.unskip': 'Undo skip',
+    'tk.open': 'Open',
+    'tk.history': 'History',
+    'tk.history.empty': 'No past days yet.',
+    'tk.history.summary': '{done} done · {missed} missed · {skipped} skipped',
+    'tk.manage': 'Edit tasks',
+    'tk.new': 'New task',
+    'tk.edit': 'Edit',
+    'tk.saved': 'Task saved: {name}',
+    'tk.deleted': 'Task deleted: {name}',
+    'tk.confirmDelete': 'Delete task “{name}”? Its ticks are deleted too.',
+    'tk.form.name': 'Name',
+    'tk.form.freq': 'How often',
+    'tk.form.days': 'On these days',
+    'tk.form.n': 'Every N weeks (N)',
+    'tk.form.start': 'Start date',
+    'tk.form.monthDay': 'Day of the month',
+    'tk.form.monthDay.hint': 'In shorter months the task is due on the last day of the month.',
+    'tk.form.from': 'From (optional)',
+    'tk.form.to': 'Until (optional)',
+    'tk.form.link': 'Open button',
+    'tk.form.link.none': 'None',
+    'tk.form.save': 'Save task',
+    'tk.err.name': 'Enter a name.',
+    'tk.err.freq': 'Choose how often.',
+    'tk.err.days': 'Choose at least one day.',
+    'tk.err.n': 'N must be a whole number of 1 or more.',
+    'tk.err.start': 'Choose a valid start date.',
+    'tk.err.monthDay': 'The day of the month must be between 1 and 31.',
+    'tk.err.time': 'Give both times (HH:MM), with the end after the start, or leave both empty.',
+    'tk.err.link': 'Unknown module for the Open button.',
+    'tk.freq.daily': 'Every day',
+    'tk.freq.weekdays': 'Weekdays',
+    'tk.freq.weekends': 'Weekends',
+    'tk.freq.days': 'On given days of the week',
+    'tk.freq.everyNWeeks': 'Every N weeks',
+    'tk.freq.monthDay': 'On a day of the month',
+    'tk.desc.days': 'Every {days}',
+    'tk.desc.everyNWeeks': 'Every {n} weeks from {date}',
+    'tk.desc.monthDay': 'Day {d} of each month',
+    'tk.days': 'Days with ticks',
+    'wd.0': 'Sun', 'wd.1': 'Mon', 'wd.2': 'Tue', 'wd.3': 'Wed', 'wd.4': 'Thu', 'wd.5': 'Fri', 'wd.6': 'Sat',
+    'sys.modules': 'Modules',
+    'sys.module': 'Module',
+    'sys.taskDays': '{total} day(s) ({demo} demo)'
+  },
+  hu: {
+    'mod.exportPallets.title': 'Export raklap számolás',
+    'mod.exportPallets.desc': 'Exportra szánt raklapok kategóriánként, napi nyilvántartással.',
+    'mod.machineLog.title': 'Gépnapló',
+    'mod.machineLog.desc': 'Gépenkénti üzemóra napi nyilvántartással és ellenőrzéssel.',
+    'mod.tasks.title': 'Feladatok',
+    'mod.tasks.desc': 'Ismétlődő feladatok napi pipálással és előzményekkel.',
+    'hub.today': 'Mai teendők',
+    'hub.today.empty': 'Mára nincs teendő',
+    'hub.today.all': 'Összes feladat',
+    'guide.exportPallets': 'Írd be kategóriánként a raklapok számát. Csak egész szám, 0 vagy több; a már átszámolt értéket írd be. Az összeg gépelés közben frissül.\nA „Nap mentése” a kiválasztott dátumra menti a számolást. Egy napra egy bejegyzés lehet: ha a nap már létezik, felülírás előtt rákérdez.\nHa egy kategória az előző mentett naphoz képest jobban eltér a küszöbnél, a mező narancssárga lesz. Mentés előtt megerősítést kér.\nA „Másolás üzenetként” egy rövid sort tesz a vágólapra a dátummal és az összeggel.\nEnnek a modulnak az adatai a többitől külön tárolódnak és külön exportálandók.\nAdmin mód: kategóriák kezelése, küszöb, import, mentett adatok törlése. Fejlesztő mód: demó adat.',
+    'guide.machineLog': 'Írd be a gépeken látható üzemórát. Csak egész szám, 0 vagy több. Egy gépet üresen hagyhatsz, ha nem olvastad le. Összeg nincs.\nA „Nap mentése” a kiválasztott dátumra menti a leolvasásokat. Egy napra egy bejegyzés lehet: ha a nap már létezik, felülírás előtt rákérdez.\nMinden gépet a saját utolsó mentett értékéhez hasonlít. Figyelmeztet, ha az üzemóra kisebb, mint korábban, vagy ha eltelt naponként több mint 24 órával nőtt. Ha egy gépnek még nincs korábbi mentése, nincs jelzés.\nA „Másolás üzenetként” egy rövid sort tesz a vágólapra a dátummal és a gépek üzemóráival.\nEnnek a modulnak az adatai külön tárolódnak és külön exportálandók.\nAdmin mód: gépek kezelése, import, mentett adatok törlése. Fejlesztő mód: demó adat.',
+    'guide.tasks': 'A napi nézet a kiválasztott napon esedékes feladatokat mutatja. Pipáld ki, ami kész; újabb pipával visszavonható.\nÁllapot: Esedékes (még nyitott), Kész, Kihagyva, Késik (az időszak vége elmúlt, és nincs pipa).\nA „Ma kihagyom” csak arra a napra hagyja ki a feladatot, például ha aznap nem kell. A „Kihagyás visszavonása” visszahozza. Ünnepnapi naptár nincs: a kihagyás mindig kézi.\nA „Megnyitás” a kapcsolt modulra visz.\nAz Előzmények a korábbi napokat mutatják: mi lett kész, mi maradt el és mi lett kihagyva.\nAdmin mód: feladatok hozzáadása, módosítása, törlése, import. A feladatok és a pipák külön tárolódnak és külön exportálandók.',
+    'dl.date': 'Dátum',
+    'dl.save': 'Nap mentése',
+    'dl.saved': 'Mentve: {date}',
+    'dl.err.empty': 'Írj be egy számot (0, ha nincs).',
+    'dl.invalidCount': '{n} mezőbe érvényes szám kell',
+    'dl.fixErrors': 'Mentés előtt javítsd a megjelölt mezőket.',
+    'dl.noneFilled': 'Mentés előtt adj meg legalább egy értéket.',
+    'dl.badDate': 'Válassz érvényes dátumot.',
+    'dl.prevRef': 'Összehasonlítás: {date}',
+    'dl.prevNone': 'Nincs korábbi mentett nap az összehasonlításhoz.',
+    'dl.deviation': 'Eltérés az előző naphoz képest: {diff}',
+    'dl.confirm.title': 'Mented ezt a napot?',
+    'dl.confirm.overwrite': '{date} napra már van mentés. A mentés felülírja.',
+    'dl.confirm.deviation': 'Ezek a sorok több mint {threshold} értékkel eltérnek ettől a naptól: {date}',
+    'dl.confirm.check': 'Ellenőrizd ezeket az értékeket:',
+    'dl.confirm.devLine': '{row}: {prev} → {now} ({diff})',
+    'dl.confirm.sure': 'Biztosan így szeretnéd menteni?',
+    'dl.confirm.save': 'Mentés',
+    'dl.history': 'Előző napok',
+    'dl.history.empty': 'Még nincs mentett nap.',
+    'dl.history.detail': '{date} adatai',
+    'dl.history.savedAt': 'Mentve: {time}',
+    'dl.demo': 'Demó',
+    'dl.backup': 'Biztonsági mentés',
+    'dl.backup.hint': 'Ennek a modulnak az adatai külön vannak ebben a böngészőben. Külön exportáld, és importtal vidd át másik eszközre.',
+    'dl.export': 'Mentés fájlba (export)',
+    'dl.import': 'Betöltés fájlból (import)',
+    'dl.export.title': 'Export',
+    'dl.export.ready': 'A fájl kész: {file} ({n} tétel).',
+    'dl.export.empty': 'Még nincs mit exportálni.',
+    'dl.import.title': 'Betöltés fájlból',
+    'dl.import.summary': 'A fájlban {n} tétel van. Ebből {overwrite} már létezik itt, ezeket a fájl tartalma váltja fel. Minden más változatlan marad.',
+    'dl.import.done': '{n} tétel betöltve.',
+    'dl.import.err.json': 'Ez nem érvényes JSON fájl. Semmi nem változott.',
+    'dl.import.err.format': 'Ez a fájl nem ennek a modulnak az exportja (hiányzó vagy hibás fejléc). Semmi nem változott.',
+    'dl.import.err.day': 'A(z) {n}. nap hibás: {reason} Semmi nem változott.',
+    'dl.import.err.task': 'A(z) {n}. feladat hibás: {reason} Semmi nem változott.',
+    'dl.import.err.log': 'A fájlban lévő pipák hibásak. Semmi nem változott.',
+    'dl.import.err.read': 'A fájlt nem sikerült beolvasni. Semmi nem változott.',
+    'dl.import.reason.rows': 'a sorlista hiányzik, üres, vagy egy név üres.',
+    'dl.admin': 'Admin beállítások',
+    'dl.threshold.save': 'Küszöb mentése',
+    'dl.threshold.saved': 'A küszöb új értéke: {n}.',
+    'dl.rows.added': 'Hozzáadva: {name}',
+    'dl.rows.renamed': 'Átnevezve: {name}',
+    'dl.rows.deleted': 'Törölve: {name}',
+    'dl.rows.err.empty': 'A név nem lehet üres.',
+    'dl.rows.err.duplicate': 'Ez a név már létezik.',
+    'dl.clearAll': 'Összes mentett nap törlése',
+    'dl.clearAll.confirm': 'Ez törli ennek a modulnak mind a(z) {n} mentett napját ebből a böngészőből, a demó napokkal együtt. A többi modult nem érinti. Nem vonható vissza.',
+    'dl.clearAll.done': 'A modul összes mentett napja törölve.',
+    'dl.dev': 'Fejlesztői eszközök',
+    'dl.demo.generate': 'Demó adat generálása',
+    'dl.demo.generated': '{n} demó tétel hozzáadva.',
+    'dl.demo.clear': 'Csak a demó adat törlése',
+    'dl.demo.cleared': '{n} demó tétel törölve.',
+    'dl.demo.hint': 'A demó adat fiktív, „Demó” jelölést kap, és soha nem írja felül a saját bejegyzéseidet.',
+    'dl.copyMsg': 'Másolás üzenetként',
+    'dl.copyMsg.done': 'Üzenet másolva: {text}',
+    'dl.copyMsg.manual': 'Itt nem engedélyezett a másolás. Jelöld ki az alábbi szöveget és másold kézzel.',
+    'ep.total': 'Összes raklap',
+    'ep.value': 'Raklap',
+    'ep.items': 'Kategóriák',
+    'ep.newItem': 'Új kategória neve',
+    'ep.noItems': 'Még nincs kategória. Admin módban adhatsz hozzá.',
+    'ep.confirmDelete': 'Törlöd ezt a kategóriát: „{name}”? A mentett napok értékei megmaradnak.',
+    'ep.threshold': 'Eltérésküszöb (raklap)',
+    'ep.threshold.hint': 'Egy kategória akkor kap jelölést, ha ennél jobban eltér az előző mentett naptól.',
+    'ep.threshold.readonly': 'Eltérésküszöb: {n} raklap (Admin módosíthatja).',
+    'ml.value': 'Üzemóra',
+    'ml.items': 'Gépek',
+    'ml.newItem': 'Új gép neve',
+    'ml.noItems': 'Még nincs gép. Admin módban adhatsz hozzá.',
+    'ml.confirmDelete': 'Törlöd ezt a gépet: „{name}”? A mentett napok értékei megmaradnak.',
+    'ml.count': '{n} gép',
+    'ml.prevHint': 'Minden gépet a saját utolsó mentett értékéhez hasonlít.',
+    'ml.prevValue': 'Utolsó: {value} óra ({date})',
+    'ml.dev.lower': 'Kisebb, mint az utolsó érték ({prev} óra, {date}).',
+    'ml.dev.tooHigh': '{diff} óra {date} óta: több, mint {days} nap × 24 óra.',
+    'ml.optional': 'Egy gépet üresen hagyhatsz, ha nem olvastad le.',
+    'tk.day': 'Nap',
+    'tk.prevDay': 'Előző nap',
+    'tk.nextDay': 'Következő nap',
+    'tk.today': 'Ma',
+    'tk.dayEmpty': 'Erre a napra nincs feladat.',
+    'tk.status.due': 'Esedékes',
+    'tk.status.done': 'Kész',
+    'tk.status.skipped': 'Kihagyva',
+    'tk.status.late': 'Késik',
+    'tk.status.missed': 'Elmaradt',
+    'tk.markDone': '„{name}” késznek jelölése',
+    'tk.skipToday': 'Ma kihagyom',
+    'tk.skipDay': 'Ezen a napon kihagyom',
+    'tk.unskip': 'Kihagyás visszavonása',
+    'tk.open': 'Megnyitás',
+    'tk.history': 'Előzmények',
+    'tk.history.empty': 'Még nincs korábbi nap.',
+    'tk.history.summary': '{done} kész · {missed} elmaradt · {skipped} kihagyva',
+    'tk.manage': 'Feladatok szerkesztése',
+    'tk.new': 'Új feladat',
+    'tk.edit': 'Módosítás',
+    'tk.saved': 'Feladat mentve: {name}',
+    'tk.deleted': 'Feladat törölve: {name}',
+    'tk.confirmDelete': 'Törlöd ezt a feladatot: „{name}”? A pipái is törlődnek.',
+    'tk.form.name': 'Név',
+    'tk.form.freq': 'Gyakoriság',
+    'tk.form.days': 'Ezeken a napokon',
+    'tk.form.n': 'Minden N. héten (N)',
+    'tk.form.start': 'Kezdő dátum',
+    'tk.form.monthDay': 'A hónap napja',
+    'tk.form.monthDay.hint': 'Rövidebb hónapban a hónap utolsó napján esedékes.',
+    'tk.form.from': 'Kezdete (nem kötelező)',
+    'tk.form.to': 'Vége (nem kötelező)',
+    'tk.form.link': 'Megnyitás gomb',
+    'tk.form.link.none': 'Nincs',
+    'tk.form.save': 'Feladat mentése',
+    'tk.err.name': 'Adj meg egy nevet.',
+    'tk.err.freq': 'Válassz gyakoriságot.',
+    'tk.err.days': 'Válassz legalább egy napot.',
+    'tk.err.n': 'N csak 1 vagy nagyobb egész szám lehet.',
+    'tk.err.start': 'Válassz érvényes kezdő dátumot.',
+    'tk.err.monthDay': 'A hónap napja 1 és 31 között lehet.',
+    'tk.err.time': 'Add meg mindkét időpontot (ÓÓ:PP), a vége legyen később, vagy hagyd mindkettőt üresen.',
+    'tk.err.link': 'Ismeretlen modul a Megnyitás gombhoz.',
+    'tk.freq.daily': 'Minden nap',
+    'tk.freq.weekdays': 'Hétköznap',
+    'tk.freq.weekends': 'Hétvégén',
+    'tk.freq.days': 'A hét adott napjain',
+    'tk.freq.everyNWeeks': 'Minden N. héten',
+    'tk.freq.monthDay': 'A hónap adott napján',
+    'tk.desc.days': 'Minden {days}',
+    'tk.desc.everyNWeeks': 'Minden {n}. héten, {date} kezdettel',
+    'tk.desc.monthDay': 'Minden hónap {d}. napján',
+    'tk.days': 'Pipás napok',
+    'wd.0': 'V', 'wd.1': 'H', 'wd.2': 'K', 'wd.3': 'Sze', 'wd.4': 'Cs', 'wd.5': 'P', 'wd.6': 'Szo',
+    'sys.modules': 'Modulok',
+    'sys.module': 'Modul',
+    'sys.taskDays': '{total} nap (ebből {demo} demó)'
+  },
+  uk: {
+    'mod.exportPallets.title': 'Підрахунок експортних палет',
+    'mod.exportPallets.desc': 'Палети на експорт за категоріями, зі щоденним записом.',
+    'mod.machineLog.title': 'Журнал машин',
+    'mod.machineLog.desc': 'Мотогодини кожної машини зі щоденним записом і перевіркою.',
+    'mod.tasks.title': 'Завдання',
+    'mod.tasks.desc': 'Повторювані завдання зі щоденним списком і історією.',
+    'hub.today': 'Завдання на сьогодні',
+    'hub.today.empty': 'На сьогодні завдань немає',
+    'hub.today.all': 'Усі завдання',
+    'guide.exportPallets': 'Введіть кількість палет для кожної категорії. Лише цілі числа, 0 або більше; вводьте вже перераховане значення. Сума оновлюється під час введення.\n«Зберегти день» зберігає підрахунок на вибрану дату. Один запис на день: якщо день уже є, перед перезаписом буде запит.\nЯкщо категорія відрізняється від попереднього збереженого дня більше, ніж поріг, поле стає помаранчевим. Перед збереженням потрібне підтвердження.\n«Копіювати як повідомлення» копіює короткий рядок з датою та сумою.\nДані цього модуля зберігаються та експортуються окремо від інших модулів.\nРежим Адмін: керування категоріями, поріг, імпорт, видалення даних. Режим Розробник: демо-дані.',
+    'guide.machineLog': 'Введіть мотогодини, показані на кожній машині. Лише цілі числа, 0 або більше. Машину можна залишити порожньою, якщо ви її не перевіряли. Суми немає.\n«Зберегти день» зберігає показники на вибрану дату. Один запис на день: якщо день уже є, перед перезаписом буде запит.\nКожна машина порівнюється зі своїм останнім збереженим показником. Буде попередження, якщо годин менше, ніж раніше, або якщо вони зросли більше ніж на 24 години за кожен минулий день. Машина без попереднього показника попередження не отримує.\n«Копіювати як повідомлення» копіює короткий рядок з датою та годинами кожної машини.\nДані цього модуля зберігаються та експортуються окремо.\nРежим Адмін: керування машинами, імпорт, видалення даних. Режим Розробник: демо-дані.',
+    'guide.tasks': 'Денний перегляд показує завдання на вибраний день. Позначте завдання, коли воно виконане; повторна позначка скасовує.\nСтан: Очікує (ще відкрите), Виконано, Пропущено, Запізнюється (час минув, а позначки немає).\n«Пропустити сьогодні» пропускає завдання лише на цей день. «Скасувати пропуск» повертає його. Календаря свят немає: пропуск завжди вручну.\n«Відкрити» переходить до пов’язаного модуля.\nІсторія показує минулі дні: що виконано, що пропущено без позначки і що свідомо пропущено.\nРежим Адмін: додавання, зміна, видалення завдань, імпорт. Завдання та позначки зберігаються й експортуються окремо.',
+    'dl.date': 'Дата',
+    'dl.save': 'Зберегти день',
+    'dl.saved': 'Збережено: {date}',
+    'dl.err.empty': 'Введіть число (0, якщо немає).',
+    'dl.invalidCount': 'Полів без правильного числа: {n}',
+    'dl.fixErrors': 'Перед збереженням виправте позначені поля.',
+    'dl.noneFilled': 'Перед збереженням введіть хоча б одне значення.',
+    'dl.badDate': 'Виберіть правильну дату.',
+    'dl.prevRef': 'Порівняння з {date}',
+    'dl.prevNone': 'Немає попереднього збереженого дня для порівняння.',
+    'dl.deviation': 'Різниця з попереднім днем: {diff}',
+    'dl.confirm.title': 'Зберегти цей день?',
+    'dl.confirm.overwrite': 'Для {date} вже є збереження. Збереження його перезапише.',
+    'dl.confirm.deviation': 'Ці рядки відрізняються від {date} більше ніж на {threshold}:',
+    'dl.confirm.check': 'Перевірте ці значення:',
+    'dl.confirm.devLine': '{row}: {prev} → {now} ({diff})',
+    'dl.confirm.sure': 'Ви справді хочете зберегти так?',
+    'dl.confirm.save': 'Зберегти',
+    'dl.history': 'Попередні дні',
+    'dl.history.empty': 'Збережених днів ще немає.',
+    'dl.history.detail': 'Запис за {date}',
+    'dl.history.savedAt': 'Збережено {time}',
+    'dl.demo': 'Демо',
+    'dl.backup': 'Резервна копія',
+    'dl.backup.hint': 'Дані цього модуля зберігаються окремо в цьому браузері. Експортуйте їх окремо й переносьте на інший пристрій через імпорт.',
+    'dl.export': 'Експорт у файл',
+    'dl.import': 'Імпорт з файлу',
+    'dl.export.title': 'Експорт',
+    'dl.export.ready': 'Файл готовий: {file} (записів: {n}).',
+    'dl.export.empty': 'Поки що нічого експортувати.',
+    'dl.import.title': 'Імпорт з файлу',
+    'dl.import.summary': 'У файлі записів: {n}. З них {overwrite} вже є тут і будуть замінені даними з файлу. Усе інше не зміниться.',
+    'dl.import.done': 'Імпортовано записів: {n}.',
+    'dl.import.err.json': 'Це не правильний файл JSON. Нічого не змінено.',
+    'dl.import.err.format': 'Цей файл не є експортом цього модуля (заголовок відсутній або неправильний). Нічого не змінено.',
+    'dl.import.err.day': 'День №{n} неправильний: {reason} Нічого не змінено.',
+    'dl.import.err.task': 'Завдання №{n} неправильне: {reason} Нічого не змінено.',
+    'dl.import.err.log': 'Позначки у файлі неправильні. Нічого не змінено.',
+    'dl.import.err.read': 'Не вдалося прочитати файл. Нічого не змінено.',
+    'dl.import.reason.rows': 'список рядків відсутній, порожній, або назва порожня.',
+    'dl.admin': 'Налаштування адміністратора',
+    'dl.threshold.save': 'Зберегти поріг',
+    'dl.threshold.saved': 'Новий поріг: {n}.',
+    'dl.rows.added': 'Додано: {name}',
+    'dl.rows.renamed': 'Перейменовано: {name}',
+    'dl.rows.deleted': 'Видалено: {name}',
+    'dl.rows.err.empty': 'Назва не може бути порожньою.',
+    'dl.rows.err.duplicate': 'Така назва вже існує.',
+    'dl.clearAll': 'Видалити всі збережені дні',
+    'dl.clearAll.confirm': 'Буде видалено всі збережені дні цього модуля ({n}) з цього браузера, разом із демо-днями. Інші модулі не зміняться. Скасувати не можна.',
+    'dl.clearAll.done': 'Усі збережені дні цього модуля видалено.',
+    'dl.dev': 'Інструменти розробника',
+    'dl.demo.generate': 'Створити демо-дані',
+    'dl.demo.generated': 'Додано демо-записів: {n}.',
+    'dl.demo.clear': 'Видалити лише демо-дані',
+    'dl.demo.cleared': 'Видалено демо-записів: {n}.',
+    'dl.demo.hint': 'Демо-дані вигадані, мають позначку «Демо» і ніколи не перезаписують ваші записи.',
+    'dl.copyMsg': 'Копіювати як повідомлення',
+    'dl.copyMsg.done': 'Повідомлення скопійовано: {text}',
+    'dl.copyMsg.manual': 'Копіювання тут заборонене. Виділіть текст нижче й скопіюйте вручну.',
+    'ep.total': 'Усього палет',
+    'ep.value': 'Палети',
+    'ep.items': 'Категорії',
+    'ep.newItem': 'Назва нової категорії',
+    'ep.noItems': 'Категорій ще немає. Адмін може їх додати.',
+    'ep.confirmDelete': 'Видалити категорію «{name}»? Значення у збережених днях залишаться.',
+    'ep.threshold': 'Поріг різниці (палет)',
+    'ep.threshold.hint': 'Категорія позначається, якщо вона відрізняється від попереднього збереженого дня більше, ніж на це значення.',
+    'ep.threshold.readonly': 'Поріг різниці: {n} палет (змінює Адмін).',
+    'ml.value': 'Мотогодини',
+    'ml.items': 'Машини',
+    'ml.newItem': 'Назва нової машини',
+    'ml.noItems': 'Машин ще немає. Адмін може їх додати.',
+    'ml.confirmDelete': 'Видалити машину «{name}»? Значення у збережених днях залишаться.',
+    'ml.count': 'Машин: {n}',
+    'ml.prevHint': 'Кожна машина порівнюється зі своїм останнім збереженим показником.',
+    'ml.prevValue': 'Останній: {value} год ({date})',
+    'ml.dev.lower': 'Менше за останній показник ({prev} год, {date}).',
+    'ml.dev.tooHigh': '{diff} год з {date}: більше ніж {days} дн. × 24 год.',
+    'ml.optional': 'Машину можна залишити порожньою, якщо ви її не перевіряли.',
+    'tk.day': 'День',
+    'tk.prevDay': 'Попередній день',
+    'tk.nextDay': 'Наступний день',
+    'tk.today': 'Сьогодні',
+    'tk.dayEmpty': 'На цей день завдань немає.',
+    'tk.status.due': 'Очікує',
+    'tk.status.done': 'Виконано',
+    'tk.status.skipped': 'Пропущено',
+    'tk.status.late': 'Запізнюється',
+    'tk.status.missed': 'Не виконано',
+    'tk.markDone': 'Позначити «{name}» як виконане',
+    'tk.skipToday': 'Пропустити сьогодні',
+    'tk.skipDay': 'Пропустити цей день',
+    'tk.unskip': 'Скасувати пропуск',
+    'tk.open': 'Відкрити',
+    'tk.history': 'Історія',
+    'tk.history.empty': 'Минулих днів ще немає.',
+    'tk.history.summary': 'виконано: {done} · не виконано: {missed} · пропущено: {skipped}',
+    'tk.manage': 'Редагування завдань',
+    'tk.new': 'Нове завдання',
+    'tk.edit': 'Змінити',
+    'tk.saved': 'Завдання збережено: {name}',
+    'tk.deleted': 'Завдання видалено: {name}',
+    'tk.confirmDelete': 'Видалити завдання «{name}»? Його позначки теж буде видалено.',
+    'tk.form.name': 'Назва',
+    'tk.form.freq': 'Як часто',
+    'tk.form.days': 'У ці дні',
+    'tk.form.n': 'Кожного N-го тижня (N)',
+    'tk.form.start': 'Дата початку',
+    'tk.form.monthDay': 'День місяця',
+    'tk.form.monthDay.hint': 'У коротших місяцях завдання припадає на останній день місяця.',
+    'tk.form.from': 'Початок (необов’язково)',
+    'tk.form.to': 'Кінець (необов’язково)',
+    'tk.form.link': 'Кнопка «Відкрити»',
+    'tk.form.link.none': 'Немає',
+    'tk.form.save': 'Зберегти завдання',
+    'tk.err.name': 'Введіть назву.',
+    'tk.err.freq': 'Виберіть, як часто.',
+    'tk.err.days': 'Виберіть хоча б один день.',
+    'tk.err.n': 'N має бути цілим числом від 1.',
+    'tk.err.start': 'Виберіть правильну дату початку.',
+    'tk.err.monthDay': 'День місяця має бути від 1 до 31.',
+    'tk.err.time': 'Вкажіть обидва часи (ГГ:ХХ), кінець пізніше за початок, або залиште обидва порожніми.',
+    'tk.err.link': 'Невідомий модуль для кнопки «Відкрити».',
+    'tk.freq.daily': 'Щодня',
+    'tk.freq.weekdays': 'У будні',
+    'tk.freq.weekends': 'У вихідні',
+    'tk.freq.days': 'У певні дні тижня',
+    'tk.freq.everyNWeeks': 'Кожного N-го тижня',
+    'tk.freq.monthDay': 'У певний день місяця',
+    'tk.desc.days': 'Щотижня: {days}',
+    'tk.desc.everyNWeeks': 'Кожного {n}-го тижня з {date}',
+    'tk.desc.monthDay': '{d}-го числа кожного місяця',
+    'tk.days': 'Дні з позначками',
+    'wd.0': 'Нд', 'wd.1': 'Пн', 'wd.2': 'Вт', 'wd.3': 'Ср', 'wd.4': 'Чт', 'wd.5': 'Пт', 'wd.6': 'Сб',
+    'sys.modules': 'Модулі',
+    'sys.module': 'Модуль',
+    'sys.taskDays': '{total} дн. (демо: {demo})'
+  }
+};
+LANGS.forEach(l => Object.assign(I18N[l], I18N_020[l]));
 
 function makeT(lang, missing) {
   return function t(key, params) {
@@ -1158,8 +1698,13 @@ function renderEmptySpace(root, ctx) {
       rowEls[row.id] = { input, msg, wrap };
       return wrap;
     })),
-    perm('entry.save') ? h('button', { class: 'btn primary big', id: 'es-save', 'data-perm': 'entry.save', onclick: onSave },
-      icon('save'), t('es.save')) : null,
+    h('div', { class: 'btn-row' },
+      perm('entry.save') ? h('button', { class: 'btn primary big', id: 'es-save', 'data-perm': 'entry.save', onclick: onSave },
+        icon('save'), t('es.save')) : null,
+      // 0.2.0: másolás üzenetként (csak olvas, nem ír a tárolóba)
+      perm('entry.copy') ? h('button', { class: 'btn big', id: 'es-copy', 'data-perm': 'entry.copy', onclick: () =>
+        ctx.copyMessage(buildCopyMessage(date, t('mod.emptySpace.title'), EmptySpace.sum(Object.values(evaluate().values)))) },
+        icon('copy'), t('dl.copyMsg')) : null),
     perm('threshold.edit') ? null : h('p', { class: 'hint', style: 'margin-top:12px' }, t('es.threshold.readonly', { n: state.threshold }))
   );
 
@@ -1335,13 +1880,923 @@ function importErrorText(t, res) {
 }
 
 /* =====================================================================
+ * 10/b. KÖZÖS SEGÉDEK (0.2.0)
+ * ===================================================================== */
+function weekdayOf(iso) { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d).getDay(); }
+function daysBetween(a, b) {
+  const [y1, m1, d1] = a.split('-').map(Number), [y2, m2, d2] = b.split('-').map(Number);
+  return Math.round((Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 86400000);
+}
+function isValidTime(s) { return typeof s === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s); }
+// "Másolás üzenetként" szöveg: "ÉÉÉÉ-HH-NN – <modul neve>: <érték>"
+function buildCopyMessage(date, moduleName, value) { return date + ' – ' + moduleName + ': ' + value; }
+function machineListText(rows) { return rows.map(r => r.name + ': ' + r.value).join('; '); }
+
+/* =====================================================================
+ * 10/c. KÖZÖS NAPI LISTA ELEM ("napló") – az Export raklap számolás és a
+ *       Gépnapló használja. Minden példány KÜLÖN tárolási kulccsal, külön
+ *       export fájllal és külön importtal dolgozik.
+ *       Az Üres hely számolás (9–10. pont) szándékosan érintetlen maradt,
+ *       hogy a 0.1.0 adatai és viselkedése ne változzon.
+ *
+ *  cfg: { key, moduleId, defaultRows, hasTotal, requireAll,
+ *         check: 'threshold' | 'hours', thresholdDefault, demoSeries(nRows, nDays, rnd) }
+ * ===================================================================== */
+function createDayLog(cfg) {
+  const SCHEMA = 1;
+  const parse = raw => EmptySpace.parseCount(raw);   // ugyanaz a bevitel-szabály: nemnegatív egész
+  const sum = values => values.reduce((a, v) => a + (Number.isInteger(v) && v >= 0 ? v : 0), 0);
+
+  function defaults() {
+    const s = { schema: SCHEMA, rows: cfg.defaultRows.map((name, i) => ({ id: 'r' + (i + 1), name })), days: [], draft: {} };
+    if (cfg.check === 'threshold') s.threshold = cfg.thresholdDefault;
+    return s;
+  }
+  function load(store) {
+    const s = store.read(cfg.key, null);
+    if (!s || typeof s !== 'object' || !Array.isArray(s.rows) || !Array.isArray(s.days)) return defaults();
+    const out = {
+      schema: SCHEMA,
+      rows: s.rows.filter(r => r && typeof r.name === 'string').map(r => ({ id: String(r.id), name: r.name })),
+      days: s.days.filter(d => d && isValidIsoDate(d.date) && Array.isArray(d.rows)),
+      draft: (s.draft && typeof s.draft === 'object') ? s.draft : {}
+    };
+    if (cfg.check === 'threshold') out.threshold = Number.isInteger(s.threshold) && s.threshold >= 0 ? s.threshold : cfg.thresholdDefault;
+    return out;
+  }
+  function save(store, state) { return store.write(cfg.key, state); }
+  function sortedDays(days) { return days.slice().sort((a, b) => b.date.localeCompare(a.date)); }
+  function previousDay(days, date) { return sortedDays(days).find(d => d.date < date) || null; }
+  function rowHit(day, row) {
+    return day.rows.find(r => r.id != null && r.id === row.id) || day.rows.find(r => r.name === row.name) || null;
+  }
+  // Az adott sor utolsó, korábbi mentett értéke (a Gépnaplónál gépenként keres vissza).
+  function previousFor(days, row, date) {
+    for (const d of sortedDays(days)) {
+      if (d.date >= date) continue;
+      const hit = rowHit(d, row);
+      if (hit) return { date: d.date, value: hit.value };
+    }
+    return null;
+  }
+  // Eltérések: { [rowId]: { kind, prev, now, diff, prevDate, days } } – csak a jelzettek.
+  function check(state, date, values) {
+    const out = {};
+    if (cfg.check === 'threshold') {
+      const prevDay = previousDay(state.days, date);
+      if (!prevDay) return out;
+      state.rows.forEach(row => {
+        const now = values[row.id];
+        const hit = rowHit(prevDay, row);
+        if (!hit || !Number.isInteger(now)) return;
+        const diff = now - hit.value;
+        if (Math.abs(diff) > state.threshold) out[row.id] = { kind: 'threshold', prev: hit.value, now, diff, prevDate: prevDay.date };
+      });
+      return out;
+    }
+    state.rows.forEach(row => {
+      const now = values[row.id];
+      if (!Number.isInteger(now)) return;
+      const p = previousFor(state.days, row, date);
+      if (!p) return;                                  // első mentés: nincs jelzés
+      const days = daysBetween(p.date, date);
+      const diff = now - p.value;
+      if (diff < 0) out[row.id] = { kind: 'lower', prev: p.value, now, diff, prevDate: p.date, days };
+      else if (diff > days * 24) out[row.id] = { kind: 'tooHigh', prev: p.value, now, diff, prevDate: p.date, days };
+    });
+    return out;
+  }
+  function buildDay(state, date, values, savedAt) {
+    const rows = state.rows.filter(r => Number.isInteger(values[r.id])).map(r => ({ id: r.id, name: r.name, value: values[r.id] }));
+    const day = { date, rows, savedAt: savedAt || new Date().toISOString() };
+    if (cfg.hasTotal) day.total = sum(rows.map(r => r.value));
+    return day;
+  }
+  function upsertDay(state, day) {
+    const existing = state.days.find(d => d.date === day.date) || null;
+    return { state: Object.assign({}, state, { days: state.days.filter(d => d.date !== day.date).concat([day]) }), overwritten: existing };
+  }
+  function buildExport(state, now) {
+    const out = { app: APP_ID, module: cfg.moduleId, schema: SCHEMA, exportedAt: (now || new Date()).toISOString() };
+    if (cfg.check === 'threshold') out.threshold = state.threshold;
+    out.days = sortedDays(state.days).map(d => {
+      const o = { date: d.date, rows: d.rows.map(r => ({ id: r.id, name: r.name, value: r.value })), savedAt: d.savedAt };
+      if (cfg.hasTotal) o.total = d.total;
+      if (d.demo) o.demo = true;
+      return o;
+    });
+    return out;
+  }
+  function validateImport(text) {
+    let obj;
+    try { obj = JSON.parse(text); } catch (e) { return { ok: false, error: 'json' }; }
+    if (!obj || typeof obj !== 'object' || obj.app !== APP_ID || obj.module !== cfg.moduleId ||
+        typeof obj.schema !== 'number' || obj.schema > SCHEMA || !Array.isArray(obj.days)) return { ok: false, error: 'format' };
+    const seen = new Set(), days = [];
+    for (let i = 0; i < obj.days.length; i++) {
+      const d = obj.days[i];
+      const fail = reason => ({ ok: false, error: 'day', index: i + 1, reason });
+      if (!d || typeof d !== 'object' || !isValidIsoDate(d.date)) return fail('date');
+      if (seen.has(d.date)) return fail('duplicate');
+      seen.add(d.date);
+      if (!Array.isArray(d.rows) || !d.rows.length || d.rows.some(r => !r || typeof r.name !== 'string' || r.name.trim() === '')) return fail('rows');
+      if (d.rows.some(r => !Number.isInteger(r.value) || r.value < 0 || r.value > 100000)) return fail('value');
+      const day = { date: d.date, rows: d.rows.map(r => ({ id: r.id != null ? String(r.id) : null, name: r.name, value: r.value })),
+        savedAt: typeof d.savedAt === 'string' ? d.savedAt : new Date().toISOString() };
+      if (cfg.hasTotal) {
+        const total = sum(d.rows.map(r => r.value));
+        if (d.total !== total) return fail('total');
+        day.total = total;
+      }
+      if (d.demo === true) day.demo = true;
+      days.push(day);
+    }
+    return { ok: true, days };
+  }
+  function mergeImport(state, days) {
+    const incoming = new Set(days.map(d => d.date));
+    const overwrite = state.days.filter(d => incoming.has(d.date)).length;
+    return { state: Object.assign({}, state, { days: state.days.filter(d => !incoming.has(d.date)).concat(days) }), overwrite };
+  }
+  function generateDemo(state, today, count) {
+    count = count || 10;
+    let seed = 11;
+    const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    const series = cfg.demoSeries(state.rows.length, count, rnd);   // [napIndex a legrégebbitől][sor]
+    const taken = new Set(state.days.map(d => d.date));
+    const added = [];
+    for (let i = 0; i < count; i++) {
+      const date = addDays(today, -(count - i));
+      if (taken.has(date)) continue;
+      const values = {};
+      state.rows.forEach((r, j) => { values[r.id] = Math.max(0, series[i][j]); });
+      const day = buildDay(state, date, values);
+      day.demo = true;
+      added.push(day);
+    }
+    return { state: Object.assign({}, state, { days: state.days.concat(added) }), added: added.length };
+  }
+  function clearDemo(state) {
+    const keep = state.days.filter(d => !d.demo);
+    return { state: Object.assign({}, state, { days: keep }), removed: state.days.length - keep.length };
+  }
+  function clearAll(state) { return Object.assign({}, state, { days: [] }); }
+  const addRow = (state, name) => EmptySpace.addRow(state, name);
+  const renameRow = (state, id, name) => EmptySpace.renameRow(state, id, name);
+  const deleteRow = (state, id) => EmptySpace.deleteRow(state, id);
+  function lastSaveTime(state) {
+    const all = state.days.map(d => d.savedAt).filter(Boolean).sort();
+    return all.length ? all[all.length - 1] : null;
+  }
+  return { cfg, KEY: cfg.key, defaults, load, save, parse, sum, sortedDays, previousDay, previousFor, check, buildDay, upsertDay,
+    buildExport, validateImport, mergeImport, generateDemo, clearDemo, clearAll, addRow, renameRow, deleteRow, lastSaveTime };
+}
+
+const ExportPallets = createDayLog({
+  key: 'exportPallets', moduleId: 'export-pallets', defaultRows: ['A kategória', 'B kategória', 'C kategória'],
+  hasTotal: true, requireAll: true, check: 'threshold', thresholdDefault: 5,
+  demoSeries(n, days, rnd) {
+    const out = [];
+    for (let i = 0; i < days; i++) {
+      out.push(Array.from({ length: n }, (_, j) => {
+        let v = 6 + j * 4 + Math.round((rnd() - 0.5) * 6);
+        if (i === days - 3 && j === 0) v += 11;        // szándékos ugrás az eltérésjelzéshez
+        return v;
+      }));
+    }
+    return out;
+  }
+});
+const MachineLog = createDayLog({
+  key: 'machineLog', moduleId: 'machine-log', defaultRows: ['N10', 'N11', 'N12'],
+  hasTotal: false, requireAll: false, check: 'hours',
+  demoSeries(n, days, rnd) {
+    const cur = Array.from({ length: n }, (_, j) => 1000 + j * 350);
+    const out = [];
+    for (let i = 0; i < days; i++) {
+      for (let j = 0; j < n; j++) {
+        cur[j] += 6 + Math.round(rnd() * 12);
+        if (i === days - 4 && j === 1) cur[j] -= 40;    // szándékos csökkenés
+        if (i === days - 2 && j === 2) cur[j] += 50;    // szándékosan több, mint 24 óra/nap
+      }
+      out.push(cur.slice());
+    }
+    return out;
+  }
+});
+
+function dlImportErrorText(t, res) {
+  if (res.error === 'day') {
+    const reason = res.reason === 'rows' ? t('dl.import.reason.rows') : t('es.import.reason.' + res.reason);
+    return t('dl.import.err.day', { n: res.index, reason });
+  }
+  if (res.error === 'task') return t('dl.import.err.task', { n: res.index, reason: t('tk.err.' + res.reason) });
+  return t('dl.import.err.' + res.error);
+}
+
+// Közös export- és import-párbeszéd (a két új naplómodul és a Feladatok használja)
+function openExportDialog(ctx, file, text, n) {
+  const { t } = ctx;
+  const ta = h('textarea', { id: 'dl-export-text', readonly: true, rows: 8 }, text);
+  ctx.modal({
+    title: t('dl.export.title'),
+    body: [
+      h('p', null, t('dl.export.ready', { file, n })),
+      h('div', { class: 'btn-row' },
+        h('button', { class: 'btn primary', id: 'dl-export-save', onclick: () => ctx.saveFile(file, text) }, icon('download'), t('es.export.download')),
+        h('button', { class: 'btn', onclick: () => ctx.copyText(text, ta) }, t('es.export.copy'))),
+      h('p', { class: 'hint' }, t('es.export.textHint')),
+      ta
+    ],
+    actions: [{ label: t('btn.close'), value: true }]
+  });
+}
+function openImportDialog(ctx, validate, apply) {
+  const { t } = ctx;
+  const fileIn = h('input', { type: 'file', id: 'dl-import-file', accept: '.json,application/json' });
+  const ta = h('textarea', { id: 'dl-import-text', rows: 6 });
+  const err = h('p', { class: 'notice-err', id: 'dl-import-error', hidden: true });
+  const showErr = msg => { err.textContent = msg; err.hidden = false; };
+  async function checkIt() {
+    err.hidden = true;
+    let text = ta.value.trim();
+    if (fileIn.files && fileIn.files[0]) {
+      try { text = await fileIn.files[0].text(); } catch (e) { showErr(t('dl.import.err.read')); return; }
+    }
+    if (!text) { showErr(t('es.import.noInput')); return; }
+    const res = validate(text);
+    if (!res.ok) { showErr(dlImportErrorText(t, res)); return; }
+    const preview = apply(res, true);
+    ctx.closeModal(null);
+    const ok = await ctx.modal({ title: t('dl.import.title'),
+      body: [h('p', null, t('dl.import.summary', { n: preview.n, overwrite: preview.overwrite }))],
+      actions: [{ label: t('btn.cancel'), value: false }, { label: t('es.import.confirm'), value: true, kind: 'primary', id: 'dl-import-confirm' }] });
+    if (!ok) return;
+    apply(res, false);
+    ctx.toast(t('dl.import.done', { n: preview.n }));
+    ctx.rerender();
+  }
+  ctx.modal({
+    title: t('dl.import.title'),
+    body: [
+      h('div', { class: 'field' }, h('label', { for: 'dl-import-file' }, t('es.import.choose')), fileIn),
+      h('div', { class: 'field' }, h('label', { for: 'dl-import-text' }, t('es.import.paste')), ta),
+      err
+    ],
+    actions: [{ label: t('btn.cancel'), value: false }, { label: t('es.import.check'), kind: 'primary', id: 'dl-import-check', onClick: checkIt, keepOpen: true }]
+  });
+}
+
+/* =====================================================================
+ * 10/d. KÖZÖS NAPI LISTA – felület
+ *   mod: { id, titleKey, p (fordítási előtag: 'ep' | 'ml'), file, logic }
+ * ===================================================================== */
+function renderDayLog(root, ctx, mod) {
+  const { t, mode, store } = ctx;
+  const L = mod.logic, C = L.cfg;
+  const P = (k, params) => t(mod.p + '.' + k, params);
+  const perm = f => can(mode, f);
+  let state = L.load(store);
+  let date = (state.draft && isValidIsoDate(state.draft.__date)) ? state.draft.__date : ctx.today();
+
+  function persist(next) { state = next; if (!L.save(store, state)) ctx.toast(t('storage.writeFailed'), true); }
+  function rawValue(id) { const v = state.draft[id]; return v == null ? '' : String(v); }
+  function setDraft(id, val) { state.draft = Object.assign({}, state.draft, { [id]: val }); L.save(store, state); }
+
+  const totalEl = C.hasTotal ? h('div', { class: 'd-value', id: 'dl-total', 'aria-live': 'polite' }, '0') : null;
+  const totalNote = h('div', { class: 'd-note', id: 'dl-total-note' });
+  const prevRef = h('p', { class: 'hint', id: 'dl-prev-ref' });
+  const rowEls = {};
+
+  function evaluate() {
+    const values = {};
+    let shownInvalid = 0, emptyCount = 0;
+    state.rows.forEach(row => {
+      const el = rowEls[row.id];
+      const raw = rawValue(row.id);
+      el.wrap.classList.remove('invalid', 'dev-flag');
+      el.msg.textContent = '';
+      el.input.removeAttribute('aria-invalid');
+      if (raw.trim() === '') { emptyCount++; return; }
+      const p = L.parse(raw);
+      if (!p.ok) {
+        shownInvalid++;
+        el.wrap.classList.add('invalid');
+        el.input.setAttribute('aria-invalid', 'true');
+        el.msg.textContent = t('es.err.' + p.error);
+        return;
+      }
+      values[row.id] = p.value;
+    });
+    const flags = L.check(state, date, values);
+    Object.entries(flags).forEach(([id, f]) => {
+      const el = rowEls[id];
+      el.wrap.classList.add('dev-flag');
+      el.msg.textContent = devText(f);
+    });
+    if (C.check === 'hours') {
+      state.rows.forEach(row => {
+        const p = L.previousFor(state.days, row, date);
+        rowEls[row.id].prev.textContent = p ? t('ml.prevValue', { value: p.value, date: fmtDate(p.date, ctx.lang) }) : '';
+      });
+      prevRef.textContent = t('ml.prevHint') + ' ' + t('ml.optional');
+    } else {
+      const prevDay = L.previousDay(state.days, date);
+      prevRef.textContent = prevDay ? t('dl.prevRef', { date: fmtDate(prevDay.date, ctx.lang) }) : t('dl.prevNone');
+    }
+    if (totalEl) totalEl.textContent = String(L.sum(Object.values(values)));
+    totalNote.textContent = shownInvalid ? t('dl.invalidCount', { n: shownInvalid }) : '';
+    return { values, flags, shownInvalid, emptyCount };
+  }
+  function devText(f) {
+    if (f.kind === 'threshold') return t('dl.deviation', { diff: signed(f.diff) });
+    if (f.kind === 'lower') return t('ml.dev.lower', { prev: f.prev, date: fmtDate(f.prevDate, ctx.lang) });
+    return t('ml.dev.tooHigh', { diff: signed(f.diff), date: fmtDate(f.prevDate, ctx.lang), days: f.days });
+  }
+
+  async function onSave() {
+    if (!isValidIsoDate(date)) { ctx.toast(t('dl.badDate'), true); return; }
+    const ev = evaluate();
+    if (ev.shownInvalid > 0 || (C.requireAll && ev.emptyCount > 0) || !state.rows.length) {
+      if (C.requireAll) state.rows.forEach(r => { if (rawValue(r.id).trim() === '') { rowEls[r.id].wrap.classList.add('invalid'); rowEls[r.id].msg.textContent = t('dl.err.empty'); } });
+      ctx.toast(t('dl.fixErrors'), true);
+      return;
+    }
+    if (!Object.keys(ev.values).length) { ctx.toast(t('dl.noneFilled'), true); return; }
+    const existing = state.days.find(d => d.date === date);
+    const flagged = Object.entries(ev.flags);
+    if (existing || flagged.length) {
+      const body = [];
+      if (existing) body.push(h('p', { class: 'notice-warn' }, t('dl.confirm.overwrite', { date: fmtDate(date, ctx.lang) })));
+      if (flagged.length) {
+        body.push(h('p', null, C.check === 'threshold'
+          ? t('dl.confirm.deviation', { date: fmtDate(flagged[0][1].prevDate, ctx.lang), threshold: state.threshold })
+          : t('dl.confirm.check')));
+        body.push(h('ul', null, flagged.map(([id, f]) => {
+          const row = state.rows.find(r => r.id === id);
+          return h('li', null, t('dl.confirm.devLine', { row: row.name, prev: f.prev, now: f.now, diff: signed(f.diff) }) +
+            (C.check === 'hours' ? ' – ' + devText(f) : ''));
+        })));
+      }
+      body.push(h('p', { class: 'hint' }, t('dl.confirm.sure')));
+      const ok = await ctx.modal({ title: t('dl.confirm.title'), body, actions: [
+        { label: t('btn.cancel'), value: false },
+        { label: t('dl.confirm.save'), value: true, kind: 'primary', id: 'dl-confirm-save' }] });
+      if (!ok) return;
+    }
+    const day = L.buildDay(state, date, ev.values);
+    const res = L.upsertDay(state, day);
+    res.state.draft = {};
+    persist(res.state);
+    ctx.toast(t('dl.saved', { date: fmtDate(date, ctx.lang) }));
+    ctx.rerender();
+  }
+  function copyText() {
+    const ev = evaluate();
+    if (C.hasTotal) return buildCopyMessage(date, t(mod.titleKey), L.sum(Object.values(ev.values)));
+    const rows = state.rows.filter(r => Number.isInteger(ev.values[r.id])).map(r => ({ name: r.name, value: ev.values[r.id] }));
+    return buildCopyMessage(date, t(mod.titleKey), rows.length ? machineListText(rows) : '–');
+  }
+
+  const dateInput = h('input', { type: 'date', id: 'dl-date', value: date, onchange: e => { date = e.target.value; setDraft('__date', date); evaluate(); } });
+  const countCard = h('section', { class: 'card', 'data-module-card': mod.id },
+    C.hasTotal ? h('div', { class: 'display' }, h('div', { class: 'd-label' }, P('total')), totalEl, totalNote) : null,
+    h('div', { class: 'date-row' },
+      h('div', { class: 'field' }, h('label', { for: 'dl-date' }, t('dl.date')), dateInput), prevRef),
+    C.hasTotal ? null : totalNote,
+    state.rows.length ? null : h('p', { class: 'empty' }, P('noItems')),
+    h('div', { class: 'rows' }, state.rows.map(row => {
+      const id = 'dl-in-' + row.id;
+      const input = h('input', { id, type: 'text', inputmode: 'numeric', autocomplete: 'off', enterkeyhint: 'next',
+        'data-row': row.id, 'data-perm': 'entry.edit', value: rawValue(row.id), 'aria-describedby': id + '-msg ' + id + '-prev',
+        oninput: e => { setDraft(row.id, e.target.value); evaluate(); } });
+      const msg = h('div', { class: 'msg', id: id + '-msg' });
+      const prev = h('div', { class: 'prev-hint', id: id + '-prev' });
+      const wrap = h('div', { class: 'row-item' }, h('label', { for: id }, row.name), input, C.check === 'hours' ? prev : null, msg);
+      rowEls[row.id] = { input, msg, wrap, prev };
+      return wrap;
+    })),
+    h('div', { class: 'btn-row' },
+      perm('entry.save') ? h('button', { class: 'btn primary big', id: 'dl-save', 'data-perm': 'entry.save', onclick: onSave }, icon('save'), t('dl.save')) : null,
+      perm('entry.copy') ? h('button', { class: 'btn big', id: 'dl-copy', 'data-perm': 'entry.copy', onclick: () => ctx.copyMessage(copyText()) }, icon('copy'), t('dl.copyMsg')) : null),
+    (C.check === 'threshold' && !perm('threshold.edit')) ? h('p', { class: 'hint', style: 'margin-top:12px' }, P('threshold.readonly', { n: state.threshold })) : null
+  );
+
+  function showDay(d) {
+    ctx.modal({
+      title: t('dl.history.detail', { date: fmtDate(d.date, ctx.lang) }),
+      body: [
+        d.demo ? h('span', { class: 'chip demo' }, t('dl.demo')) : null,
+        h('div', { class: 'tbl-scroll' }, h('table', { class: 'kv', id: 'dl-day-table' },
+          h('thead', null, h('tr', null, h('th', null, P('items')), h('th', null, P('value')))),
+          h('tbody', null, d.rows.map(r => h('tr', null, h('td', null, r.name), h('td', null, String(r.value)))),
+            C.hasTotal ? h('tr', null, h('th', null, P('total')), h('td', null, h('strong', null, String(d.total)))) : null))),
+        h('p', { class: 'hint' }, t('dl.history.savedAt', { time: fmtDateTime(d.savedAt, ctx.lang) }))
+      ],
+      actions: [{ label: t('btn.close'), value: true, kind: 'primary' }]
+    });
+  }
+  const historyCard = perm('history.view') ? h('section', { class: 'card', 'data-perm': 'history.view' },
+    h('h2', null, t('dl.history')),
+    state.days.length ? h('div', { class: 'history', id: 'dl-history' }, L.sortedDays(state.days).map(d =>
+      h('button', { class: 'hist-item', 'data-date': d.date, onclick: () => showDay(d) },
+        h('span', { class: 'h-date' }, fmtDate(d.date, ctx.lang), d.demo ? h('span', { class: 'chip demo' }, t('dl.demo')) : null),
+        h('span', { class: C.hasTotal ? 'h-total' : 'h-count' }, C.hasTotal ? String(d.total) : t('ml.count', { n: d.rows.length }))))) :
+      h('p', { class: 'empty', id: 'dl-history-empty' }, t('dl.history.empty'))) : null;
+
+  const backupCard = (perm('data.export') || perm('data.import')) ? h('section', { class: 'card' },
+    h('h2', null, t('dl.backup')),
+    h('p', { class: 'hint', style: 'margin-bottom:12px' }, t('dl.backup.hint')),
+    h('div', { class: 'btn-row' },
+      perm('data.export') ? h('button', { class: 'btn', id: 'dl-export', 'data-perm': 'data.export', onclick: () => {
+        if (!state.days.length) { ctx.toast(t('dl.export.empty'), true); return; }
+        const data = L.buildExport(state);
+        openExportDialog(ctx, mod.file + '-' + ctx.today() + '.json', JSON.stringify(data, null, 2), data.days.length);
+      } }, icon('download'), t('dl.export')) : null,
+      perm('data.import') ? h('button', { class: 'btn', id: 'dl-import', 'data-perm': 'data.import', onclick: () =>
+        openImportDialog(ctx, L.validateImport, (res, dry) => {
+          const merged = L.mergeImport(state, res.days);
+          if (!dry) persist(merged.state);
+          return { n: res.days.length, overwrite: merged.overwrite };
+        }) }, icon('upload'), t('dl.import')) : null)) : null;
+
+  let adminCard = null;
+  if (perm('rows.manage') || (C.check === 'threshold' && perm('threshold.edit')) || perm('data.clearAll')) {
+    const parts = [h('h2', null, t('dl.admin'))];
+    if (C.check === 'threshold' && perm('threshold.edit')) {
+      const thIn = h('input', { type: 'number', id: 'dl-threshold', min: '0', step: '1', inputmode: 'numeric', value: String(state.threshold) });
+      parts.push(h('div', { 'data-perm': 'threshold.edit' },
+        h('div', { class: 'inline-form' },
+          h('div', { class: 'field' }, h('label', { for: 'dl-threshold' }, P('threshold')), thIn),
+          h('button', { class: 'btn', id: 'dl-threshold-save', onclick: () => {
+            const p = L.parse(thIn.value);
+            if (!p.ok) { ctx.toast(t('es.err.' + p.error), true); return; }
+            persist(Object.assign({}, state, { threshold: p.value }));
+            ctx.toast(t('dl.threshold.saved', { n: p.value })); ctx.rerender();
+          } }, t('dl.threshold.save'))),
+        h('p', { class: 'hint', style: 'margin-top:6px' }, P('threshold.hint'))));
+    }
+    if (perm('rows.manage')) {
+      const rowErr = code => ctx.toast(t('dl.rows.err.' + code), true);
+      const newIn = h('input', { type: 'text', id: 'dl-row-new', autocomplete: 'off' });
+      parts.push(h('hr', { class: 'sep' }), h('div', { 'data-perm': 'rows.manage' },
+        h('h3', { style: 'font-size:1rem;margin-bottom:10px' }, P('items')),
+        h('div', { class: 'manage-list' }, state.rows.map(row => {
+          const inp = h('input', { type: 'text', value: row.name, id: 'dl-row-name-' + row.id, 'aria-label': t('btn.rename') + ': ' + row.name });
+          return h('div', { class: 'manage-row' }, inp,
+            h('button', { class: 'btn', onclick: () => {
+              const r = L.renameRow(state, row.id, inp.value);
+              if (r.error) return rowErr(r.error);
+              persist(r.state); ctx.toast(t('dl.rows.renamed', { name: inp.value.trim() })); ctx.rerender();
+            } }, t('btn.rename')),
+            h('button', { class: 'btn danger', 'data-del-row': row.id, onclick: async () => {
+              const ok = await ctx.confirm(t('btn.delete'), P('confirmDelete', { name: row.name }), t('btn.delete'), true);
+              if (!ok) return;
+              persist(L.deleteRow(state, row.id).state); ctx.toast(t('dl.rows.deleted', { name: row.name })); ctx.rerender();
+            } }, t('btn.delete')));
+        })),
+        h('div', { class: 'inline-form' },
+          h('div', { class: 'field', style: 'flex:1 1 160px' }, h('label', { for: 'dl-row-new' }, P('newItem')), newIn),
+          h('button', { class: 'btn', id: 'dl-row-add', onclick: () => {
+            const r = L.addRow(state, newIn.value);
+            if (r.error) return rowErr(r.error);
+            persist(r.state); ctx.toast(t('dl.rows.added', { name: newIn.value.trim() })); ctx.rerender();
+          } }, t('btn.add')))));
+    }
+    if (perm('data.clearAll')) {
+      parts.push(h('hr', { class: 'sep' }), h('button', { class: 'btn danger', id: 'dl-clear-all', 'data-perm': 'data.clearAll', onclick: async () => {
+        const ok = await ctx.confirm(t('dl.clearAll'), t('dl.clearAll.confirm', { n: state.days.length }), t('btn.delete'), true);
+        if (!ok) return;
+        persist(L.clearAll(state)); ctx.toast(t('dl.clearAll.done')); ctx.rerender();
+      } }, t('dl.clearAll')));
+    }
+    adminCard = h('section', { class: 'card role-admin' }, parts);
+  }
+  const devCard = (perm('demo.generate') || perm('demo.clear')) ? h('section', { class: 'card role-dev' },
+    h('h2', null, t('dl.dev')),
+    h('p', { class: 'hint', style: 'margin-bottom:12px' }, t('dl.demo.hint')),
+    h('div', { class: 'btn-row' },
+      perm('demo.generate') ? h('button', { class: 'btn', id: 'dl-demo-gen', 'data-perm': 'demo.generate', onclick: () => {
+        const r = L.generateDemo(state, ctx.today()); persist(r.state); ctx.toast(t('dl.demo.generated', { n: r.added })); ctx.rerender();
+      } }, t('dl.demo.generate')) : null,
+      perm('demo.clear') ? h('button', { class: 'btn danger', id: 'dl-demo-clear', 'data-perm': 'demo.clear', onclick: () => {
+        const r = L.clearDemo(state); persist(r.state); ctx.toast(t('dl.demo.cleared', { n: r.removed })); ctx.rerender();
+      } }, t('dl.demo.clear')) : null,
+      perm('system.view') ? h('a', { class: 'btn', href: '#system', 'data-perm': 'system.view' }, t('es.openSystem')) : null)) : null;
+
+  root.appendChild(h('div', { class: 'module-grid' },
+    h('div', { class: 'col' }, countCard),
+    h('div', { class: 'col' }, historyCard, backupCard, adminCard, devCard)));
+  evaluate();
+}
+
+/* =====================================================================
+ * 10/e. MODUL: FELADATOK – logika (tiszta függvények)
+ *   Tárolás: 'tasks' kulcs  →  { schema, tasks: [...], log: { 'ÉÉÉÉ-HH-NN': { taskId: { s: 'done'|'skipped', at, demo? } } } }
+ *   Gyakoriság (freq.type): daily | weekdays | weekends | days (days: [0..6], 0 = vasárnap)
+ *                            | everyNWeeks (n, start) | monthDay (day: 1..31; rövid hónapban az utolsó nap)
+ * ===================================================================== */
+const Tasks = (function () {
+  const KEY = 'tasks', SCHEMA = 1;
+  const FREQS = ['daily', 'weekdays', 'weekends', 'days', 'everyNWeeks', 'monthDay'];
+  const LINKS = ['empty-space', 'export-pallets', 'machine-log'];
+
+  function defaults(today) {
+    return { schema: SCHEMA, log: {}, tasks: [
+      { id: 't1', name: 'Üres hely számolás', freq: { type: 'weekdays' }, from: '07:00', to: '08:00', link: 'empty-space', createdAt: today },
+      { id: 't2', name: 'Export raklap számolás', freq: { type: 'weekdays' }, from: '07:00', to: '08:00', link: 'export-pallets', createdAt: today },
+      { id: 't3', name: 'Gépnapló ellenőrzés', freq: { type: 'days', days: [0] }, from: null, to: null, link: 'machine-log', createdAt: today }
+    ] };
+  }
+  function validateTask(t) {
+    if (!t || typeof t !== 'object' || typeof t.name !== 'string' || !t.name.trim()) return 'name';
+    const f = t.freq;
+    if (!f || !FREQS.includes(f.type)) return 'freq';
+    if (f.type === 'days' && (!Array.isArray(f.days) || !f.days.length || f.days.some(d => !Number.isInteger(d) || d < 0 || d > 6))) return 'days';
+    if (f.type === 'everyNWeeks') {
+      if (!Number.isInteger(f.n) || f.n < 1 || f.n > 52) return 'n';
+      if (!isValidIsoDate(f.start)) return 'start';
+    }
+    if (f.type === 'monthDay' && (!Number.isInteger(f.day) || f.day < 1 || f.day > 31)) return 'monthDay';
+    const hasFrom = t.from != null && t.from !== '', hasTo = t.to != null && t.to !== '';
+    if (hasFrom !== hasTo) return 'time';
+    if (hasFrom && (!isValidTime(t.from) || !isValidTime(t.to) || t.from >= t.to)) return 'time';
+    if (t.link != null && t.link !== '' && !LINKS.includes(t.link)) return 'link';
+    return null;
+  }
+  function normalizeTask(t) {
+    const f = { type: t.freq.type };
+    if (f.type === 'days') f.days = Array.from(new Set(t.freq.days)).sort();
+    if (f.type === 'everyNWeeks') { f.n = t.freq.n; f.start = t.freq.start; }
+    if (f.type === 'monthDay') f.day = t.freq.day;
+    return { id: String(t.id), name: t.name.trim(), freq: f, from: t.from || null, to: t.to || null, link: t.link || null,
+      createdAt: isValidIsoDate(t.createdAt) ? t.createdAt : null };
+  }
+  function load(store, today) {
+    const s = store.read(KEY, null);
+    if (!s || typeof s !== 'object' || !Array.isArray(s.tasks)) return defaults(today);
+    const out = { schema: SCHEMA, tasks: s.tasks.filter(t => t && t.id != null && !validateTask(t)).map(normalizeTask),
+      log: (s.log && typeof s.log === 'object') ? s.log : {} };
+    if (isValidIsoDate(s.demoFrom)) out.demoFrom = s.demoFrom;
+    return out;
+  }
+  function save(store, state) { return store.write(KEY, state); }
+  function ensureSaved(store, today) {
+    if (store.read(KEY, null) == null) save(store, defaults(today));
+    return load(store, today);
+  }
+  function isDue(task, iso) {
+    const f = task.freq, wd = weekdayOf(iso);
+    switch (f.type) {
+      case 'daily': return true;
+      case 'weekdays': return wd >= 1 && wd <= 5;
+      case 'weekends': return wd === 0 || wd === 6;
+      case 'days': return f.days.includes(wd);
+      case 'everyNWeeks': {
+        const diff = daysBetween(f.start, iso);
+        return diff >= 0 && diff % 7 === 0 && (diff / 7) % f.n === 0;
+      }
+      case 'monthDay': {
+        const [y, m, d] = iso.split('-').map(Number);
+        const last = new Date(y, m, 0).getDate();
+        return d === Math.min(f.day, last);
+      }
+      default: return false;
+    }
+  }
+  // A feladat ezen a napon már létezett-e (a demó időszak is ide számít).
+  function existsOn(state, task, iso) {
+    const from = [task.createdAt, state.demoFrom].filter(Boolean).sort()[0];
+    return !from || iso >= from;
+  }
+  function dueTasks(state, iso) { return state.tasks.filter(t => existsOn(state, t, iso) && isDue(t, iso)); }
+  function entry(state, iso, id) { return (state.log[iso] && state.log[iso][id]) || null; }
+  // Állapot: done | skipped | late | due   (a "Késik": az időszak vége elmúlt és nincs pipa)
+  function statusOf(state, task, iso, now) {
+    const e = entry(state, iso, task.id);
+    if (e && e.s === 'done') return 'done';
+    if (e && e.s === 'skipped') return 'skipped';
+    const today = isoDate(now);
+    if (iso < today) return 'late';
+    if (iso > today) return 'due';
+    if (task.to) {
+      const [hh, mm] = task.to.split(':').map(Number);
+      const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm);
+      if (now > end) return 'late';
+    }
+    return 'due';
+  }
+  function setMark(state, iso, id, s, at, demo) {
+    const log = Object.assign({}, state.log);
+    const day = Object.assign({}, log[iso] || {});
+    if (s) { day[id] = { s, at: at || new Date().toISOString() }; if (demo) day[id].demo = true; }
+    else delete day[id];
+    if (Object.keys(day).length) log[iso] = day; else delete log[iso];
+    return Object.assign({}, state, { log });
+  }
+  function saveTask(state, task, today) {
+    const exists = task.id && state.tasks.some(x => x.id === task.id);
+    let id = task.id;
+    if (!exists) { let k = state.tasks.length + 1; while (state.tasks.some(x => x.id === 't' + k)) k++; id = 't' + k; }
+    const t = normalizeTask(Object.assign({}, task, { id, createdAt: exists ? state.tasks.find(x => x.id === id).createdAt : today }));
+    return Object.assign({}, state, { tasks: exists ? state.tasks.map(x => (x.id === id ? t : x)) : state.tasks.concat([t]) });
+  }
+  function deleteTask(state, id) {
+    const log = {};
+    Object.entries(state.log).forEach(([d, v]) => { const c = Object.assign({}, v); delete c[id]; if (Object.keys(c).length) log[d] = c; });
+    return Object.assign({}, state, { tasks: state.tasks.filter(t => t.id !== id), log });
+  }
+  // Előzmények: a mai naptól visszafelé (legfeljebb maxDays nap), csak ahol volt esedékes feladat.
+  function history(state, now, maxDays) {
+    maxDays = maxDays || 60;
+    const today = isoDate(now);
+    const starts = state.tasks.map(t => t.createdAt).concat(Object.keys(state.log), state.demoFrom ? [state.demoFrom] : []).filter(Boolean).sort();
+    const start = starts[0] || today;
+    const out = [];
+    for (let i = 1; i <= maxDays; i++) {
+      const iso = addDays(today, -i);
+      if (iso < start) break;
+      const items = dueTasks(state, iso).map(task => {
+        const st = statusOf(state, task, iso, now);
+        return { task, status: st === 'late' ? 'missed' : st, demo: !!(entry(state, iso, task.id) || {}).demo };
+      });
+      if (!items.length) continue;
+      const count = s => items.filter(x => x.status === s).length;
+      out.push({ date: iso, items, done: count('done'), missed: count('missed'), skipped: count('skipped') });
+    }
+    return out;
+  }
+  function buildExport(state, now) {
+    return JSON.parse(JSON.stringify({ app: APP_ID, module: 'tasks', schema: SCHEMA, exportedAt: (now || new Date()).toISOString(), tasks: state.tasks, log: state.log }));
+  }
+  function validateImport(text) {
+    let obj;
+    try { obj = JSON.parse(text); } catch (e) { return { ok: false, error: 'json' }; }
+    if (!obj || typeof obj !== 'object' || obj.app !== APP_ID || obj.module !== 'tasks' || typeof obj.schema !== 'number' ||
+        obj.schema > SCHEMA || !Array.isArray(obj.tasks) || !obj.log || typeof obj.log !== 'object' || Array.isArray(obj.log)) return { ok: false, error: 'format' };
+    const ids = new Set();
+    for (let i = 0; i < obj.tasks.length; i++) {
+      const t = obj.tasks[i];
+      const r = (!t || t.id == null || ids.has(String(t.id))) ? 'name' : validateTask(t);
+      if (r) return { ok: false, error: 'task', index: i + 1, reason: r };
+      ids.add(String(t.id));
+    }
+    for (const [d, v] of Object.entries(obj.log)) {
+      if (!isValidIsoDate(d) || !v || typeof v !== 'object') return { ok: false, error: 'log' };
+      for (const e of Object.values(v)) if (!e || (e.s !== 'done' && e.s !== 'skipped')) return { ok: false, error: 'log' };
+    }
+    return { ok: true, tasks: obj.tasks.map(normalizeTask), log: obj.log };
+  }
+  function mergeImport(state, data) {
+    const incoming = new Set(data.tasks.map(t => t.id));
+    const overwrite = state.tasks.filter(t => incoming.has(t.id)).length;
+    const tasks = state.tasks.filter(t => !incoming.has(t.id)).concat(data.tasks);
+    const log = Object.assign({}, state.log);
+    Object.entries(data.log).forEach(([d, v]) => { log[d] = Object.assign({}, log[d] || {}, v); });
+    return { state: Object.assign({}, state, { tasks, log }), overwrite, n: data.tasks.length };
+  }
+  function generateDemo(state, now, count) {
+    count = count || 10;
+    const today = isoDate(now);
+    let seed = 5, s = state, added = 0;
+    const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    const from = addDays(today, -count);
+    s = Object.assign({}, s, { demoFrom: s.demoFrom && s.demoFrom < from ? s.demoFrom : from });
+    for (let i = count; i >= 1; i--) {
+      const iso = addDays(today, -i);
+      dueTasks(s, iso).forEach(task => {
+        if (entry(s, iso, task.id)) return;            // saját pipát nem ír felül
+        const r = rnd();
+        if (r < 0.15) return;                            // elmaradt
+        s = setMark(s, iso, task.id, r < 0.3 ? 'skipped' : 'done', new Date(now.getTime() - i * 86400000).toISOString(), true);
+        added++;
+      });
+    }
+    return { state: s, added };
+  }
+  function clearDemo(state) {
+    let removed = 0;
+    const log = {};
+    Object.entries(state.log).forEach(([d, v]) => {
+      const c = {};
+      Object.entries(v).forEach(([id, e]) => { if (e.demo) removed++; else c[id] = e; });
+      if (Object.keys(c).length) log[d] = c;
+    });
+    const out = Object.assign({}, state, { log });
+    delete out.demoFrom;
+    return { state: out, removed };
+  }
+  function stats(state) {
+    const days = Object.keys(state.log);
+    const demoDays = days.filter(d => Object.values(state.log[d]).every(e => e.demo)).length;
+    const times = [];
+    days.forEach(d => Object.values(state.log[d]).forEach(e => { if (e.at) times.push(e.at); }));
+    times.sort();
+    return { days: days.length, demoDays, last: times.length ? times[times.length - 1] : null };
+  }
+  return { KEY, FREQS, LINKS, defaults, validateTask, load, save, ensureSaved, isDue, dueTasks, entry, statusOf, setMark,
+    saveTask, deleteTask, history, buildExport, validateImport, mergeImport, generateDemo, clearDemo, stats };
+})();
+
+/* =====================================================================
+ * 10/f. MODUL: FELADATOK – felület (a kezdőoldal "Mai teendők" része is ezt használja)
+ * ===================================================================== */
+function describeFreq(t, task, lang) {
+  const f = task.freq;
+  if (f.type === 'days') return t('tk.desc.days', { days: f.days.map(d => t('wd.' + d)).join(', ') });
+  if (f.type === 'everyNWeeks') return t('tk.desc.everyNWeeks', { n: f.n, date: fmtDate(f.start, lang) });
+  if (f.type === 'monthDay') return t('tk.desc.monthDay', { d: f.day });
+  return t('tk.freq.' + f.type);
+}
+function taskItem(ctx, state, task, iso, onChange) {
+  const { t } = ctx;
+  const now = ctx.now();
+  const status = Tasks.statusOf(state, task, iso, now);
+  const isToday = iso === isoDate(now);
+  const canCheck = can(ctx.mode, 'tasks.check'), canSkip = can(ctx.mode, 'tasks.skip');
+  const cbId = 'tk-cb-' + task.id + '-' + iso;
+  const cb = h('input', { type: 'checkbox', id: cbId, 'data-task': task.id, 'data-perm': canCheck ? 'tasks.check' : null,
+    checked: status === 'done', disabled: !canCheck || status === 'skipped',
+    'aria-label': t('tk.markDone', { name: task.name }),
+    onchange: e => onChange(Tasks.setMark(state, iso, task.id, e.target.checked ? 'done' : null, new Date().toISOString())) });
+  const meta = [describeFreq(t, task, ctx.lang)];
+  if (task.from) meta.unshift(task.from + '–' + task.to);
+  return h('div', { class: 'task-item st-' + status, 'data-task-item': task.id, 'data-status': status },
+    h('div', { class: 'task-main' },
+      cb,
+      h('label', { for: cbId, class: 'task-name' }, task.name),
+      h('span', { class: 'chip st st-' + status, 'data-status-chip': status }, t('tk.status.' + status))),
+    h('div', { class: 'task-meta' }, meta.join(' · ')),
+    h('div', { class: 'task-actions' },
+      (canSkip && status !== 'done') ? h('button', { class: 'btn small', 'data-perm': 'tasks.skip', 'data-skip': task.id,
+        onclick: () => onChange(Tasks.setMark(state, iso, task.id, status === 'skipped' ? null : 'skipped', new Date().toISOString())) },
+        status === 'skipped' ? t('tk.unskip') : (isToday ? t('tk.skipToday') : t('tk.skipDay'))) : null,
+      task.link && findModule(task.link) ? h('a', { class: 'btn small', href: '#' + task.link, 'data-open': task.link }, t('tk.open')) : null));
+}
+function renderTaskList(ctx, state, iso, onChange, emptyKey) {
+  const due = Tasks.dueTasks(state, iso);
+  if (!due.length) return h('p', { class: 'empty', 'data-empty': 'tasks' }, ctx.t(emptyKey));
+  return h('div', { class: 'task-list' }, due.map(task => taskItem(ctx, state, task, iso, onChange)));
+}
+function renderTodayTasks(root, ctx) {
+  const today = ctx.today();
+  const state = Tasks.ensureSaved(ctx.store, today);
+  const onChange = next => { if (!Tasks.save(ctx.store, next)) ctx.toast(ctx.t('storage.writeFailed'), true); ctx.rerender(); };
+  root.appendChild(h('section', { class: 'card today-card', id: 'today-tasks', 'aria-labelledby': 'today-h' },
+    h('div', { class: 'card-title-row' },
+      h('h2', { id: 'today-h' }, ctx.t('hub.today'), ' ', h('span', { class: 'today-date' }, fmtDate(today, ctx.lang))),
+      h('a', { class: 'btn small', href: '#tasks' }, ctx.t('hub.today.all'))),
+    renderTaskList(ctx, state, today, onChange, 'hub.today.empty')));
+}
+
+function openTaskEditor(ctx, state, task, onSaved) {
+  const { t } = ctx;
+  const f = task ? task.freq : { type: 'daily' };
+  const nameIn = h('input', { type: 'text', id: 'tk-f-name', value: task ? task.name : '', autocomplete: 'off' });
+  const freqSel = h('select', { class: 'plain', id: 'tk-f-freq' }, Tasks.FREQS.map(x => h('option', { value: x, selected: x === f.type }, t('tk.freq.' + x))));
+  const dayBoxes = [1, 2, 3, 4, 5, 6, 0].map(d => h('label', { class: 'day-pill' },
+    h('input', { type: 'checkbox', id: 'tk-f-day-' + d, value: String(d), checked: f.type === 'days' && f.days.includes(d) }), t('wd.' + d)));
+  const nIn = h('input', { type: 'number', id: 'tk-f-n', min: '1', step: '1', value: f.type === 'everyNWeeks' ? String(f.n) : '2' });
+  const startIn = h('input', { type: 'date', id: 'tk-f-start', value: f.type === 'everyNWeeks' ? f.start : ctx.today() });
+  const mdIn = h('input', { type: 'number', id: 'tk-f-mday', min: '1', max: '31', step: '1', value: f.type === 'monthDay' ? String(f.day) : '1' });
+  const fromIn = h('input', { type: 'time', id: 'tk-f-from', value: task && task.from ? task.from : '' });
+  const toIn = h('input', { type: 'time', id: 'tk-f-to', value: task && task.to ? task.to : '' });
+  const linkSel = h('select', { class: 'plain', id: 'tk-f-link' },
+    h('option', { value: '' }, t('tk.form.link.none')),
+    Tasks.LINKS.map(id => { const m = findModule(id); return h('option', { value: id, selected: task && task.link === id }, m ? t(m.titleKey) : id); }));
+  const daysBox = h('div', { class: 'field' }, h('span', { class: 'flabel' }, t('tk.form.days')), h('div', { class: 'day-pills' }, dayBoxes));
+  const nBox = h('div', { class: 'inline-form' },
+    h('div', { class: 'field' }, h('label', { for: 'tk-f-n' }, t('tk.form.n')), nIn),
+    h('div', { class: 'field' }, h('label', { for: 'tk-f-start' }, t('tk.form.start')), startIn));
+  const mdBox = h('div', { class: 'field' }, h('label', { for: 'tk-f-mday' }, t('tk.form.monthDay')), mdIn, h('span', { class: 'hint' }, t('tk.form.monthDay.hint')));
+  const err = h('p', { class: 'notice-err', id: 'tk-f-error', hidden: true });
+  const sync = () => { daysBox.hidden = freqSel.value !== 'days'; nBox.hidden = freqSel.value !== 'everyNWeeks'; mdBox.hidden = freqSel.value !== 'monthDay'; };
+  freqSel.addEventListener('change', sync);
+  sync();
+  function collect() {
+    const type = freqSel.value;
+    const freq = { type };
+    if (type === 'days') freq.days = dayBoxes.map(l => l.querySelector('input')).filter(i => i.checked).map(i => Number(i.value));
+    if (type === 'everyNWeeks') { freq.n = Number(nIn.value); freq.start = startIn.value; }
+    if (type === 'monthDay') freq.day = Number(mdIn.value);
+    return { id: task ? task.id : null, name: nameIn.value, freq, from: fromIn.value || null, to: toIn.value || null, link: linkSel.value || null };
+  }
+  ctx.modal({
+    title: task ? t('tk.edit') + ': ' + task.name : t('tk.new'),
+    body: [
+      h('div', { class: 'field' }, h('label', { for: 'tk-f-name' }, t('tk.form.name')), nameIn),
+      h('div', { class: 'field' }, h('label', { for: 'tk-f-freq' }, t('tk.form.freq')), freqSel),
+      daysBox, nBox, mdBox,
+      h('div', { class: 'inline-form' },
+        h('div', { class: 'field' }, h('label', { for: 'tk-f-from' }, t('tk.form.from')), fromIn),
+        h('div', { class: 'field' }, h('label', { for: 'tk-f-to' }, t('tk.form.to')), toIn)),
+      h('div', { class: 'field' }, h('label', { for: 'tk-f-link' }, t('tk.form.link')), linkSel),
+      err
+    ],
+    actions: [{ label: t('btn.cancel'), value: false }, { label: t('tk.form.save'), kind: 'primary', id: 'tk-f-save', keepOpen: true, onClick: () => {
+      const data = collect();
+      const e = Tasks.validateTask(data);
+      if (e) { err.textContent = t('tk.err.' + e); err.hidden = false; return; }
+      ctx.closeModal(true);
+      onSaved(Tasks.saveTask(state, data, ctx.today()), data.name.trim());
+    } }]
+  });
+}
+
+let tasksViewDay = null;   // a Feladatok napi nézetében kiválasztott nap (csak a munkamenet idejére)
+function renderTasks(root, ctx) {
+  const { t, mode, store } = ctx;
+  const perm = f => can(mode, f);
+  let state = Tasks.ensureSaved(store, ctx.today());
+  let day = (tasksViewDay && isValidIsoDate(tasksViewDay)) ? tasksViewDay : ctx.today();
+  const persist = next => { state = next; if (!Tasks.save(store, state)) ctx.toast(t('storage.writeFailed'), true); };
+  const onChange = next => { persist(next); ctx.rerender(); };
+  const setDay = iso => { tasksViewDay = iso === ctx.today() ? null : iso; ctx.rerender(); };
+
+  const dayInput = h('input', { type: 'date', id: 'tk-day', value: day, onchange: e => { if (isValidIsoDate(e.target.value)) setDay(e.target.value); } });
+  const dayCard = h('section', { class: 'card', 'aria-labelledby': 'tk-day-h' },
+    h('h2', { id: 'tk-day-h', class: 'sr-only' }, t('tk.day')),
+    h('div', { class: 'day-nav' },
+      h('button', { class: 'icon-btn', id: 'tk-prev', 'aria-label': t('tk.prevDay'), title: t('tk.prevDay'), onclick: () => setDay(addDays(day, -1)), html: ICONS.back }),
+      h('div', { class: 'field' }, h('label', { for: 'tk-day', class: 'sr-only' }, t('tk.day')), dayInput),
+      h('button', { class: 'icon-btn flip', id: 'tk-next', 'aria-label': t('tk.nextDay'), title: t('tk.nextDay'), onclick: () => setDay(addDays(day, 1)), html: ICONS.back }),
+      day !== ctx.today() ? h('button', { class: 'btn small', id: 'tk-today', onclick: () => setDay(ctx.today()) }, t('tk.today')) : null),
+    h('p', { class: 'day-title' }, fmtDate(day, ctx.lang)),
+    renderTaskList(ctx, state, day, onChange, 'tk.dayEmpty'));
+
+  const hist = Tasks.history(state, ctx.now());
+  const historyCard = perm('tasks.history') ? h('section', { class: 'card', 'data-perm': 'tasks.history' },
+    h('h2', null, t('tk.history')),
+    hist.length ? h('div', { class: 'history', id: 'tk-history' }, hist.map(d => h('details', { class: 'hist-day', 'data-date': d.date },
+      h('summary', null,
+        h('span', { class: 'h-date' }, fmtDate(d.date, ctx.lang), d.items.some(x => x.demo) ? h('span', { class: 'chip demo' }, t('dl.demo')) : null),
+        h('span', { class: 'h-sum' }, t('tk.history.summary', { done: d.done, missed: d.missed, skipped: d.skipped }))),
+      h('ul', { class: 'hist-tasks' }, d.items.map(x => h('li', null,
+        h('span', { class: 'chip st st-' + x.status }, t('tk.status.' + x.status)), ' ', x.task.name))))))
+      : h('p', { class: 'empty', id: 'tk-history-empty' }, t('tk.history.empty'))) : null;
+
+  const manageCard = perm('tasks.edit') ? h('section', { class: 'card role-admin', 'data-perm': 'tasks.edit' },
+    h('div', { class: 'card-title-row' }, h('h2', null, t('tk.manage')),
+      h('button', { class: 'btn primary', id: 'tk-new', onclick: () => openTaskEditor(ctx, state, null, (next, name) => { persist(next); ctx.toast(t('tk.saved', { name })); ctx.rerender(); }) }, t('tk.new'))),
+    h('div', { class: 'manage-list', id: 'tk-manage-list' }, state.tasks.map(task => h('div', { class: 'manage-task', 'data-manage-task': task.id },
+      h('div', { class: 'mt-text' }, h('strong', null, task.name),
+        h('span', { class: 'hint' }, [task.from ? task.from + '–' + task.to : null, describeFreq(t, task, ctx.lang),
+          task.link && findModule(task.link) ? '→ ' + t(findModule(task.link).titleKey) : null].filter(Boolean).join(' · '))),
+      h('div', { class: 'btn-row' },
+        h('button', { class: 'btn small', 'data-edit': task.id, onclick: () => openTaskEditor(ctx, state, task, (next, name) => { persist(next); ctx.toast(t('tk.saved', { name })); ctx.rerender(); }) }, t('tk.edit')),
+        h('button', { class: 'btn small danger', 'data-delete': task.id, onclick: async () => {
+          const ok = await ctx.confirm(t('btn.delete'), t('tk.confirmDelete', { name: task.name }), t('btn.delete'), true);
+          if (!ok) return;
+          persist(Tasks.deleteTask(state, task.id)); ctx.toast(t('tk.deleted', { name: task.name })); ctx.rerender();
+        } }, t('btn.delete'))))))) : null;
+
+  const backupCard = (perm('data.export') || perm('data.import')) ? h('section', { class: 'card' },
+    h('h2', null, t('dl.backup')),
+    h('p', { class: 'hint', style: 'margin-bottom:12px' }, t('dl.backup.hint')),
+    h('div', { class: 'btn-row' },
+      perm('data.export') ? h('button', { class: 'btn', id: 'tk-export', 'data-perm': 'data.export', onclick: () => {
+        const data = Tasks.buildExport(state);
+        openExportDialog(ctx, 'feladatok-' + ctx.today() + '.json', JSON.stringify(data, null, 2), data.tasks.length);
+      } }, icon('download'), t('dl.export')) : null,
+      perm('data.import') ? h('button', { class: 'btn', id: 'tk-import', 'data-perm': 'data.import', onclick: () =>
+        openImportDialog(ctx, Tasks.validateImport, (res, dry) => {
+          const merged = Tasks.mergeImport(state, res);
+          if (!dry) persist(merged.state);
+          return { n: merged.n, overwrite: merged.overwrite };
+        }) }, icon('upload'), t('dl.import')) : null)) : null;
+
+  const devCard = (perm('demo.generate') || perm('demo.clear')) ? h('section', { class: 'card role-dev' },
+    h('h2', null, t('dl.dev')),
+    h('p', { class: 'hint', style: 'margin-bottom:12px' }, t('dl.demo.hint')),
+    h('div', { class: 'btn-row' },
+      perm('demo.generate') ? h('button', { class: 'btn', id: 'tk-demo-gen', 'data-perm': 'demo.generate', onclick: () => {
+        const r = Tasks.generateDemo(state, ctx.now()); persist(r.state); ctx.toast(t('dl.demo.generated', { n: r.added })); ctx.rerender();
+      } }, t('dl.demo.generate')) : null,
+      perm('demo.clear') ? h('button', { class: 'btn danger', id: 'tk-demo-clear', 'data-perm': 'demo.clear', onclick: () => {
+        const r = Tasks.clearDemo(state); persist(r.state); ctx.toast(t('dl.demo.cleared', { n: r.removed })); ctx.rerender();
+      } }, t('dl.demo.clear')) : null)) : null;
+
+  root.appendChild(h('div', { class: 'module-grid' },
+    h('div', { class: 'col' }, dayCard, historyCard),
+    h('div', { class: 'col' }, manageCard, backupCard, devCard)));
+}
+
+/* =====================================================================
  * 11. MODULOK REGISZTRÁLÁSA
  * ===================================================================== */
 registerModule({ id: 'empty-space', order: 1, icon: 'rackEmptySlot', accent: 'space', status: 'ready',
   titleKey: 'mod.emptySpace.title', descKey: 'mod.emptySpace.desc', guideKey: 'guide.emptySpace', render: renderEmptySpace });
-registerModule({ id: 'pull-list', order: 2, icon: 'clipboardPrinter', accent: 'pull', status: 'soon',
+registerModule({ id: 'export-pallets', order: 2, icon: 'palletsToTruck', accent: 'export', status: 'ready',
+  titleKey: 'mod.exportPallets.title', descKey: 'mod.exportPallets.desc', guideKey: 'guide.exportPallets',
+  render: (root, ctx) => renderDayLog(root, ctx, { id: 'export-pallets', titleKey: 'mod.exportPallets.title', p: 'ep', file: 'export-raklap', logic: ExportPallets }) });
+registerModule({ id: 'machine-log', order: 3, icon: 'gearClock', accent: 'machine', status: 'ready',
+  titleKey: 'mod.machineLog.title', descKey: 'mod.machineLog.desc', guideKey: 'guide.machineLog',
+  render: (root, ctx) => renderDayLog(root, ctx, { id: 'machine-log', titleKey: 'mod.machineLog.title', p: 'ml', file: 'gepnaplo', logic: MachineLog }) });
+registerModule({ id: 'tasks', order: 4, icon: 'checklistCalendar', accent: 'tasks', status: 'ready',
+  titleKey: 'mod.tasks.title', descKey: 'mod.tasks.desc', guideKey: 'guide.tasks', render: renderTasks });
+registerModule({ id: 'pull-list', order: 5, icon: 'clipboardPrinter', accent: 'pull', status: 'soon',
   titleKey: 'mod.pullList.title', descKey: 'mod.pullList.desc' });
-registerModule({ id: 'priority-freight', order: 3, icon: 'truckPriceTag', accent: 'freight', status: 'soon',
+registerModule({ id: 'priority-freight', order: 6, icon: 'truckPriceTag', accent: 'freight', status: 'soon',
   titleKey: 'mod.freight.title', descKey: 'mod.freight.desc' });
 
 /* =====================================================================
@@ -1351,6 +2806,7 @@ function renderHub(root, ctx) {
   const { t } = ctx;
   root.appendChild(h('div', { class: 'view-head' },
     h('h1', null, t('hub.title')), h('p', { class: 'sub' }, t('hub.subtitle'))));
+  renderTodayTasks(root, ctx);
   root.appendChild(h('div', { class: 'tiles', id: 'tiles' }, MODULES.map(m => {
     const ready = m.status === 'ready';
     const inner = [
@@ -1369,11 +2825,20 @@ function renderHub(root, ctx) {
   }
 }
 
+function moduleStats(ctx) {
+  const t = ctx.t, out = [];
+  const es = EmptySpace.load(ctx.store);
+  out.push({ id: 'empty-space', titleKey: 'mod.emptySpace.title', days: t('sys.daysDetail', { total: es.days.length, demo: es.days.filter(d => d.demo).length }), last: EmptySpace.lastSaveTime(es) });
+  [['export-pallets', 'mod.exportPallets.title', ExportPallets], ['machine-log', 'mod.machineLog.title', MachineLog]].forEach(([id, key, L]) => {
+    const s = L.load(ctx.store);
+    out.push({ id, titleKey: key, days: t('sys.daysDetail', { total: s.days.length, demo: s.days.filter(d => d.demo).length }), last: L.lastSaveTime(s) });
+  });
+  const ts = Tasks.stats(Tasks.load(ctx.store, ctx.today()));
+  out.push({ id: 'tasks', titleKey: 'mod.tasks.title', days: t('sys.taskDays', { total: ts.days, demo: ts.demoDays }), last: ts.last });
+  return out;
+}
 function renderSystem(root, ctx) {
   const { t } = ctx;
-  const es = EmptySpace.load(ctx.store);
-  const demo = es.days.filter(d => d.demo).length;
-  const last = EmptySpace.lastSaveTime(es);
   root.appendChild(h('div', { class: 'view-head' },
     h('a', { class: 'btn', href: '#' }, icon('back'), t('btn.home')),
     h('h1', null, t('sys.title'))));
@@ -1383,12 +2848,15 @@ function renderSystem(root, ctx) {
       h('div', { class: 'tbl-scroll' }, h('table', { class: 'kv', id: 'sys-table' }, h('tbody', null,
         h('tr', null, h('th', null, t('sys.version')), h('td', { id: 'sys-version' }, VERSION)),
         h('tr', null, h('th', null, t('sys.storage')), h('td', { id: 'sys-storage' }, ctx.store.persistent ? t('sys.yes') : t('sys.no'))),
-        h('tr', null, h('th', null, t('sys.days')), h('td', { id: 'sys-days' }, t('sys.daysDetail', { total: es.days.length, demo }))),
-        h('tr', null, h('th', null, t('sys.lastSave')), h('td', { id: 'sys-last' }, last ? fmtDateTime(last, ctx.lang) : t('sys.never'))),
         h('tr', null, h('th', null, t('sys.lang')), h('td', null, t('lang.' + ctx.lang + '.full'))),
         h('tr', null, h('th', null, t('sys.theme')), h('td', null, t('theme.' + ctx.theme))),
         h('tr', null, h('th', null, t('sys.mode')), h('td', null, t('mode.' + ctx.mode)))
-      ))))),
+      ))),
+      h('h2', { style: 'margin-top:18px' }, t('sys.modules')),
+      h('div', { class: 'tbl-scroll' }, h('table', { class: 'kv', id: 'sys-modules' },
+        h('thead', null, h('tr', null, h('th', null, t('sys.module')), h('th', null, t('sys.days')), h('th', null, t('sys.lastSave')))),
+        h('tbody', null, moduleStats(ctx).map(r => h('tr', { 'data-module': r.id },
+          h('td', null, t(r.titleKey)), h('td', null, r.days), h('td', null, r.last ? fmtDateTime(r.last, ctx.lang) : t('sys.never'))))))))),
     h('div', { class: 'col' }, can(ctx.mode, 'tests.run') ? h('section', { class: 'card role-dev', 'data-perm': 'tests.run' },
       h('h2', null, t('sys.tests')),
       h('p', { class: 'hint', style: 'margin-bottom:12px' }, t('sys.tests.hint')),
@@ -1510,10 +2978,20 @@ const App = {};
     catch (e) { if (ta) { ta.focus(); ta.select(); } toast(t('es.export.copyFailed'), true); }
   }
   function today() { return isoDate(new Date()); }
+  function now() { return new Date(); }
+  // Másolás üzenetként: vágólap, sikertelen esetben kézi másolás ablak.
+  async function copyMessage(text) {
+    try { await navigator.clipboard.writeText(text); toast(t('dl.copyMsg.done', { text })); }
+    catch (e) {
+      const ta = h('textarea', { id: 'copy-msg-text', readonly: true, rows: 3 }, text);
+      modal({ title: t('dl.copyMsg'), body: [h('p', null, t('dl.copyMsg.manual')), ta], actions: [{ label: t('btn.close'), value: true, kind: 'primary' }] });
+      ta.focus(); ta.select();
+    }
+  }
 
   function makeCtx() {
-    return { t, lang: prefs.lang, theme: prefs.theme, mode: prefs.mode, store, today, toast, modal, closeModal,
-      confirm: confirmDialog, saveFile, copyText, notifications, rerender: render };
+    return { t, lang: prefs.lang, theme: prefs.theme, mode: prefs.mode, store, today, now, toast, modal, closeModal,
+      confirm: confirmDialog, saveFile, copyText, copyMessage, notifications, rerender: render };
   }
 
   function showGuide() {
@@ -1628,11 +3106,12 @@ async function runTests() {
   const memStore = () => createStore(memoryBackend(), true);
   const fakeCtx = (store, mode, lang, missing) => ({
     t: makeT(lang || 'en', missing), lang: lang || 'en', theme: 'system', mode: mode || 'user', store,
-    today: () => '2026-03-10', toast() {}, modal: () => Promise.resolve(true), closeModal() {},
-    confirm: () => Promise.resolve(true), saveFile() {}, copyText() {}, rerender() {},
+    today: () => '2026-03-10', now: () => new Date(2026, 2, 10, 9, 0), toast() {}, modal: () => Promise.resolve(true), closeModal() {},
+    confirm: () => Promise.resolve(true), saveFile() {}, copyText() {}, copyMessage() {}, rerender() {},
     notifications: createNotificationCenter(store)
   });
   const ES = EmptySpace;
+  const EP = ExportPallets, ML = MachineLog;   // 0.2.0
 
   // --- Összeg
   await test('Összeg: üres lista = 0', () => eq(ES.sum([]), 0));
@@ -1829,7 +3308,22 @@ async function runTests() {
       ES.save(store, ES.generateDemo(ES.defaults(), '2026-03-10').state);
       const ctx = fakeCtx(store, m, l, missing);
       renderHub(document.createElement('div'), ctx);
-      renderEmptySpace(document.createElement('div'), ctx);
+      MODULES.filter(mod => mod.status === 'ready').forEach(mod => mod.render(document.createElement('div'), ctx));
+      EP.save(store, EP.generateDemo(EP.defaults(), '2026-03-10').state);
+      ML.save(store, ML.generateDemo(ML.defaults(), '2026-03-10').state);
+      MODULES.filter(mod => mod.status === 'ready').forEach(mod => mod.render(document.createElement('div'), ctx));
+      ['daily', 'weekdays', 'weekends'].forEach(f => describeFreq(ctx.t, { freq: { type: f } }, l));
+      describeFreq(ctx.t, { freq: { type: 'days', days: [0, 1, 2, 3, 4, 5, 6] } }, l);
+      describeFreq(ctx.t, { freq: { type: 'everyNWeeks', n: 2, start: '2026-03-02' } }, l);
+      describeFreq(ctx.t, { freq: { type: 'monthDay', day: 3 } }, l);
+      Tasks.FREQS.forEach(f => ctx.t('tk.freq.' + f));
+      ['name', 'freq', 'days', 'n', 'start', 'monthDay', 'time', 'link'].forEach(e => ctx.t('tk.err.' + e));
+      ['due', 'done', 'skipped', 'late', 'missed'].forEach(st => ctx.t('tk.status.' + st));
+      ['json', 'format', 'log', 'read'].forEach(e => dlImportErrorText(ctx.t, { error: e }));
+      dlImportErrorText(ctx.t, { error: 'day', index: 1, reason: 'rows' });
+      dlImportErrorText(ctx.t, { error: 'task', index: 1, reason: 'days' });
+      ['lower', 'tooHigh'].forEach(k => ctx.t('ml.dev.' + k));
+      ['guide.exportPallets', 'guide.machineLog', 'guide.tasks', 'dl.copyMsg.done', 'dl.copyMsg.manual', 'hub.today.empty'].forEach(k => ctx.t(k));
       renderSystem(document.createElement('div'), ctx);
       App.renderHeader(document.createElement('div'), ctx);
       MODULES.forEach(mod => { ctx.t(mod.titleKey); ctx.t(mod.descKey); if (mod.guideKey) ctx.t(mod.guideKey); });
@@ -1860,7 +3354,7 @@ async function runTests() {
       const found = new Set();
       const collect = root => root.querySelectorAll('[data-perm]').forEach(el => found.add(el.dataset.perm));
       let r = document.createElement('div'); renderHub(r, ctx); collect(r);
-      r = document.createElement('div'); renderEmptySpace(r, ctx); collect(r);
+      MODULES.filter(mod => mod.status === 'ready').forEach(mod => { r = document.createElement('div'); mod.render(r, ctx); collect(r); });
       if (can(m, 'system.view')) { r = document.createElement('div'); renderSystem(r, ctx); collect(r); }
       Object.keys(PERMISSIONS).forEach(f => eq(found.has(f), can(m, f), m + ' → ' + f));
     });
@@ -1947,7 +3441,508 @@ async function runTests() {
     nc.markAllRead();
     eq(nc.unreadCount(), 0);
   });
-  await test('Verziószám 0.1.0', () => eq(VERSION, '0.1.0'));
+  await test('Verziószám 0.2.0', () => eq(VERSION, '0.2.0'));
+
+  /* ------------------------- 0.2.0 tesztek ------------------------- */
+  const tick = () => new Promise(r => setTimeout(r, 0));
+  const type = (input, v) => { input.value = v; input.dispatchEvent(new Event('input')); };
+  const modOf = id => findModule(id);
+  const renderMod = (id, ctx) => { const r = document.createElement('div'); modOf(id).render(r, ctx); return r; };
+  const epVals = (a, b, c) => ({ r1: a, r2: b, r3: c });
+
+  // --- Export raklap számolás
+  await test('Export raklap: alapértelmezett kategóriák és küszöb 5', () => {
+    eq(EP.defaults().rows.map(r => r.name), ['A kategória', 'B kategória', 'C kategória']);
+    eq(EP.defaults().threshold, 5);
+  });
+  await test('Export raklap: összeg (üres, egy, több) és élő frissítés', () => {
+    eq(EP.sum([]), 0); eq(EP.sum([4]), 4); eq(EP.sum([4, 0, 9]), 13);
+    const root = renderMod('export-pallets', fakeCtx(memStore(), 'user'));
+    const inputs = root.querySelectorAll('input[data-row]');
+    eq(inputs.length, 3);
+    type(inputs[0], '4'); type(inputs[2], '9');
+    eq(root.querySelector('#dl-total').textContent, '13');
+  });
+  await test('Export raklap: érvénytelen bevitel (negatív, tört, szöveg, üres)', async () => {
+    const store = memStore();
+    const root = renderMod('export-pallets', fakeCtx(store, 'user'));
+    const inputs = root.querySelectorAll('input[data-row]');
+    type(inputs[0], '-1'); type(inputs[1], '2,5'); type(inputs[2], 'abc');
+    eq([...inputs].map(i => i.closest('.row-item').classList.contains('invalid')), [true, true, true]);
+    eq(root.querySelector('#dl-total').textContent, '0');
+    type(inputs[0], '1'); type(inputs[1], '2'); type(inputs[2], '');
+    root.querySelector('#dl-save').click(); await tick();
+    eq(EP.load(store).days.length, 0, 'üres mezővel nem ment');
+  });
+  await test('Export raklap: mentés, felülírás (kérdéssel), előző napok legújabb elöl', async () => {
+    let s = EP.defaults();
+    s = EP.upsertDay(s, EP.buildDay(s, '2026-03-08', epVals(1, 1, 1))).state;
+    const r = EP.upsertDay(s, EP.buildDay(s, '2026-03-08', epVals(2, 2, 2)));
+    assert(r.overwritten && r.overwritten.total === 3); eq(r.state.days.length, 1); eq(r.state.days[0].total, 6);
+    const store = memStore();
+    s = EP.upsertDay(r.state, EP.buildDay(r.state, '2026-03-10', epVals(2, 2, 2))).state;
+    s = EP.upsertDay(s, EP.buildDay(s, '2026-03-09', epVals(2, 2, 2))).state;
+    EP.save(store, s);
+    let asked = 0;
+    const ctx = fakeCtx(store, 'user'); ctx.modal = () => { asked++; return Promise.resolve(true); };
+    const root = renderMod('export-pallets', ctx);
+    eq([...root.querySelectorAll('#dl-history .hist-item')].map(b => b.dataset.date), ['2026-03-10', '2026-03-09', '2026-03-08']);
+    root.querySelectorAll('input[data-row]').forEach(i => type(i, '3'));
+    root.querySelector('#dl-save').click(); await tick();
+    eq(asked, 1, 'felülírás előtt kérdez');
+    eq(EP.load(store).days.find(d => d.date === '2026-03-10').total, 9);
+    eq(EP.load(store).days.length, 3);
+  });
+  await test('Export raklap: eltérés küszöb alatt / a küszöbön / fölötte', () => {
+    let s = EP.defaults();
+    s = EP.upsertDay(s, EP.buildDay(s, '2026-03-09', epVals(10, 10, 10))).state;
+    const f = EP.check(s, '2026-03-10', epVals(14, 15, 16));
+    eq(Object.keys(f), ['r3']);
+    eq(f.r3.diff, 6);
+    eq(Object.keys(EP.check(s, '2026-03-10', epVals(5, 4, 10))), ['r2']);
+    const root = renderMod('export-pallets', (() => { const st = memStore(); EP.save(st, s); return fakeCtx(st, 'user', 'hu'); })());
+    const inputs = root.querySelectorAll('input[data-row]');
+    type(inputs[0], '14'); type(inputs[1], '15'); type(inputs[2], '16');
+    eq([...inputs].map(i => i.closest('.row-item').classList.contains('dev-flag')), [false, false, true]);
+    assert(inputs[2].closest('.row-item').querySelector('.msg').textContent.includes('+6'));
+  });
+  await test('Export raklap: eltérésnél mentés előtt megerősítést kér', async () => {
+    const store = memStore();
+    let s = EP.defaults();
+    s = EP.upsertDay(s, EP.buildDay(s, '2026-03-09', epVals(10, 10, 10))).state;
+    EP.save(store, s);
+    let asked = 0;
+    const ctx = fakeCtx(store, 'user'); ctx.modal = () => { asked++; return Promise.resolve(false); };
+    const root = renderMod('export-pallets', ctx);
+    root.querySelectorAll('input[data-row]').forEach((i, k) => type(i, k === 0 ? '30' : '10'));
+    root.querySelector('#dl-save').click(); await tick();
+    eq(asked, 1); eq(EP.load(store).days.length, 1, 'elutasításkor nem ment');
+  });
+  await test('Export raklap: export/import körút és hibás fájlok', () => {
+    let s = EP.defaults();
+    s = EP.upsertDay(s, EP.buildDay(s, '2026-03-09', epVals(1, 2, 3))).state;
+    s = EP.generateDemo(s, '2026-03-10', 3).state;
+    const v = EP.validateImport(JSON.stringify(EP.buildExport(s)));
+    assert(v.ok);
+    const m = EP.mergeImport(EP.defaults(), v.days).state;
+    eq(EP.sortedDays(m.days).map(d => [d.date, d.total, !!d.demo]), EP.sortedDays(s.days).map(d => [d.date, d.total, !!d.demo]));
+    eq(EP.validateImport('nem json').error, 'json');
+    const good = EP.buildExport(s);
+    const mut = fn => { const c = JSON.parse(JSON.stringify(good)); fn(c); return JSON.stringify(c); };
+    eq(EP.validateImport(mut(c => { c.days[0].total = 999; })).reason, 'total');
+    eq(EP.validateImport(mut(c => { c.days[0].rows[0].value = -3; })).reason, 'value');
+    eq(EP.validateImport(mut(c => { c.days[0].date = '2026-02-30'; })).reason, 'date');
+    assert(dlImportErrorText(makeT('hu'), EP.validateImport('{x')).includes('nem érvényes JSON'));
+  });
+  await test('Export raklap: hibás import nem változtat a tárolt adaton (felületen)', async () => {
+    const store = memStore();
+    let s = EP.upsertDay(EP.defaults(), EP.buildDay(EP.defaults(), '2026-03-09', epVals(1, 1, 1))).state;
+    EP.save(store, s);
+    const before = JSON.stringify(EP.load(store));
+    const ctx = fakeCtx(store, 'admin', 'hu');
+    let body = null;
+    ctx.modal = o => { body = h('div', null, o.body); document.body.appendChild(body); o.actions.forEach(a => { if (a.id === 'dl-import-check') body.check = a.onClick; }); return Promise.resolve(false); };
+    const root = renderMod('export-pallets', ctx);
+    root.querySelector('#dl-import').click();
+    body.querySelector('#dl-import-text').value = JSON.stringify({ app: APP_ID, module: 'empty-space', schema: 1, days: [] });
+    await body.check(); await tick();
+    const msg = body.querySelector('#dl-import-error').textContent;
+    body.remove();
+    assert(msg.includes('nem ennek a modulnak'), msg);
+    eq(JSON.stringify(EP.load(store)), before);
+  });
+
+  // --- Gépnapló
+  const mlState = entries => { let s = ML.defaults(); entries.forEach(([d, v]) => { s = ML.upsertDay(s, ML.buildDay(s, d, v)).state; }); return s; };
+  await test('Gépnapló: alapértelmezett gépek N10, N11, N12', () => eq(ML.defaults().rows.map(r => r.name), ['N10', 'N11', 'N12']));
+  await test('Gépnapló: csak egész szám (tört, negatív, szöveg elutasítva)', () => {
+    const root = renderMod('machine-log', fakeCtx(memStore(), 'user'));
+    const inputs = root.querySelectorAll('input[data-row]');
+    type(inputs[0], '1250.5'); type(inputs[1], '-3'); type(inputs[2], 'x');
+    eq([...inputs].map(i => i.closest('.row-item').classList.contains('invalid')), [true, true, true]);
+    type(inputs[0], '1250');
+    assert(!inputs[0].closest('.row-item').classList.contains('invalid'));
+  });
+  await test('Gépnapló: nincs összeg (sem a felületen, sem a mentésben)', () => {
+    const root = renderMod('machine-log', fakeCtx(memStore(), 'user'));
+    eq(root.querySelector('#dl-total'), null);
+    eq(root.querySelector('.display'), null);
+    const d = ML.buildDay(ML.defaults(), '2026-03-10', { r1: 5, r2: 6, r3: 7 });
+    eq('total' in d, false);
+  });
+  await test('Gépnapló: első mentésnél nincs jelzés', () => eq(ML.check(ML.defaults(), '2026-03-10', { r1: 5, r2: 0, r3: 99999 }), {}));
+  await test('Gépnapló: csökkenő üzemóra jelzése', () => {
+    const s = mlState([['2026-03-09', { r1: 1000, r2: 500, r3: 200 }]]);
+    const f = ML.check(s, '2026-03-10', { r1: 999, r2: 500, r3: 210 });
+    eq(Object.keys(f), ['r1']); eq(f.r1.kind, 'lower');
+  });
+  await test('Gépnapló: 24 óra/nap szabály (eltelt napok × 24)', () => {
+    const s = mlState([['2026-03-08', { r1: 1000, r2: 1000, r3: 1000 }]]);
+    const f = ML.check(s, '2026-03-10', { r1: 1048, r2: 1049, r3: 1000 });   // 2 nap → max 48 óra
+    eq(Object.keys(f), ['r2']); eq(f.r2.kind, 'tooHigh'); eq(f.r2.days, 2);
+    const f1 = ML.check(mlState([['2026-03-09', { r1: 10 }]]), '2026-03-10', { r1: 34 });
+    eq(f1, {}, 'pontosan 24 óra még rendben');
+    eq(Object.keys(ML.check(mlState([['2026-03-09', { r1: 10 }]]), '2026-03-10', { r1: 35 })), ['r1']);
+  });
+  await test('Gépnapló: gépenként a saját előző mentéséhez hasonlít', () => {
+    const s = mlState([['2026-03-05', { r1: 100, r2: 100 }], ['2026-03-09', { r1: 200 }]]);
+    const p = ML.previousFor(s.days, s.rows[1], '2026-03-10');
+    eq(p, { date: '2026-03-05', value: 100 });
+    const f = ML.check(s, '2026-03-10', { r1: 210, r2: 221, r3: 5 });      // N11: 5 nap → max 120; N12: nincs előző
+    eq(Object.keys(f), ['r2']);
+  });
+  await test('Gépnapló: mentés (részleges is), felülírás kérdéssel, előző napok gépszámmal', async () => {
+    const store = memStore();
+    let asked = 0;
+    const ctx = fakeCtx(store, 'user'); ctx.modal = () => { asked++; return Promise.resolve(true); };
+    let root = renderMod('machine-log', ctx);
+    root.querySelector('#dl-save').click(); await tick();
+    eq(ML.load(store).days.length, 0, 'üres mentés tiltva');
+    let inputs = root.querySelectorAll('input[data-row]');
+    type(inputs[0], '1250'); type(inputs[1], '980');
+    root.querySelector('#dl-save').click(); await tick();
+    eq(asked, 0);
+    eq(ML.load(store).days[0].rows.map(r => [r.name, r.value]), [['N10', 1250], ['N11', 980]]);
+    root = renderMod('machine-log', ctx);
+    assert(root.querySelector('#dl-history .h-count').textContent.includes('2'), 'gépek száma a listában');
+    inputs = root.querySelectorAll('input[data-row]');
+    type(inputs[0], '1251');
+    root.querySelector('#dl-save').click(); await tick();
+    eq(asked, 1, 'felülírás előtt kérdez');
+    eq(ML.load(store).days.length, 1);
+    eq(ML.load(store).days[0].rows.map(r => r.value), [1251]);
+  });
+  await test('Gépnapló: jelzéskor mentés előtt rákérdez', async () => {
+    const store = memStore();
+    ML.save(store, mlState([['2026-03-09', { r1: 1000, r2: 1000, r3: 1000 }]]));
+    let asked = 0;
+    const ctx = fakeCtx(store, 'user'); ctx.modal = () => { asked++; return Promise.resolve(false); };
+    const root = renderMod('machine-log', ctx);
+    const inputs = root.querySelectorAll('input[data-row]');
+    type(inputs[0], '990');
+    assert(inputs[0].closest('.row-item').classList.contains('dev-flag'), 'jelölve');
+    root.querySelector('#dl-save').click(); await tick();
+    eq(asked, 1); eq(ML.load(store).days.length, 1);
+  });
+  await test('Gépnapló: export/import körút és hibás fájl', () => {
+    let s = mlState([['2026-03-09', { r1: 1000, r3: 20 }]]);
+    s = ML.generateDemo(s, '2026-03-10', 4).state;
+    const v = ML.validateImport(JSON.stringify(ML.buildExport(s)));
+    assert(v.ok);
+    eq(ML.sortedDays(ML.mergeImport(ML.defaults(), v.days).state.days).map(d => [d.date, d.rows.length]), ML.sortedDays(s.days).map(d => [d.date, d.rows.length]));
+    const good = ML.buildExport(s);
+    eq(ML.validateImport(JSON.stringify(Object.assign({}, good, { module: 'export-pallets' }))).error, 'format');
+    const c = JSON.parse(JSON.stringify(good)); c.days[0].rows = [];
+    eq(ML.validateImport(JSON.stringify(c)).reason, 'rows');
+  });
+
+  // --- Üres hely számolás – regresszió
+  const FIXTURE_010 = { schema: 1, rows: [{ id: 'r1', name: 'A sor' }, { id: 'r2', name: 'B sor' }, { id: 'r3', name: 'C sor' }, { id: 'r4', name: 'D sor' }, { id: 'r5', name: 'E sor' }],
+    threshold: 7, draft: { r1: '3' },
+    days: [{ date: '2026-03-09', rows: [{ id: 'r1', name: 'A sor', value: 3 }, { id: 'r2', name: 'B sor', value: 0 }, { id: 'r3', name: 'C sor', value: 7 }, { id: 'r4', name: 'D sor', value: 2 }, { id: 'r5', name: 'E sor', value: 1 }], total: 13, savedAt: '2026-03-09T06:30:00.000Z' }] };
+  await test('Üres hely regresszió: a 0.1.0-ban tárolt adat épen betöltődik, ugyanazon a kulcson', () => {
+    const backend = memoryBackend();
+    backend.setItem('mhub.v1.emptySpace', JSON.stringify(FIXTURE_010));
+    const store = createStore(backend, true);
+    const s = EmptySpace.load(store);
+    eq(s.days, FIXTURE_010.days); eq(s.threshold, 7); eq(s.rows, FIXTURE_010.rows); eq(s.draft, { r1: '3' });
+    const root = document.createElement('div');
+    renderEmptySpace(root, fakeCtx(store, 'user'));
+    eq(root.querySelector('#es-total').textContent, '3', 'félbehagyott bevitel visszajön');
+    eq(JSON.parse(backend.getItem('mhub.v1.emptySpace')), FIXTURE_010, 'megnyitás nem módosít');
+  });
+  await test('Üres hely regresszió: export formátum változatlan, 0.1.0 fájl importálható', () => {
+    const ex = EmptySpace.buildExport(EmptySpace.load((() => { const st = memStore(); st.write('emptySpace', FIXTURE_010); return st; })()));
+    eq(Object.keys(ex), ['app', 'module', 'schema', 'exportedAt', 'threshold', 'days']);
+    eq([ex.app, ex.module, ex.schema], ['munkaeszkoz-hub', 'empty-space', 1]);
+    const file010 = { app: 'munkaeszkoz-hub', module: 'empty-space', schema: 1, exportedAt: '2026-03-09T07:00:00.000Z', threshold: 5, days: FIXTURE_010.days };
+    assert(EmptySpace.validateImport(JSON.stringify(file010)).ok);
+  });
+  await test('Üres hely regresszió: másolás gomb nem ír a tárolóba', () => {
+    const store = memStore(); store.write('emptySpace', FIXTURE_010);
+    const before = JSON.stringify(store.read('emptySpace'));
+    let copied = null;
+    const ctx = fakeCtx(store, 'user'); ctx.copyMessage = txt => { copied = txt; };
+    const root = document.createElement('div'); renderEmptySpace(root, ctx);
+    root.querySelector('#es-copy').click();
+    eq(copied, '2026-03-10 – Empty space count: 3');
+    eq(JSON.stringify(store.read('emptySpace')), before);
+  });
+
+  // --- Közös elem: független tárolás
+  await test('Független tárolás: külön kulcs, egyik törlése nem érinti a többit', () => {
+    const backend = memoryBackend();
+    const store = createStore(backend, true);
+    let es = EmptySpace.defaults(); es = EmptySpace.upsertDay(es, EmptySpace.buildDay(es, '2026-03-09', { r1: 1, r2: 1, r3: 1, r4: 1, r5: 1 })).state; EmptySpace.save(store, es);
+    let ep = EP.defaults(); ep = EP.upsertDay(ep, EP.buildDay(ep, '2026-03-09', epVals(1, 1, 1))).state; EP.save(store, ep);
+    let ml = mlState([['2026-03-09', { r1: 5 }]]); ML.save(store, ml);
+    let tk = Tasks.setMark(Tasks.defaults('2026-03-01'), '2026-03-09', 't1', 'done'); Tasks.save(store, tk);
+    const keys = ['mhub.v1.emptySpace', 'mhub.v1.exportPallets', 'mhub.v1.machineLog', 'mhub.v1.tasks'];
+    keys.forEach(k => assert(backend.getItem(k), 'van: ' + k));
+    EP.save(store, EP.clearAll(EP.load(store)));
+    eq(EP.load(store).days.length, 0);
+    eq(EmptySpace.load(store).days.length, 1); eq(ML.load(store).days.length, 1); eq(Object.keys(Tasks.load(store, '2026-03-10').log), ['2026-03-09']);
+    ML.save(store, ML.clearDemo(ML.generateDemo(ML.load(store), '2026-03-10').state).state);
+    eq(EmptySpace.load(store).days.length, 1, 'demó törlés sem érinti');
+    eq(new Set([EmptySpace.KEY, EP.KEY, ML.KEY, Tasks.KEY]).size, 4);
+  });
+  await test('Független export: egyik modul fájlja a másikba nem tölthető be', () => {
+    const esFile = JSON.stringify(EmptySpace.buildExport(EmptySpace.defaults()));
+    const epFile = JSON.stringify(EP.buildExport(EP.defaults()));
+    const mlFile = JSON.stringify(ML.buildExport(ML.defaults()));
+    eq(EP.validateImport(esFile).error, 'format'); eq(ML.validateImport(epFile).error, 'format');
+    eq(EmptySpace.validateImport(mlFile).error, 'format'); eq(Tasks.validateImport(epFile).error, 'format');
+  });
+
+  // --- Másolás üzenetként
+  await test('Másolás üzenetként: szövegforma mindhárom modulnál és nyelven', () => {
+    LANGS.forEach(l => {
+      const t = makeT(l);
+      // Üres hely
+      let store = memStore(); let copied = null;
+      let ctx = fakeCtx(store, 'user', l); ctx.copyMessage = x => { copied = x; };
+      let root = document.createElement('div'); renderEmptySpace(root, ctx);
+      root.querySelectorAll('input[data-row]').forEach((i, k) => type(i, String(k + 1)));
+      root.querySelector('#es-copy').click();
+      eq(copied, '2026-03-10 – ' + t('mod.emptySpace.title') + ': 15', l + ' üres hely');
+      // Export raklap
+      ctx = fakeCtx(memStore(), 'user', l); ctx.copyMessage = x => { copied = x; };
+      root = renderMod('export-pallets', ctx);
+      root.querySelectorAll('input[data-row]').forEach((i, k) => type(i, String(k * 10)));
+      root.querySelector('#dl-copy').click();
+      eq(copied, '2026-03-10 – ' + t('mod.exportPallets.title') + ': 30', l + ' export');
+      // Gépnapló
+      ctx = fakeCtx(memStore(), 'user', l); ctx.copyMessage = x => { copied = x; };
+      root = renderMod('machine-log', ctx);
+      const ins = root.querySelectorAll('input[data-row]');
+      type(ins[0], '1250'); type(ins[1], '980');
+      root.querySelector('#dl-copy').click();
+      eq(copied, '2026-03-10 – ' + t('mod.machineLog.title') + ': N10: 1250; N11: 980', l + ' gépnapló');
+    });
+    assert(/^\d{4}-\d{2}-\d{2} – .+: .+$/.test(buildCopyMessage('2026-03-10', 'X', 1)));
+  });
+
+  // --- Feladatok
+  // 2026-03-09 hétfő, 03-10 kedd, 03-14 szombat, 03-15 vasárnap
+  const T = (freq, extra) => Object.assign({ id: 'x', name: 'X', freq, from: null, to: null, link: null }, extra || {});
+  await test('Feladat gyakoriság: minden nap', () => ['2026-03-09', '2026-03-14', '2026-03-15'].forEach(d => assert(Tasks.isDue(T({ type: 'daily' }), d), d)));
+  await test('Feladat gyakoriság: hétköznap / hétvége', () => {
+    eq(['2026-03-09', '2026-03-13', '2026-03-14', '2026-03-15'].map(d => Tasks.isDue(T({ type: 'weekdays' }), d)), [true, true, false, false]);
+    eq(['2026-03-09', '2026-03-13', '2026-03-14', '2026-03-15'].map(d => Tasks.isDue(T({ type: 'weekends' }), d)), [false, false, true, true]);
+  });
+  await test('Feladat gyakoriság: adott nap(ok) – vasárnap, illetve H+P', () => {
+    eq(['2026-03-14', '2026-03-15', '2026-03-22'].map(d => Tasks.isDue(T({ type: 'days', days: [0] }), d)), [false, true, true]);
+    eq(['2026-03-09', '2026-03-10', '2026-03-13'].map(d => Tasks.isDue(T({ type: 'days', days: [1, 5] }), d)), [true, false, true]);
+  });
+  await test('Feladat gyakoriság: minden N. hét kezdő dátummal', () => {
+    const t2 = T({ type: 'everyNWeeks', n: 2, start: '2026-03-02' });
+    eq(['2026-02-23', '2026-03-02', '2026-03-03', '2026-03-09', '2026-03-16', '2026-03-30'].map(d => Tasks.isDue(t2, d)), [false, true, false, false, true, true]);
+    eq(Tasks.isDue(T({ type: 'everyNWeeks', n: 1, start: '2026-03-02' }), '2026-03-09'), true);
+  });
+  await test('Feladat gyakoriság: a hónap X. napja (rövid hónapban az utolsó nap)', () => {
+    eq(['2026-03-14', '2026-03-15', '2026-04-15'].map(d => Tasks.isDue(T({ type: 'monthDay', day: 15 }), d)), [false, true, true]);
+    const t31 = T({ type: 'monthDay', day: 31 });
+    eq(['2026-02-28', '2026-04-30', '2026-03-30', '2026-03-31'].map(d => Tasks.isDue(t31, d)), [true, true, false, true]);
+  });
+  await test('Feladatok: alapértelmezett 3 feladat a megadott beállításokkal', () => {
+    const d = Tasks.defaults('2026-03-10').tasks;
+    eq(d.map(x => [x.name, x.freq.type, x.from, x.to, x.link]), [
+      ['Üres hely számolás', 'weekdays', '07:00', '08:00', 'empty-space'],
+      ['Export raklap számolás', 'weekdays', '07:00', '08:00', 'export-pallets'],
+      ['Gépnapló ellenőrzés', 'days', null, null, 'machine-log']]);
+    eq(d[2].freq.days, [0]);
+  });
+  await test('Feladatok: pipa megmarad újranyitás után', () => {
+    const backend = memoryBackend();
+    let s = Tasks.ensureSaved(createStore(backend, true), '2026-03-10');
+    s = Tasks.setMark(s, '2026-03-10', 't1', 'done');
+    Tasks.save(createStore(backend, true), s);
+    const again = Tasks.load(createStore(backend, true), '2026-03-10');
+    eq(Tasks.statusOf(again, again.tasks[0], '2026-03-10', new Date(2026, 2, 10, 7, 30)), 'done');
+  });
+  await test('Feladatok: "Ma kihagyom" és visszavonása', () => {
+    let s = Tasks.defaults('2026-03-01');
+    const now = new Date(2026, 2, 10, 7, 30);
+    s = Tasks.setMark(s, '2026-03-10', 't1', 'skipped');
+    eq(Tasks.statusOf(s, s.tasks[0], '2026-03-10', now), 'skipped');
+    eq(Tasks.statusOf(s, s.tasks[0], '2026-03-11', now), 'due', 'csak arra a napra');
+    s = Tasks.setMark(s, '2026-03-10', 't1', null);
+    eq(Tasks.statusOf(s, s.tasks[0], '2026-03-10', now), 'due');
+  });
+  await test('Feladatok: "Késik" állapot az időszak vége után', () => {
+    const s = Tasks.defaults('2026-03-01');
+    const t1 = s.tasks[0], t3 = Object.assign({}, s.tasks[2], { freq: { type: 'daily' } });
+    eq(Tasks.statusOf(s, t1, '2026-03-10', new Date(2026, 2, 10, 7, 59)), 'due');
+    eq(Tasks.statusOf(s, t1, '2026-03-10', new Date(2026, 2, 10, 8, 0)), 'due', 'pontosan 08:00 még nem késik');
+    eq(Tasks.statusOf(s, t1, '2026-03-10', new Date(2026, 2, 10, 8, 1)), 'late');
+    eq(Tasks.statusOf(s, t3, '2026-03-10', new Date(2026, 2, 10, 23, 0)), 'due', 'időszak nélkül ma nem késik');
+    eq(Tasks.statusOf(s, t1, '2026-03-09', new Date(2026, 2, 10, 7, 0)), 'late', 'tegnapi pipálatlan');
+    eq(Tasks.statusOf(Tasks.setMark(s, '2026-03-10', 't1', 'done'), t1, '2026-03-10', new Date(2026, 2, 10, 9, 0)), 'done');
+  });
+  await test('Feladatok: előzmények (kész / elmaradt / kihagyva)', () => {
+    let s = Tasks.defaults('2026-03-09');
+    s = Tasks.setMark(s, '2026-03-09', 't1', 'done');
+    s = Tasks.setMark(s, '2026-03-09', 't2', 'skipped');
+    const hist = Tasks.history(s, new Date(2026, 2, 10, 9, 0));
+    eq(hist.length, 1);
+    eq(hist[0].date, '2026-03-09');
+    eq(hist[0].items.map(x => x.status), ['done', 'skipped']);
+    const s2 = Tasks.setMark(s, '2026-03-09', 't2', null);
+    eq(Tasks.history(s2, new Date(2026, 2, 10, 9, 0))[0].items.map(x => x.status), ['done', 'missed']);
+  });
+  await test('Feladatok felület: pipálás, kihagyás, Megnyitás gomb', () => {
+    const store = memStore();
+    const ctx = fakeCtx(store, 'user');
+    let root = renderMod('tasks', ctx);
+    const items = root.querySelectorAll('[data-task-item]');
+    eq(items.length, 2, 'kedden a két hétköznapi feladat');
+    eq([...items].map(i => i.dataset.status), ['late', 'late'], '09:00-kor késik');
+    const cb = items[0].querySelector('input[type=checkbox]');
+    cb.checked = true; cb.dispatchEvent(new Event('change'));
+    root = renderMod('tasks', ctx);
+    eq(root.querySelector('[data-task-item="t1"]').dataset.status, 'done');
+    root.querySelector('[data-skip="t2"]').click();
+    root = renderMod('tasks', ctx);
+    eq(root.querySelector('[data-task-item="t2"]').dataset.status, 'skipped');
+    assert(root.querySelector('[data-skip="t2"]').textContent === makeT('en')('tk.unskip'));
+    root.querySelector('[data-skip="t2"]').click();
+    root = renderMod('tasks', ctx);
+    eq(root.querySelector('[data-task-item="t2"]').dataset.status, 'late');
+    eq(root.querySelector('[data-open="empty-space"]').getAttribute('href'), '#empty-space');
+  });
+  await test('Kezdőoldal: Mai teendők a mai feladatokkal, helyben pipálható', () => {
+    const store = memStore();
+    const ctx = fakeCtx(store, 'user', 'hu');
+    let root = document.createElement('div'); renderHub(root, ctx);
+    const sec = root.querySelector('#today-tasks');
+    assert(sec, 'van Mai teendők szakasz');
+    assert(sec.compareDocumentPosition(root.querySelector('#tiles')) & Node.DOCUMENT_POSITION_FOLLOWING, 'a csempék fölött');
+    assert(sec.textContent.includes('Mai teendők'));
+    eq(sec.querySelectorAll('[data-task-item]').length, 2);
+    const cb = sec.querySelector('input[type=checkbox]');
+    cb.checked = true; cb.dispatchEvent(new Event('change'));
+    root = document.createElement('div'); renderHub(root, ctx);
+    eq(root.querySelector('#today-tasks [data-task-item="t1"]').dataset.status, 'done');
+  });
+  await test('Kezdőoldal: "Mára nincs teendő" mindhárom nyelven', () => {
+    LANGS.forEach(l => {
+      const store = memStore();
+      Tasks.save(store, { schema: 1, tasks: [Tasks.defaults('2026-03-01').tasks[2]], log: {} });   // csak vasárnapi
+      const root = document.createElement('div'); renderHub(root, fakeCtx(store, 'user', l));
+      eq(root.querySelector('#today-tasks [data-empty]').textContent, I18N[l]['hub.today.empty']);
+    });
+    eq(I18N.hu['hub.today.empty'], 'Mára nincs teendő');
+  });
+  await test('Feladatok: szerkesztés érvényesítése', () => {
+    eq(Tasks.validateTask(T({ type: 'daily' }, { name: ' ' })), 'name');
+    eq(Tasks.validateTask(T({ type: 'days', days: [] })), 'days');
+    eq(Tasks.validateTask(T({ type: 'everyNWeeks', n: 0, start: '2026-03-02' })), 'n');
+    eq(Tasks.validateTask(T({ type: 'everyNWeeks', n: 2, start: 'x' })), 'start');
+    eq(Tasks.validateTask(T({ type: 'monthDay', day: 32 })), 'monthDay');
+    eq(Tasks.validateTask(T({ type: 'daily' }, { from: '07:00' })), 'time');
+    eq(Tasks.validateTask(T({ type: 'daily' }, { from: '09:00', to: '08:00' })), 'time');
+    eq(Tasks.validateTask(T({ type: 'daily' }, { from: '07:00', to: '08:00', link: 'tasks' })), 'link');
+    eq(Tasks.validateTask(T({ type: 'daily' }, { from: '07:00', to: '08:00', link: 'machine-log' })), null);
+  });
+  await test('Feladatok: hozzáadás, módosítás, törlés (a pipákkal együtt)', () => {
+    let s = Tasks.defaults('2026-03-01');
+    s = Tasks.saveTask(s, { name: 'Új', freq: { type: 'monthDay', day: 10 }, from: null, to: null, link: null }, '2026-03-10');
+    eq(s.tasks.length, 4); eq(s.tasks[3].id, 't4'); eq(s.tasks[3].createdAt, '2026-03-10');
+    s = Tasks.saveTask(s, Object.assign({}, s.tasks[3], { name: 'Átnevezett' }), '2026-03-11');
+    eq(s.tasks[3].name, 'Átnevezett'); eq(s.tasks[3].createdAt, '2026-03-10');
+    s = Tasks.setMark(s, '2026-03-10', 't4', 'done');
+    s = Tasks.deleteTask(s, 't4');
+    eq(s.tasks.length, 3); eq(s.log, {});
+  });
+  await test('Feladatok: export/import körút és hibás fájl', () => {
+    let s = Tasks.defaults('2026-03-01');
+    s = Tasks.setMark(s, '2026-03-09', 't1', 'done');
+    const v = Tasks.validateImport(JSON.stringify(Tasks.buildExport(s)));
+    assert(v.ok);
+    const m = Tasks.mergeImport({ schema: 1, tasks: [], log: {} }, v);
+    eq(m.state.tasks.map(t => t.id), ['t1', 't2', 't3']); eq(m.state.log['2026-03-09'].t1.s, 'done'); eq(m.overwrite, 0);
+    eq(Tasks.mergeImport(s, v).overwrite, 3);
+    eq(Tasks.validateImport('{').error, 'json');
+    const bad = Tasks.buildExport(s); bad.tasks[1].freq = { type: 'days', days: [] };
+    const r = Tasks.validateImport(JSON.stringify(bad));
+    eq([r.error, r.index, r.reason], ['task', 2, 'days']);
+    const bad2 = Tasks.buildExport(s); bad2.log = { '2026-03-09': { t1: { s: 'maybe' } } };
+    eq(Tasks.validateImport(JSON.stringify(bad2)).error, 'log');
+    assert(dlImportErrorText(makeT('uk'), r).length > 10);
+  });
+
+  // --- Demó adat minden modulban
+  await test('Demó adat: Export raklap, Gépnapló, Feladatok – jelölt, saját adatot nem ír felül, csak a demó törlődik', () => {
+    let ep = EP.upsertDay(EP.defaults(), EP.buildDay(EP.defaults(), '2026-03-07', epVals(1, 1, 1))).state;
+    const g = EP.generateDemo(ep, '2026-03-10', 5);
+    eq(g.added, 4); assert(!g.state.days.find(d => d.date === '2026-03-07').demo);
+    eq(EP.clearDemo(g.state).state.days.map(d => d.date), ['2026-03-07']);
+    const gm = ML.generateDemo(ML.defaults(), '2026-03-10', 10);
+    eq(gm.added, 10); assert(gm.state.days.every(d => d.demo));
+    eq(ML.clearDemo(gm.state).removed, 10);
+    let tk = Tasks.setMark(Tasks.defaults('2026-03-10'), '2026-03-09', 't1', 'done');
+    const gt = Tasks.generateDemo(tk, new Date(2026, 2, 10, 9, 0));
+    assert(gt.added > 0, 'van demó pipa');
+    eq(Tasks.entry(gt.state, '2026-03-09', 't1').demo, undefined, 'saját pipa érintetlen');
+    assert(Tasks.history(gt.state, new Date(2026, 2, 10, 9, 0)).length >= 5, 'demó napok az előzményekben');
+    const ct = Tasks.clearDemo(gt.state);
+    eq(ct.removed, gt.added); eq(Object.keys(ct.state.log), ['2026-03-09']);
+  });
+  await test('Demó adat: a Gépnapló demó tartalmaz csökkenést és 24 óra/nap túllépést', () => {
+    const s = ML.generateDemo(ML.defaults(), '2026-03-10', 10).state;
+    const days = ML.sortedDays(s.days).reverse();
+    let lower = 0, high = 0;
+    for (let i = 1; i < days.length; i++) {
+      const prevState = Object.assign({}, s, { days: days.slice(0, i) });
+      const vals = {}; days[i].rows.forEach(r => { vals[r.id] = r.value; });
+      Object.values(ML.check(prevState, days[i].date, vals)).forEach(f => { if (f.kind === 'lower') lower++; else high++; });
+    }
+    assert(lower >= 1 && high >= 1, lower + '/' + high);
+  });
+
+  // --- Jogosultságok (új funkciók)
+  await test('Jogosultság: új funkciók a táblázatban', () => {
+    eq(MODES.map(m => can(m, 'entry.copy')), [true, true, true]);
+    eq(MODES.map(m => can(m, 'tasks.check')), [true, true, true]);
+    eq(MODES.map(m => can(m, 'tasks.skip')), [true, true, true]);
+    eq(MODES.map(m => can(m, 'tasks.history')), [true, true, true]);
+    eq(MODES.map(m => can(m, 'tasks.edit')), [false, true, true]);
+  });
+  await test('Jogosultság: új modulokban sorkezelés, küszöb, import csak Admin/Fejlesztő', () => {
+    MODES.forEach(m => ['export-pallets', 'machine-log'].forEach(id => {
+      const root = renderMod(id, fakeCtx(memStore(), m));
+      eq(!!root.querySelector('#dl-row-add'), can(m, 'rows.manage'), m + ' ' + id + ' sorok');
+      eq(!!root.querySelector('#dl-import'), can(m, 'data.import'), m + ' ' + id + ' import');
+      eq(!!root.querySelector('#dl-demo-gen'), can(m, 'demo.generate'), m + ' ' + id + ' demó');
+      if (id === 'export-pallets') eq(!!root.querySelector('#dl-threshold'), can(m, 'threshold.edit'), m + ' küszöb');
+      else eq(root.querySelector('#dl-threshold'), null, 'gépnaplóban nincs küszöb');
+    }));
+    MODES.forEach(m => {
+      const root = renderMod('tasks', fakeCtx(memStore(), m));
+      eq(!!root.querySelector('#tk-new'), can(m, 'tasks.edit'), m + ' feladat szerkesztés');
+      eq(!!root.querySelector('[data-skip]'), can(m, 'tasks.skip'));
+      assert(!root.querySelector('input[type=checkbox][data-task]').disabled, m + ' pipálhat');
+    });
+  });
+  await test('Rendszerállapot: modulonként mentett napok és utolsó mentés', () => {
+    const store = memStore();
+    EP.save(store, EP.generateDemo(EP.defaults(), '2026-03-10', 3).state);
+    const root = document.createElement('div');
+    renderSystem(root, fakeCtx(store, 'dev'));
+    const rows = root.querySelectorAll('#sys-modules tbody tr');
+    eq(rows.length, 4);
+    eq([...rows].map(r => r.dataset.module), ['empty-space', 'export-pallets', 'machine-log', 'tasks']);
+    assert(root.querySelector('#sys-modules [data-module="export-pallets"]').textContent.includes('3'));
+  });
+
+  // --- Új csempék és ikonok
+  await test('Kezdőoldal: új csempék működnek, Pull list és Priority fuvarköltség "Hamarosan"', () => {
+    const root = document.createElement('div'); renderHub(root, fakeCtx(memStore(), 'user'));
+    ['empty-space', 'export-pallets', 'machine-log', 'tasks'].forEach(id => assert(root.querySelector('.tile.ready[data-module="' + id + '"]'), id));
+    ['pull-list', 'priority-freight'].forEach(id => assert(root.querySelector('.tile.soon[data-module="' + id + '"]'), id));
+    eq(modOf('export-pallets').icon, 'palletsToTruck'); eq(modOf('machine-log').icon, 'gearClock'); eq(modOf('tasks').icon, 'checklistCalendar');
+  });
+
 
   const passed = results.filter(r => r.ok).length;
   return { passed, failed: results.length - passed, results };
